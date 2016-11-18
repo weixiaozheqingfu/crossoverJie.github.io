@@ -1,0 +1,941 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Java,IDEA,Lucene," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="crossoverJie's Blog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="前言
+大家平时肯定都有用过全文检索工具，最常用的百度谷歌就是其中的典型。如果自己能够做一个那是不是想想就逼格满满呢。Apache就为我们提供了这样一个框架，以下就是在实际开发中加入Lucene的一个小Demo。
+
+
+获取Maven依赖首先看一下实际运行的效果图：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SSM(二)Lucene全文检索">
+<meta property="og:url" content="http://crossoverJie.github.io/2016/07/06/SSM2/index.html">
+<meta property="og:site_name" content="crossoverJie's Blog">
+<meta property="og:description" content="前言
+大家平时肯定都有用过全文检索工具，最常用的百度谷歌就是其中的典型。如果自己能够做一个那是不是想想就逼格满满呢。Apache就为我们提供了这样一个框架，以下就是在实际开发中加入Lucene的一个小Demo。
+
+
+获取Maven依赖首先看一下实际运行的效果图：">
+<meta property="og:image" content="http://i.imgur.com/pTTnv3R.png">
+<meta property="og:image" content="http://i.imgur.com/nRcHFQg.png">
+<meta property="og:image" content="http://i.imgur.com/0XU7DjK.png">
+<meta property="og:image" content="http://i.imgur.com/NUZM7Bc.png">
+<meta property="og:image" content="http://i.imgur.com/rSodBB5.png">
+<meta property="og:image" content="http://i.imgur.com/jQySeaf.png">
+<meta property="og:updated_time" content="2016-07-06T15:01:46.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SSM(二)Lucene全文检索">
+<meta name="twitter:description" content="前言
+大家平时肯定都有用过全文检索工具，最常用的百度谷歌就是其中的典型。如果自己能够做一个那是不是想想就逼格满满呢。Apache就为我们提供了这样一个框架，以下就是在实际开发中加入Lucene的一个小Demo。
+
+
+获取Maven依赖首先看一下实际运行的效果图：">
+<meta name="twitter:image" content="http://i.imgur.com/pTTnv3R.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 555390,
+      author: '博主大大'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://crossoverJie.github.io/2016/07/06/SSM2/"/>
+
+  <title> SSM(二)Lucene全文检索 | crossoverJie's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="http://s6.cnzz.com/stat.php?id=1259025147&web_id=1259025147" type="text/javascript"></script>
+  </div>
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">crossoverJie's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">会crossover的程序猿</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404.html" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                SSM(二)Lucene全文检索
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-07-06T21:57:41+08:00" content="2016-07-06">
+              2016-07-06
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/SSM/" itemprop="url" rel="index">
+                    <span itemprop="name">SSM</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/07/06/SSM2/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/07/06/SSM2/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/07/06/SSM2/" class="leancloud_visitors" data-flag-title="SSM(二)Lucene全文检索">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><blockquote>
+<p>大家平时肯定都有用过全文检索工具，最常用的百度谷歌就是其中的典型。如果自己能够做一个那是不是想想就逼格满满呢。<a href="http://lucene.apache.org/" target="_blank" rel="external">Apache</a>就为我们提供了这样一个框架，以下就是在实际开发中加入Lucene的一个小Demo。</p>
+</blockquote>
+<hr>
+<h1 id="获取Maven依赖"><a href="#获取Maven依赖" class="headerlink" title="获取Maven依赖"></a>获取Maven依赖</h1><p>首先看一下实际运行的效果图：<br><img src="http://i.imgur.com/pTTnv3R.png" alt=""><br><img src="http://i.imgur.com/nRcHFQg.png" alt=""><br><a id="more"></a><br>这个项目是基于之前使用IDEA搭建的SSM的基础上进行增加的，建议小白先看下一我。<a href="http://crossoverjie.top/2016/06/28/SSM1/" target="_blank" rel="external">上一篇博客</a>，以及共享在Github上的<a href="https://github.com/crossoverJie/SSM" target="_blank" rel="external">源码</a>。<br>以下是Lucene所需要的依赖：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="comment">&lt;!--加入lucene--&gt;</span></div><div class="line">        <span class="comment">&lt;!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-core --&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.lucene<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lucene-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;lucene.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line">        <span class="comment">&lt;!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-queryparser --&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.lucene<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lucene-queryparser<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;lucene.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line">        <span class="comment">&lt;!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-analyzers-common --&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.lucene<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lucene-analyzers-common<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;lucene.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line"></div><div class="line">        <span class="comment">&lt;!--lucene中文分词--&gt;</span></div><div class="line">        <span class="comment">&lt;!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-analyzers-smartcn --&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.lucene<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lucene-analyzers-smartcn<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;lucene.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line"></div><div class="line">        <span class="comment">&lt;!--lucene高亮--&gt;</span></div><div class="line">        <span class="comment">&lt;!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-highlighter --&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.lucene<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lucene-highlighter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;lucene.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>具体的用途我都写有注释。<br>在IDEA中修改了Pom.xml文件之后只需要点击如图所示的按钮即可重新获取依赖：<br><img src="http://i.imgur.com/0XU7DjK.png" alt=""></p>
+<hr>
+<h1 id="编写Lucene工具类"><a href="#编写Lucene工具类" class="headerlink" title="编写Lucene工具类"></a>编写Lucene工具类</h1><p>这个工具类中的具体代码我就不单独提出来说了，每个关键的地方我都写有注释，不清楚的再讨论。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> com.crossoverJie.lucene;</div><div class="line"></div><div class="line"><span class="keyword">import</span> com.crossoverJie.pojo.User;</div><div class="line"><span class="keyword">import</span> org.apache.lucene.analysis.TokenStream;</div><div class="line"><span class="keyword">import</span> org.apache.lucene.analysis.cn.smart.SmartChineseAnalyzer;</div><div class="line"><span class="keyword">import</span> org.apache.lucene.document.Document;</div><div class="line"><span class="keyword">import</span> org.apache.lucene.document.Field;</div><div class="line"><span class="keyword">import</span> org.apache.lucene.document.StringField;</div><div class="line"><span class="keyword">import</span> org.apache.lucene.document.TextField;</div><div class="line"><span class="keyword">import</span> org.apache.lucene.index.*;</div><div class="line"><span class="keyword">import</span> org.apache.lucene.queryparser.classic.QueryParser;</div><div class="line"><span class="keyword">import</span> org.apache.lucene.search.*;</div><div class="line"><span class="keyword">import</span> org.apache.lucene.search.highlight.*;</div><div class="line"><span class="keyword">import</span> org.apache.lucene.store.Directory;</div><div class="line"><span class="keyword">import</span> org.apache.lucene.store.FSDirectory;</div><div class="line"></div><div class="line"><span class="keyword">import</span> java.io.StringReader;</div><div class="line"><span class="keyword">import</span> java.nio.file.Paths;</div><div class="line"><span class="keyword">import</span> java.util.LinkedList;</div><div class="line"><span class="keyword">import</span> java.util.List;</div><div class="line"><span class="keyword">import</span> com.crossoverJie.util.*;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"> * 博客索引类</div><div class="line"> * <span class="doctag">@author</span> Administrator</div><div class="line"> *</div><div class="line"> */</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LuceneIndex</span> </span>&#123;</div><div class="line"></div><div class="line">	<span class="keyword">private</span> Directory dir=<span class="keyword">null</span>;</div><div class="line"></div><div class="line"></div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * 获取IndexWriter实例</div><div class="line">	 * <span class="doctag">@return</span></div><div class="line">	 * <span class="doctag">@throws</span> Exception</div><div class="line">	 */</div><div class="line">	<span class="function"><span class="keyword">private</span> IndexWriter <span class="title">getWriter</span><span class="params">()</span><span class="keyword">throws</span> Exception</span>&#123;</div><div class="line">		<span class="comment">/**</span></div><div class="line">		 * 生成的索引我放在了C盘，可以根据自己的需要放在具体位置</div><div class="line">		 */</div><div class="line">		dir= FSDirectory.open(Paths.get(<span class="string">"C://lucene"</span>));</div><div class="line">		SmartChineseAnalyzer analyzer=<span class="keyword">new</span> SmartChineseAnalyzer();</div><div class="line">		IndexWriterConfig iwc=<span class="keyword">new</span> IndexWriterConfig(analyzer);</div><div class="line">		IndexWriter writer=<span class="keyword">new</span> IndexWriter(dir, iwc);</div><div class="line">		<span class="keyword">return</span> writer;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * 添加博客索引</div><div class="line">	 * <span class="doctag">@param</span> user</div><div class="line">	 */</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addIndex</span><span class="params">(User user)</span><span class="keyword">throws</span> Exception</span>&#123;</div><div class="line">		IndexWriter writer=getWriter();</div><div class="line">		Document doc=<span class="keyword">new</span> Document();</div><div class="line">		doc.add(<span class="keyword">new</span> StringField(<span class="string">"id"</span>,String.valueOf(user.getUserId()), Field.Store.YES));</div><div class="line">		<span class="comment">/**</span></div><div class="line">		 * yes是会将数据存进索引，如果查询结果中需要将记录显示出来就要存进去，如果查询结果</div><div class="line">		 * 只是显示标题之类的就可以不用存，而且内容过长不建议存进去</div><div class="line">		 * 使用TextField类是可以用于查询的。</div><div class="line">		 */</div><div class="line">		doc.add(<span class="keyword">new</span> TextField(<span class="string">"username"</span>, user.getUsername(), Field.Store.YES));</div><div class="line">		doc.add(<span class="keyword">new</span> TextField(<span class="string">"description"</span>,user.getDescription(), Field.Store.YES));</div><div class="line">		writer.addDocument(doc);</div><div class="line">		writer.close();</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * 更新博客索引</div><div class="line">	 * <span class="doctag">@param</span> user</div><div class="line">	 * <span class="doctag">@throws</span> Exception</div><div class="line">	 */</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">updateIndex</span><span class="params">(User user)</span><span class="keyword">throws</span> Exception</span>&#123;</div><div class="line">		IndexWriter writer=getWriter();</div><div class="line">		Document doc=<span class="keyword">new</span> Document();</div><div class="line">		doc.add(<span class="keyword">new</span> StringField(<span class="string">"id"</span>,String.valueOf(user.getUserId()), Field.Store.YES));</div><div class="line">		doc.add(<span class="keyword">new</span> TextField(<span class="string">"username"</span>, user.getUsername(), Field.Store.YES));</div><div class="line">		doc.add(<span class="keyword">new</span> TextField(<span class="string">"description"</span>,user.getDescription(), Field.Store.YES));</div><div class="line">		writer.updateDocument(<span class="keyword">new</span> Term(<span class="string">"id"</span>, String.valueOf(user.getUserId())), doc);</div><div class="line">		writer.close();</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * 删除指定博客的索引</div><div class="line">	 * <span class="doctag">@param</span> userId</div><div class="line">	 * <span class="doctag">@throws</span> Exception</div><div class="line">	 */</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">deleteIndex</span><span class="params">(String userId)</span><span class="keyword">throws</span> Exception</span>&#123;</div><div class="line">		IndexWriter writer=getWriter();</div><div class="line">		writer.deleteDocuments(<span class="keyword">new</span> Term(<span class="string">"id"</span>, userId));</div><div class="line">		writer.forceMergeDeletes(); <span class="comment">// 强制删除</span></div><div class="line">		writer.commit();</div><div class="line">		writer.close();</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * 查询用户</div><div class="line">	 * <span class="doctag">@param</span> q 查询关键字</div><div class="line">	 * <span class="doctag">@return</span></div><div class="line">	 * <span class="doctag">@throws</span> Exception</div><div class="line">	 */</div><div class="line">	<span class="function"><span class="keyword">public</span> List&lt;User&gt; <span class="title">searchBlog</span><span class="params">(String q)</span><span class="keyword">throws</span> Exception</span>&#123;</div><div class="line">		<span class="comment">/**</span></div><div class="line">		 * 注意的是查询索引的位置得是存放索引的位置，不然会找不到。</div><div class="line">		 */</div><div class="line">		dir= FSDirectory.open(Paths.get(<span class="string">"C://lucene"</span>));</div><div class="line">		IndexReader reader = DirectoryReader.open(dir);</div><div class="line">		IndexSearcher is=<span class="keyword">new</span> IndexSearcher(reader);</div><div class="line">		BooleanQuery.Builder booleanQuery = <span class="keyword">new</span> BooleanQuery.Builder();</div><div class="line">		SmartChineseAnalyzer analyzer=<span class="keyword">new</span> SmartChineseAnalyzer();</div><div class="line">		<span class="comment">/**</span></div><div class="line">		 * username和description就是我们需要进行查找的两个字段</div><div class="line">		 * 同时在存放索引的时候要使用TextField类进行存放。</div><div class="line">		 */</div><div class="line">		QueryParser parser=<span class="keyword">new</span> QueryParser(<span class="string">"username"</span>,analyzer);</div><div class="line">		Query query=parser.parse(q);</div><div class="line">		QueryParser parser2=<span class="keyword">new</span> QueryParser(<span class="string">"description"</span>,analyzer);</div><div class="line">		Query query2=parser2.parse(q);</div><div class="line">		booleanQuery.add(query, BooleanClause.Occur.SHOULD);</div><div class="line">		booleanQuery.add(query2, BooleanClause.Occur.SHOULD);</div><div class="line">		TopDocs hits=is.search(booleanQuery.build(), <span class="number">100</span>);</div><div class="line">		QueryScorer scorer=<span class="keyword">new</span> QueryScorer(query);</div><div class="line">		Fragmenter fragmenter = <span class="keyword">new</span> SimpleSpanFragmenter(scorer);</div><div class="line">		<span class="comment">/**</span></div><div class="line">		 * 这里可以根据自己的需要来自定义查找关键字高亮时的样式。</div><div class="line">		 */</div><div class="line">		SimpleHTMLFormatter simpleHTMLFormatter=<span class="keyword">new</span> SimpleHTMLFormatter(<span class="string">"&lt;b&gt;&lt;font color='red'&gt;"</span>,<span class="string">"&lt;/font&gt;&lt;/b&gt;"</span>);</div><div class="line">		Highlighter highlighter=<span class="keyword">new</span> Highlighter(simpleHTMLFormatter, scorer);</div><div class="line">		highlighter.setTextFragmenter(fragmenter);</div><div class="line">		List&lt;User&gt; userList=<span class="keyword">new</span> LinkedList&lt;User&gt;();</div><div class="line">		<span class="keyword">for</span>(ScoreDoc scoreDoc:hits.scoreDocs)&#123;</div><div class="line">			Document doc=is.doc(scoreDoc.doc);</div><div class="line">			User user=<span class="keyword">new</span> User();</div><div class="line">			user.setUserId(Integer.parseInt(doc.get((<span class="string">"id"</span>))));</div><div class="line">			user.setDescription(doc.get((<span class="string">"description"</span>)));</div><div class="line">			String username=doc.get(<span class="string">"username"</span>);</div><div class="line">			String description=doc.get(<span class="string">"description"</span>);</div><div class="line">			<span class="keyword">if</span>(username!=<span class="keyword">null</span>)&#123;</div><div class="line">				TokenStream tokenStream = analyzer.tokenStream(<span class="string">"username"</span>, <span class="keyword">new</span> StringReader(username));</div><div class="line">				String husername=highlighter.getBestFragment(tokenStream, username);</div><div class="line">				<span class="keyword">if</span>(StringUtil.isEmpty(husername))&#123;</div><div class="line">					user.setUsername(username);</div><div class="line">				&#125;<span class="keyword">else</span>&#123;</div><div class="line">					user.setUsername(husername);</div><div class="line">				&#125;</div><div class="line">			&#125;</div><div class="line">			<span class="keyword">if</span>(description!=<span class="keyword">null</span>)&#123;</div><div class="line">				TokenStream tokenStream = analyzer.tokenStream(<span class="string">"description"</span>, <span class="keyword">new</span> StringReader(description));</div><div class="line">				String hContent=highlighter.getBestFragment(tokenStream, description);</div><div class="line">				<span class="keyword">if</span>(StringUtil.isEmpty(hContent))&#123;</div><div class="line">					<span class="keyword">if</span>(description.length()&lt;=<span class="number">200</span>)&#123;</div><div class="line">						user.setDescription(description);</div><div class="line">					&#125;<span class="keyword">else</span>&#123;</div><div class="line">						user.setDescription(description.substring(<span class="number">0</span>, <span class="number">200</span>));</div><div class="line">					&#125;</div><div class="line">				&#125;<span class="keyword">else</span>&#123;</div><div class="line">					user.setDescription(hContent);</div><div class="line">				&#125;</div><div class="line">			&#125;</div><div class="line">			userList.add(user);</div><div class="line">		&#125;</div><div class="line">		<span class="keyword">return</span> userList;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h1 id="查询Controller的编写"><a href="#查询Controller的编写" class="headerlink" title="查询Controller的编写"></a>查询Controller的编写</h1><p>接下来是查询Controller：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@RequestMapping</span>(<span class="string">"/q"</span>)</div><div class="line"><span class="function"><span class="keyword">public</span> String <span class="title">search</span><span class="params">(@RequestParam(value = <span class="string">"q"</span>, required = <span class="keyword">false</span>,defaultValue = <span class="string">""</span>)</span> String q,</span></div><div class="line">                     @<span class="title">RequestParam</span><span class="params">(value = <span class="string">"page"</span>, required = <span class="keyword">false</span>, defaultValue = <span class="string">"1"</span>)</span> String page,</div><div class="line">                     Model model,</div><div class="line">                     HttpServletRequest request) <span class="keyword">throws</span> Exception &#123;</div><div class="line">    LuceneIndex luceneIndex = <span class="keyword">new</span> LuceneIndex() ;</div><div class="line">    List&lt;User&gt; userList = luceneIndex.searchBlog(q);</div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 关于查询之后的分页我采用的是每次分页发起的请求都是将所有的数据查询出来，</div><div class="line">     * 具体是第几页再截取对应页数的数据，典型的拿空间换时间的做法，如果各位有什么</div><div class="line">     * 高招欢迎受教。</div><div class="line">     */</div><div class="line">    Integer toIndex = userList.size() &gt;= Integer.parseInt(page) * <span class="number">5</span> ? Integer.parseInt(page) * <span class="number">5</span> : userList.size();</div><div class="line">    List&lt;User&gt; newList = userList.subList((Integer.parseInt(page) - <span class="number">1</span>) * <span class="number">5</span>, toIndex);</div><div class="line">    model.addAttribute(<span class="string">"userList"</span>,newList) ;</div><div class="line">    String s = <span class="keyword">this</span>.genUpAndDownPageCode(Integer.parseInt(page), userList.size(), q, <span class="number">5</span>, request.getServletContext().</div><div class="line">            getContextPath());</div><div class="line">    model.addAttribute(<span class="string">"pageHtml"</span>,s) ;</div><div class="line">    model.addAttribute(<span class="string">"q"</span>,q) ;</div><div class="line">    model.addAttribute(<span class="string">"resultTotal"</span>,userList.size()) ;</div><div class="line">    model.addAttribute(<span class="string">"pageTitle"</span>,<span class="string">"搜索关键字'"</span> + q + <span class="string">"'结果页面"</span>) ;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="string">"queryResult"</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>其中有用到一个<code>genUpAndDownPageCode()</code>方法来生成分页的Html代码，如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * 查询之后的分页</div><div class="line"> * <span class="doctag">@param</span> page</div><div class="line"> * <span class="doctag">@param</span> totalNum</div><div class="line"> * <span class="doctag">@param</span> q</div><div class="line"> * <span class="doctag">@param</span> pageSize</div><div class="line"> * <span class="doctag">@param</span> projectContext</div><div class="line"> * <span class="doctag">@return</span></div><div class="line"> */</div><div class="line"><span class="function"><span class="keyword">private</span> String <span class="title">genUpAndDownPageCode</span><span class="params">(<span class="keyword">int</span> page,Integer totalNum,String q,Integer pageSize,String projectContext)</span></span>&#123;</div><div class="line">    <span class="keyword">long</span> totalPage=totalNum%pageSize==<span class="number">0</span>?totalNum/pageSize:totalNum/pageSize+<span class="number">1</span>;</div><div class="line">    StringBuffer pageCode=<span class="keyword">new</span> StringBuffer();</div><div class="line">    <span class="keyword">if</span>(totalPage==<span class="number">0</span>)&#123;</div><div class="line">        <span class="keyword">return</span> <span class="string">""</span>;</div><div class="line">    &#125;<span class="keyword">else</span>&#123;</div><div class="line">        pageCode.append(<span class="string">"&lt;nav&gt;"</span>);</div><div class="line">        pageCode.append(<span class="string">"&lt;ul class='pager' &gt;"</span>);</div><div class="line">        <span class="keyword">if</span>(page&gt;<span class="number">1</span>)&#123;</div><div class="line">            pageCode.append(<span class="string">"&lt;li&gt;&lt;a href='"</span>+projectContext+<span class="string">"/q?page="</span>+(page-<span class="number">1</span>)+<span class="string">"&amp;q="</span>+q+<span class="string">"'&gt;上一页&lt;/a&gt;&lt;/li&gt;"</span>);</div><div class="line">        &#125;<span class="keyword">else</span>&#123;</div><div class="line">            pageCode.append(<span class="string">"&lt;li class='disabled'&gt;&lt;a href='#'&gt;上一页&lt;/a&gt;&lt;/li&gt;"</span>);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span>(page&lt;totalPage)&#123;</div><div class="line">            pageCode.append(<span class="string">"&lt;li&gt;&lt;a href='"</span>+projectContext+<span class="string">"/q?page="</span>+(page+<span class="number">1</span>)+<span class="string">"&amp;q="</span>+q+<span class="string">"'&gt;下一页&lt;/a&gt;&lt;/li&gt;"</span>);</div><div class="line">        &#125;<span class="keyword">else</span>&#123;</div><div class="line">            pageCode.append(<span class="string">"&lt;li class='disabled'&gt;&lt;a href='#'&gt;下一页&lt;/a&gt;&lt;/li&gt;"</span>);</div><div class="line">        &#125;</div><div class="line">        pageCode.append(<span class="string">"&lt;/ul&gt;"</span>);</div><div class="line">        pageCode.append(<span class="string">"&lt;/nav&gt;"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> pageCode.toString();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>代码比较简单，就是根据的页数、总页数来生成分页代码，对了我前端采用的是现在流行的Bootstrap，这个有不会的可以去他<a href="http://www.bootcss.com/" target="_blank" rel="external">官网</a>看看，比较简单易上手。接下来只需要编写显示界面就大功告成了。<br><img src="http://i.imgur.com/NUZM7Bc.png" alt=""></p>
+<hr>
+<h1 id="显示界面"><a href="#显示界面" class="headerlink" title="显示界面"></a>显示界面</h1><p>我只贴关键代码，具体的可以去Github上查看。<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">c:choose</span>&gt;</span></div><div class="line">                    <span class="tag">&lt;<span class="name">c:when</span> <span class="attr">test</span>=<span class="string">"$&#123;userList.size()==0 &#125;"</span>&gt;</span></div><div class="line">                        <span class="tag">&lt;<span class="name">div</span> <span class="attr">align</span>=<span class="string">"center"</span> <span class="attr">style</span>=<span class="string">"padding-top: 20px"</span>&gt;</span><span class="tag">&lt;<span class="name">font</span> <span class="attr">color</span>=<span class="string">"red"</span>&gt;</span>$&#123;q&#125;<span class="tag">&lt;/<span class="name">font</span>&gt;</span>未查询到结果，请换个关键字试试！<span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">                    <span class="tag">&lt;/<span class="name">c:when</span>&gt;</span></div><div class="line">                    <span class="tag">&lt;<span class="name">c:otherwise</span>&gt;</span></div><div class="line">                        <span class="tag">&lt;<span class="name">div</span> <span class="attr">align</span>=<span class="string">"center"</span> <span class="attr">style</span>=<span class="string">"padding-top: 20px"</span>&gt;</span></div><div class="line">                            查询<span class="tag">&lt;<span class="name">font</span> <span class="attr">color</span>=<span class="string">"red"</span>&gt;</span>$&#123;q&#125;<span class="tag">&lt;/<span class="name">font</span>&gt;</span>关键字，约$&#123;resultTotal&#125;条记录！</div><div class="line">                        <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">                        <span class="tag">&lt;<span class="name">c:forEach</span> <span class="attr">var</span>=<span class="string">"u"</span> <span class="attr">items</span>=<span class="string">"$&#123;userList &#125;"</span> <span class="attr">varStatus</span>=<span class="string">"status"</span>&gt;</span></div><div class="line">                            <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"panel-heading "</span>&gt;</span></div><div class="line"></div><div class="line">                                <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"row"</span>&gt;</span></div><div class="line">                                    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"col-md-6"</span>&gt;</span></div><div class="line">                                        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"row"</span>&gt;</span></div><div class="line">                                            <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"col-md-12"</span>&gt;</span></div><div class="line">                                                <span class="tag">&lt;<span class="name">b</span>&gt;</span></div><div class="line">                                                    <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"&lt;%=path %&gt;/user/showUser/$&#123;u.userId&#125;"</span>&gt;</span>$&#123;u.username&#125;<span class="tag">&lt;/<span class="name">a</span>&gt;</span></div><div class="line">                                                <span class="tag">&lt;/<span class="name">b</span>&gt;</span></div><div class="line">                                                <span class="tag">&lt;<span class="name">br</span>/&gt;</span></div><div class="line">                                                    $&#123;u.description&#125;</div><div class="line">                                            <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">                                        <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">                                    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">                                    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"col-md-4 col-md-offset-2"</span>&gt;</span></div><div class="line">                                        <span class="tag">&lt;<span class="name">p</span> <span class="attr">class</span>=<span class="string">"text-muted text-right"</span>&gt;</span></div><div class="line">                                                $&#123;u.password&#125;</div><div class="line">                                        <span class="tag">&lt;/<span class="name">p</span>&gt;</span></div><div class="line">                                    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">                                <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">                            <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">                            <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"panel-footer"</span>&gt;</span></div><div class="line">                                <span class="tag">&lt;<span class="name">p</span> <span class="attr">class</span>=<span class="string">"text-right"</span>&gt;</span></div><div class="line">							<span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">"label label-default"</span>&gt;</span></div><div class="line">							<span class="tag">&lt;<span class="name">span</span> <span class="attr">class</span>=<span class="string">"glyphicon glyphicon-comment"</span> <span class="attr">aria-hidden</span>=<span class="string">"true"</span>&gt;</span><span class="tag">&lt;/<span class="name">span</span>&gt;</span></div><div class="line">							 $&#123;u.password&#125;</div><div class="line">							<span class="tag">&lt;/<span class="name">span</span>&gt;</span></div><div class="line">                                <span class="tag">&lt;/<span class="name">p</span>&gt;</span></div><div class="line">                            <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">                        <span class="tag">&lt;/<span class="name">c:forEach</span>&gt;</span></div><div class="line">                    <span class="tag">&lt;/<span class="name">c:otherwise</span>&gt;</span></div><div class="line">                <span class="tag">&lt;/<span class="name">c:choose</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>利用<code>JSTL</code>标签即可将数据循环展示出来，关键字就不需要单独做处理了，在后台查询的时候已经做了修改了。</p>
+<hr>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>关于全文检索的框架不止<code>Lucene</code>还有<code>solr</code>，具体谁好有什么区别我也不太清楚，准备下来花点时间研究下。哦对了，最近又有点想做<code>Android</code>开发了，感觉做点东西能够实实在在的摸得到逼格确实要高些(现在主要在做后端开发)，感兴趣的朋友可以关注下。哦对了，直接运行我代码的朋友要下注意：</p>
+<ul>
+<li>首先要将数据库倒到自己的MySQL上<img src="http://i.imgur.com/rSodBB5.png" alt=""></li>
+<li>之后在首次运行的时候需要点击<img src="http://i.imgur.com/jQySeaf.png" alt="">重新生成索引按钮生成一遍索引之后才能进行搜索，因为现在的数据是直接存到数据库中的，并没有在新增的时候就增加索引，在实际开发的时候需要在新增数据那里再生成一份索引，就直接调用<code>LuceneIndex</code>类中的<code>addIndex</code>方法传入实体即可，再做更新、删除操作的时候也同样需要对索引做操作。</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>就是有钱。。</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/weixin-reward-image.jpg" alt="crossoverJie WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/alipay-reward-image.jpg" alt="crossoverJie Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag">#Java</a>
+          
+            <a href="/tags/IDEA/" rel="tag">#IDEA</a>
+          
+            <a href="/tags/Lucene/" rel="tag">#Lucene</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/06/28/SSM1/" rel="next" title="SSM(一)框架的整合">
+                <i class="fa fa-chevron-left"></i> SSM(一)框架的整合
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/07/15/SSM3/" rel="prev" title="SSM(三)Shiro使用详解">
+                SSM(三)Shiro使用详解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/07/06/SSM2/"
+     data-title="SSM(二)Lucene全文检索"
+     data-content=""
+     data-url="http://crossoverJie.github.io/2016/07/06/SSM2/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  <p>热评文章</p>
+  <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/07/06/SSM2/"
+           data-title="SSM(二)Lucene全文检索" data-url="http://crossoverJie.github.io/2016/07/06/SSM2/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/crossoverjie.jpg"
+               alt="crossoverJie" />
+          <p class="site-author-name" itemprop="name">crossoverJie</p>
+          <p class="site-description motion-element" itemprop="description">You never know what you can do till you try.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">19</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">30</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/crossoverJie" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/crossoverJie" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  微博
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.jianshu.com/users/e2d07947c112/latest_articles" target="_blank" title="简书">
+                  
+                    <i class="fa fa-fw fa-edit"></i>
+                  
+                  简书
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://wuchong.me" title="Jark's Blog" target="_blank">Jark's Blog</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://tengj.top" title="嘟嘟独立博客" target="_blank">嘟嘟独立博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://notes.iissnan.com" title="IIssNan" target="_blank">IIssNan</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://notes.wanghao.work" title="doublemine" target="_blank">doublemine</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://code.youmeek.com" title="Judas.n" target="_blank">Judas.n</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cppba.com" title="大黄蜂" target="_blank">大黄蜂</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://jothy1023.github.io/" title="jothy前端妹子" target="_blank">jothy前端妹子</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.shijiait.com/" title="PHP训练营" target="_blank">PHP训练营</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#获取Maven依赖"><span class="nav-number">2.</span> <span class="nav-text">获取Maven依赖</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编写Lucene工具类"><span class="nav-number">3.</span> <span class="nav-text">编写Lucene工具类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#查询Controller的编写"><span class="nav-number">4.</span> <span class="nav-text">查询Controller的编写</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#显示界面"><span class="nav-number">5.</span> <span class="nav-text">显示界面</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">crossoverJie</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"crossoverjie"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+      
+      <script src="/vendors/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+      <script src="/js/src/hook-duoshuo.js"></script>
+    
+  
+
+
+
+
+
+
+  
+  
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("Qv6ckEtL1pe3PJD10qoOLKtg-gzGzoHsz", "NXiHFodQfmI8oxkK6IThhjrF");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>

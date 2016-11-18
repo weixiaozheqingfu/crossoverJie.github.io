@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+
+    
+  <url>
+    <loc>http://crossoverjie.top/2016/10/18/SSM6/</loc>
+    <lastmod>2016-10-18T05:45:20.000Z</lastmod>
+    <data>
+        <display>
+        <title>SSM(六)跨域传输</title>
+        <pubTime>2016-10-18T05:44:54.000Z</pubTime>
+        
+        <tag>Java</tag>
+         
+        <tag>JSONP</tag>
+         
+        <tag>JSON</tag>
+         
+         
+           
+             
+              <breadCrumb title="SSM" url="http://crossoverjie.top/categories/SSM/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+    
+  <url>
+    <loc>http://crossoverjie.top/2016/09/20/Linux-normal2/</loc>
+    <lastmod>2016-09-21T14:35:26.000Z</lastmod>
+    <data>
+        <display>
+        <title>Linux（二）服务器运行环境配置</title>
+        <pubTime>2016-09-20T11:45:17.000Z</pubTime>
+        
+        <tag>Linux</tag>
+         
+        <tag>centos</tag>
+         
+        <tag>nginx</tag>
+         
+         
+           
+             
+              <breadCrumb title="Linux笔记" url="http://crossoverjie.top/categories/Linux%E7%AC%94%E8%AE%B0/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://crossoverjie.top/2016/09/04/SSM5/</loc>
+    <lastmod>2016-09-04T16:22:16.000Z</lastmod>
+    <data>
+        <display>
+        <title>SSM(五)基于webSocket的聊天室</title>
+        <pubTime>2016-09-04T13:20:17.000Z</pubTime>
+        
+        <tag>Java</tag>
+         
+        <tag>websocket</tag>
+         
+        <tag>HTML5</tag>
+         
+        <tag>ueditor</tag>
+         
+         
+           
+             
+              <breadCrumb title="SSM" url="http://crossoverjie.top/categories/SSM/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+    
+  <url>
+    <loc>http://crossoverjie.top/2016/02/08/myresume/</loc>
+    <lastmod>2016-08-24T16:34:44.000Z</lastmod>
+    <data>
+        <display>
+        <title>个人简历</title>
+        <pubTime>2016-02-07T17:08:27.000Z</pubTime>
+        
+        <tag>总结</tag>
+         
+         
+           
+             
+              <breadCrumb title="resume" url="http://crossoverjie.top/categories/resume/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://crossoverjie.top/2016/08/02/SSM4/</loc>
+    <lastmod>2016-08-02T13:40:26.000Z</lastmod>
+    <data>
+        <display>
+        <title>SSM(四)WebService入门详解</title>
+        <pubTime>2016-08-02T09:28:00.000Z</pubTime>
+        
+        <tag>Java</tag>
+         
+        <tag>CXF</tag>
+         
+        <tag>IDEA</tag>
+         
+         
+           
+             
+              <breadCrumb title="SSM" url="http://crossoverjie.top/categories/SSM/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://crossoverjie.top/2016/07/15/SSM3/</loc>
+    <lastmod>2016-08-02T13:33:20.000Z</lastmod>
+    <data>
+        <display>
+        <title>SSM(三)Shiro使用详解</title>
+        <pubTime>2016-07-15T12:29:37.000Z</pubTime>
+        
+        <tag>Java</tag>
+         
+        <tag>IDEA</tag>
+         
+        <tag>Shiro</tag>
+         
+         
+           
+             
+              <breadCrumb title="SSM" url="http://crossoverjie.top/categories/SSM/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://crossoverjie.top/2016/07/06/SSM2/</loc>
+    <lastmod>2016-07-06T15:01:46.000Z</lastmod>
+    <data>
+        <display>
+        <title>SSM(二)Lucene全文检索</title>
+        <pubTime>2016-07-06T13:57:41.000Z</pubTime>
+        
+        <tag>Java</tag>
+         
+        <tag>IDEA</tag>
+         
+        <tag>Lucene</tag>
+         
+         
+           
+             
+              <breadCrumb title="SSM" url="http://crossoverjie.top/categories/SSM/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://crossoverjie.top/2016/06/28/SSM1/</loc>
+    <lastmod>2016-06-28T16:45:42.000Z</lastmod>
+    <data>
+        <display>
+        <title>SSM(一)框架的整合</title>
+        <pubTime>2016-06-28T13:40:15.000Z</pubTime>
+        
+        <tag>Java</tag>
+         
+        <tag>IDEA</tag>
+         
+        <tag>Spring</tag>
+         
+        <tag>SpringMVC</tag>
+         
+        <tag>Mybatis</tag>
+         
+         
+           
+             
+              <breadCrumb title="SSM" url="http://crossoverjie.top/categories/SSM/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://crossoverjie.top/2016/06/19/Initial%20Demo/</loc>
+    <lastmod>2016-06-19T05:19:02.000Z</lastmod>
+    <data>
+        <display>
+        <title>Initial Demo</title>
+        <pubTime>2016-06-19T05:19:02.000Z</pubTime>
+        
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://crossoverjie.top/2016/06/18/normal-skill3/</loc>
+    <lastmod>2016-06-17T17:10:20.000Z</lastmod>
+    <data>
+        <display>
+        <title>日常记录（三）更换Hexo主题</title>
+        <pubTime>2016-06-17T16:05:24.000Z</pubTime>
+        
+        <tag>Hexo</tag>
+         
+         
+           
+             
+              <breadCrumb title="日常记录" url="http://crossoverjie.top/categories/%E6%97%A5%E5%B8%B8%E8%AE%B0%E5%BD%95/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://crossoverjie.top/2016/05/27/java-thread2/</loc>
+    <lastmod>2016-06-16T15:24:10.000Z</lastmod>
+    <data>
+        <display>
+        <title>java多线程（二）有返回值的多线程</title>
+        <pubTime>2016-05-27T09:39:16.000Z</pubTime>
+        
+        <tag>Java</tag>
+         
+        <tag>Callable</tag>
+         
+        <tag>ExecutorService</tag>
+         
+        <tag>Future</tag>
+         
+        <tag>Executors</tag>
+         
+         
+           
+             
+              <breadCrumb title="java多线程" url="http://crossoverjie.top/categories/java%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://crossoverjie.top/2016/05/14/java-thread1/</loc>
+    <lastmod>2016-06-16T15:23:58.000Z</lastmod>
+    <data>
+        <display>
+        <title>java多线程（一）多线程基础</title>
+        <pubTime>2016-05-14T12:09:10.000Z</pubTime>
+        
+        <tag>Java</tag>
+         
+        <tag>Thread</tag>
+         
+        <tag>Runnable</tag>
+         
+         
+           
+             
+              <breadCrumb title="java多线程" url="http://crossoverjie.top/categories/java%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+    
+    
+  <url>
+    <loc>http://crossoverjie.top/2016/05/19/baidu-google/</loc>
+    <lastmod>2016-06-15T18:05:34.000Z</lastmod>
+    <data>
+        <display>
+        <title>让百度和google收录我们的网站</title>
+        <pubTime>2016-05-19T08:07:44.000Z</pubTime>
+        
+        <tag>baidu</tag>
+         
+        <tag>google</tag>
+         
+         
+           
+             
+              <breadCrumb title="小技巧" url="http://crossoverjie.top/categories/%E5%B0%8F%E6%8A%80%E5%B7%A7/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://crossoverjie.top/2016/05/07/%E7%AC%AC%E4%B8%80%E6%AC%A1%E6%80%BB%E7%BB%93/</loc>
+    <lastmod>2016-06-15T17:56:32.000Z</lastmod>
+    <data>
+        <display>
+        <title>第一次总结</title>
+        <pubTime>2016-05-07T11:35:14.000Z</pubTime>
+        
+        <tag>Markdown</tag>
+         
+        <tag>总结</tag>
+         
+         
+           
+             
+              <breadCrumb title="blog" url="http://crossoverjie.top/categories/blog/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://crossoverjie.top/2016/06/14/normal-skill2/</loc>
+    <lastmod>2016-06-15T17:53:34.000Z</lastmod>
+    <data>
+        <display>
+        <title>日常记录（二）SpringMvc导出Excel</title>
+        <pubTime>2016-06-14T12:38:06.000Z</pubTime>
+        
+        <tag>Java</tag>
+         
+        <tag>poi</tag>
+         
+         
+           
+             
+              <breadCrumb title="日常记录" url="http://crossoverjie.top/categories/%E6%97%A5%E5%B8%B8%E8%AE%B0%E5%BD%95/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://crossoverjie.top/2016/06/05/normal-skill1/</loc>
+    <lastmod>2016-06-15T17:53:14.000Z</lastmod>
+    <data>
+        <display>
+        <title>日常记录（一）MySQL被锁解决方案</title>
+        <pubTime>2016-06-04T16:04:56.000Z</pubTime>
+        
+        <tag>MySQL</tag>
+         
+         
+           
+             
+              <breadCrumb title="日常记录" url="http://crossoverjie.top/categories/%E6%97%A5%E5%B8%B8%E8%AE%B0%E5%BD%95/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://crossoverjie.top/2016/05/06/Markdown%E5%B0%8F%E8%AE%A1/</loc>
+    <lastmod>2016-06-15T17:52:40.000Z</lastmod>
+    <data>
+        <display>
+        <title>Markdown小计</title>
+        <pubTime>2016-05-06T08:04:09.000Z</pubTime>
+        
+        <tag>Markdown</tag>
+         
+         
+           
+             
+              <breadCrumb title="blog" url="http://crossoverjie.top/categories/blog/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://crossoverjie.top/2016/04/10/Linux-normal/</loc>
+    <lastmod>2016-06-15T17:52:14.000Z</lastmod>
+    <data>
+        <display>
+        <title>Linux（一）常用命令</title>
+        <pubTime>2016-04-10T13:01:36.000Z</pubTime>
+        
+        <tag>Linux</tag>
+         
+         
+           
+             
+              <breadCrumb title="Linux笔记" url="http://crossoverjie.top/categories/Linux%E7%AC%94%E8%AE%B0/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://crossoverjie.top/2016/05/10/java-reflect/</loc>
+    <lastmod>2016-06-15T17:50:30.000Z</lastmod>
+    <data>
+        <display>
+        <title>java笔记（一）java的反射机制</title>
+        <pubTime>2016-05-10T13:01:36.000Z</pubTime>
+        
+        <tag>Java</tag>
+         
+        <tag>reflect</tag>
+         
+         
+           
+             
+              <breadCrumb title="java笔记" url="http://crossoverjie.top/categories/java%E7%AC%94%E8%AE%B0/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+</urlset>
