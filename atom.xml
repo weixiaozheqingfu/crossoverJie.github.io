@@ -255,9 +255,9 @@
     
       <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
     
-      <category term="CXF" scheme="http://crossoverJie.github.io/tags/CXF/"/>
-    
       <category term="IDEA" scheme="http://crossoverJie.github.io/tags/IDEA/"/>
+    
+      <category term="CXF" scheme="http://crossoverJie.github.io/tags/CXF/"/>
     
   </entry>
   
@@ -394,9 +394,9 @@
     
       <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
     
-      <category term="IDEA" scheme="http://crossoverJie.github.io/tags/IDEA/"/>
-    
       <category term="Lucene" scheme="http://crossoverJie.github.io/tags/Lucene/"/>
+    
+      <category term="IDEA" scheme="http://crossoverJie.github.io/tags/IDEA/"/>
     
   </entry>
   
