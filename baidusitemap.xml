@@ -4,6 +4,28 @@
 
     
   <url>
+    <loc>http://crossoverjie.top/2016/12/18/SSM7/</loc>
+    <lastmod>2016-12-18T16:11:02.000Z</lastmod>
+    <data>
+        <display>
+        <title>SSM(七)在JavaWeb应用中使用Redis</title>
+        <pubTime>2016-12-18T05:44:54.000Z</pubTime>
+        
+        <tag>Java</tag>
+         
+        <tag>Redis</tag>
+         
+         
+           
+             
+              <breadCrumb title="SSM" url="http://crossoverjie.top/categories/SSM/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://crossoverjie.top/2016/10/18/SSM6/</loc>
     <lastmod>2016-10-18T05:45:20.000Z</lastmod>
     <data>
@@ -157,9 +179,9 @@
         
         <tag>Java</tag>
          
-        <tag>Lucene</tag>
-         
         <tag>IDEA</tag>
+         
+        <tag>Lucene</tag>
          
          
            
@@ -181,13 +203,13 @@
         
         <tag>Java</tag>
          
-        <tag>IDEA</tag>
-         
         <tag>Spring</tag>
          
         <tag>SpringMVC</tag>
          
         <tag>Mybatis</tag>
+         
+        <tag>IDEA</tag>
          
          
            
