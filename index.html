@@ -276,6 +276,144 @@
             
               
                 
+                <a class="post-title-link" href="/2017/01/05/SSM8/" itemprop="url">
+                  SSM(八)动态切换数据源
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-01-05T03:44:54+08:00" content="2017-01-05">
+              2017-01-05
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/SSM/" itemprop="url" rel="index">
+                    <span itemprop="name">SSM</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/01/05/SSM8/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/01/05/SSM8/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/01/05/SSM8/" class="leancloud_visitors" data-flag-title="SSM(八)动态切换数据源">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p><img src="http://img.blog.csdn.net/20170105001159965?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvcXFfMTg2NjE3OTM=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="0"></p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><blockquote>
+<p>在现在开发的过程中应该大多数朋友都有遇到过切换数据源的需求。比如现在常用的数据库读写分离，或者就是有两个数据库的情况，这些都需要用到切换数据源。</p>
+</blockquote>
+<h1 id="手动切换数据源"><a href="#手动切换数据源" class="headerlink" title="手动切换数据源"></a>手动切换数据源</h1><p>使用<code>Spring</code>的<code>AbstractRoutingDataSource</code>类来进行拓展多数据源。</p>
+<p>该类就相当于一个<code>dataSource</code>的路由，用于根据<code>key</code>值来进行切换对应的<code>dataSource</code>。</p>
+<p>下面简单来看下<code>AbstractRoutingDataSource</code>类的几段关键源码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> Connection <span class="title">getConnection</span><span class="params">()</span> <span class="keyword">throws</span> SQLException </span>&#123;</div><div class="line">	<span class="keyword">return</span> determineTargetDataSource().getConnection();</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> Connection <span class="title">getConnection</span><span class="params">(String username, String password)</span> <span class="keyword">throws</span> SQLException </span>&#123;</div><div class="line">	<span class="keyword">return</span> determineTargetDataSource().getConnection(username, password);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/**</div><div class="line"> * Retrieve the current target DataSource. Determines the</div><div class="line"> * &#123;<span class="doctag">@link</span> #determineCurrentLookupKey() current lookup key&#125;, performs</div><div class="line"> * a lookup in the &#123;<span class="doctag">@link</span> #setTargetDataSources targetDataSources&#125; map,</div><div class="line"> * falls back to the specified</div><div class="line"> * &#123;<span class="doctag">@link</span> #setDefaultTargetDataSource default target DataSource&#125; if necessary.</div><div class="line"> * <span class="doctag">@see</span> #determineCurrentLookupKey()</div><div class="line"> */</span></div><div class="line"><span class="function"><span class="keyword">protected</span> DataSource <span class="title">determineTargetDataSource</span><span class="params">()</span> </span>&#123;</div><div class="line">	Assert.notNull(<span class="keyword">this</span>.resolvedDataSources, <span class="string">"DataSource router not initialized"</span>);</div><div class="line">	Object lookupKey = determineCurrentLookupKey();</div><div class="line">	DataSource dataSource = <span class="keyword">this</span>.resolvedDataSources.get(lookupKey);</div><div class="line">	<span class="keyword">if</span> (dataSource == <span class="keyword">null</span> &amp;&amp; (<span class="keyword">this</span>.lenientFallback || lookupKey == <span class="keyword">null</span>)) &#123;</div><div class="line">		dataSource = <span class="keyword">this</span>.resolvedDefaultDataSource;</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">if</span> (dataSource == <span class="keyword">null</span>) &#123;</div><div class="line">		<span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Cannot determine target DataSource for lookup key ["</span> + lookupKey + <span class="string">"]"</span>);</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">return</span> dataSource;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/**</div><div class="line"> * Determine the current lookup key. This will typically be</div><div class="line"> * implemented to check a thread-bound transaction context.</div><div class="line"> * &lt;p&gt;Allows for arbitrary keys. The returned key needs</div><div class="line"> * to match the stored lookup key type, as resolved by the</div><div class="line"> * &#123;<span class="doctag">@link</span> #resolveSpecifiedLookupKey&#125; method.</div><div class="line"> */</span></div><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">abstract</span> Object <span class="title">determineCurrentLookupKey</span><span class="params">()</span></span>;</div></pre></td></tr></table></figure></p>
+<p>可以看到其中获取链接的方法<code>getConnection()</code>调用的<code>determineTargetDataSource</code>则是关键方法。该方法用于返回我们使用的数据源。<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/01/05/SSM8/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/12/31/GoodBye 2016,Welcome 2017 | 码农砌墙记/" itemprop="url">
                   GoodBye 2016,Welcome 2017 | 码农砌墙记
                 </a>
@@ -1474,121 +1612,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/06/19/Initial Demo/" itemprop="url">
-                  Initial Demo
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-06-19T13:19:02+08:00" content="2016-06-19">
-              2016-06-19
-            </time>
-          </span>
-
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/06/19/Initial Demo/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/06/19/Initial Demo/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2016/06/19/Initial Demo/" class="leancloud_visitors" data-flag-title="Initial Demo">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo new <span class="string">"My New Post"</span></div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/06/19/Initial Demo/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1634,7 +1657,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">21</span>
+              <span class="site-state-item-count">22</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1651,7 +1674,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">31</span>
+                <span class="site-state-item-count">32</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

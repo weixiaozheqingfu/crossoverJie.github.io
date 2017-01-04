@@ -3,6 +3,29 @@
 
 
     
+    
+  <url>
+    <loc>http://crossoverJie.github.io/2017/01/05/SSM8/</loc>
+    <lastmod>2017-01-04T17:54:23.000Z</lastmod>
+    <data>
+        <display>
+        <title>SSM(八)动态切换数据源</title>
+        <pubTime>2017-01-04T19:44:54.000Z</pubTime>
+        
+        <tag>Java</tag>
+         
+        <tag>AOP</tag>
+         
+         
+           
+             
+              <breadCrumb title="SSM" url="http://crossoverJie.github.io/categories/SSM/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
   <url>
     <loc>http://crossoverJie.github.io/2016/12/31/GoodBye%202016,Welcome%202017%20%7C%20%E7%A0%81%E5%86%9C%E7%A0%8C%E5%A2%99%E8%AE%B0/</loc>
     <lastmod>2016-12-31T16:00:41.000Z</lastmod>
@@ -68,7 +91,6 @@
     </data>
     </url>
 
-    
     
   <url>
     <loc>http://crossoverJie.github.io/2016/09/20/Linux-normal2/</loc>
@@ -151,9 +173,9 @@
         
         <tag>Java</tag>
          
-        <tag>IDEA</tag>
-         
         <tag>CXF</tag>
+         
+        <tag>IDEA</tag>
          
          
            
@@ -175,9 +197,9 @@
         
         <tag>Java</tag>
          
-        <tag>Shiro</tag>
-         
         <tag>IDEA</tag>
+         
+        <tag>Shiro</tag>
          
          
            
