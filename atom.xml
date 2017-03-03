@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://crossoverJie.github.io/"/>
-  <updated>2017-01-19T03:52:37.000Z</updated>
+  <updated>2017-03-03T16:58:38.000Z</updated>
   <id>http://crossoverJie.github.io/</id>
   
   <author>
@@ -14,6 +14,76 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>SSM(十) 项目重构-互联网项目的Maven结构</title>
+    <link href="http://crossoverJie.github.io/2017/03/04/SSM10/"/>
+    <id>http://crossoverJie.github.io/2017/03/04/SSM10/</id>
+    <published>2017-03-03T17:44:54.000Z</published>
+    <updated>2017-03-03T16:58:38.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><img src="https://ooo.0o0.ooo/2017/03/03/58b992d46fd02.jpg" alt="互联网项目的maven.jpg"></p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>很久没有更新博客了，之前定下周更逐渐成了月更。怎么感觉像我追过的一部动漫。<br>这个博文其实很早就想写了。<br>之前所有的代码都是在一个模块里面进行开发，这和maven的理念是完全不相符的，最近硬是抽了一个时间来对项目的结构进行了一次重构。</p>
+<blockquote>
+<p>先来看看这次重构之后的目录结构</p>
+</blockquote>
+<p><img src="https://ooo.0o0.ooo/2017/03/04/58b99366edad6.jpg" alt="1.jpg"></p>
+<a id="more"></a>
+<h1 id="为什么需要分模块"><a href="#为什么需要分模块" class="headerlink" title="为什么需要分模块"></a>为什么需要分模块</h1><blockquote>
+<p>至于为什么要分模块呢？</p>
+</blockquote>
+<p>我们设想一个这样的场景：<br>在现在的互联网开发中，会把一个很大的系统拆分成各个子系统用于降低他们之间的耦合度。</p>
+<p>在一个子项目中通常都会为<code>API</code>、<code>WEB</code>、<code>Service</code>等模块。<br>而且当项目够大时，这些通常都不是一个人能完成的工作，需要一个团队来各司其职。</p>
+<p>想象一下：当之前所有的项目都在一个模块的时候，A改动了API，需要<code>Deploy</code>代码。而B也改动了<code>service</code>的代码，但并没有完全做完。所以A在提交<code>build</code>的时候就会报错</p>
+<p>而且在整个项目足够大的时候，这个<code>build</code>的时间也是很影响效率的。</p>
+<p>但让我将各个模块之间分开之后效果就不一样了。我修改了<code>API</code>我就只需要管我的就行，不需要整个项目进行<code>build</code>。</p>
+<p>而且当有其他项目需要依赖我这个<code>API</code>的时候也只需要依赖<code>API</code>即可，不用整个项目都依赖过去。</p>
+<h1 id="各个模块的作用"><a href="#各个模块的作用" class="headerlink" title="各个模块的作用"></a>各个模块的作用</h1><p>来看下这次我所分的模块。</p>
+<h2 id="ROOT"><a href="#ROOT" class="headerlink" title="ROOT"></a>ROOT</h2><p>这是整个项目的根节点。<br>先看一下其中的<code>pom.xml</code>：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.crossoverJie<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>SSM<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">packaging</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.0.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">modules</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">module</span>&gt;</span>SSM-API<span class="tag">&lt;/<span class="name">module</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">module</span>&gt;</span>SSM-BOOT<span class="tag">&lt;/<span class="name">module</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">module</span>&gt;</span>SSM-SERVICE<span class="tag">&lt;/<span class="name">module</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">module</span>&gt;</span>SSM-WEB<span class="tag">&lt;/<span class="name">module</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">modules</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">properties</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">project.build.sourceEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.build.sourceEncoding</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">spring.version</span>&gt;</span>4.1.4.RELEASE<span class="tag">&lt;/<span class="name">spring.version</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">jackson.version</span>&gt;</span>2.5.0<span class="tag">&lt;/<span class="name">jackson.version</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">lucene.version</span>&gt;</span>6.0.1<span class="tag">&lt;/<span class="name">lucene.version</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></div><div class="line"></div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">dependencyManagement</span>&gt;</span></div><div class="line"></div><div class="line">        <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.crossoverJie<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>SSM-API<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">                <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.0.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">            <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line">         <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">dependencyManagement</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>我截取了其中比较重点的配置。</p>
+<p>由于这是父节点，所以我的<code>packag</code>类型使用的是<code>pom</code>。<br>其中分别有着四个子模块。</p>
+<p>其中重点看下<code>&lt;dependencyManagement&gt;</code>这个标签。<br>如果使用的是<code>IDEA</code>这个开发工具的话是可以看到如下图：<br><img src="https://ooo.0o0.ooo/2017/03/04/58b997c0232ea.jpg" alt="2.jpg"></p>
+<p>标红的有一个向下的箭头，点一下就可以进入子模块中相同的依赖。<br>这样子模块就不需要配置具体的版本了，统一由父模块来进行维护，对之后的版本升级也带来了好处。</p>
+<h2 id="SSM-API"><a href="#SSM-API" class="headerlink" title="SSM-API"></a>SSM-API</h2><p>接下来看下<code>API</code>这个模块：</p>
+<p>通常这个模块都是用于定义外部接口的，以及改接口所依赖的一些<code>DTO类</code>。<br>一般这个模块都是拿来给其他项目进行依赖，并和本项目进行数据交互的。</p>
+<h2 id="SSM-BOOT"><a href="#SSM-BOOT" class="headerlink" title="SSM-BOOT"></a>SSM-BOOT</h2><p><code>BOOT</code>这个模块比较特殊。<br>可以看到这里没有任何代码，只有一个<code>rpc</code>的配置文件。<br>通常这个模块是用于给我们内部项目进行依赖的，并不像上面的<code>API</code>模块一样给其他部门或者是项目进行依赖的。</p>
+<p>因为在我们的<code>RPC</code>调用的时候，用<code>dubbo</code>来举例，是需要配置所依赖的<code>consumer</code>。</p>
+<p>但如果是我们自己内部调用的话我们就可以把需要调用自己的<code>dubbo</code>服务提供者配置在这里，这样的话我们自己调用就只需要依赖这个<code>BOOT</code>就可以进行调用了。</p>
+<p>哦对了，<code>BOOT</code>同时还会依赖<code>API</code>，这样才实现了只依赖<code>BOOT</code>就可以调用自己内部的<code>dubbo</code>服务了。<br>如下所示：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.crossoverJie<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>SSM-API<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<h2 id="SSM-SERVICE"><a href="#SSM-SERVICE" class="headerlink" title="SSM-SERVICE"></a>SSM-SERVICE</h2><p><code>SERVICE</code>模块就比较好理解了。<br>是处理具体业务逻辑的地方，也是对之前的API的实现。</p>
+<p>通常这也是一个<code>web</code>模块，所以我的<code>pom</code>类型是<code>WAR</code>。</p>
+<h2 id="SSM-WEB"><a href="#SSM-WEB" class="headerlink" title="SSM-WEB"></a>SSM-WEB</h2><p>其实<code>WEB</code>模块和<code>SERVICE</code>模块有点重合了。通常来说这个模块一般在一个对外提供<code>http</code>访问接口的项目中。</p>
+<p>这里只是为了展示项目结构，所以也写在了这里。</p>
+<p>他的作用和<code>service</code>差不多，都是<code>WAR</code>的类型。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>这次没有实现什么特别的功能，只是对一些还没有接触过这种项目结构开发的童鞋能起到一些引导作用。</p>
+<p>具体源码还请关注我的<code>github</code>。</p>
+<blockquote>
+<p>项目地址：<a href="https://github.com/crossoverJie/SSM.git" target="_blank" rel="external">https://github.com/crossoverJie/SSM.git</a></p>
+<p>个人博客地址：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+<p>GitHub地址：<a href="https://github.com/crossoverJie" target="_blank" rel="external">https://github.com/crossoverJie</a>。</p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/03/03/58b992d46fd02.jpg&quot; alt=&quot;互联网项目的maven.jpg&quot;&gt;&lt;/p&gt;
+&lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;p&gt;很久没有更新博客了，之前定下周更逐渐成了月更。怎么感觉像我追过的一部动漫。&lt;br&gt;这个博文其实很早就想写了。&lt;br&gt;之前所有的代码都是在一个模块里面进行开发，这和maven的理念是完全不相符的，最近硬是抽了一个时间来对项目的结构进行了一次重构。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;先来看看这次重构之后的目录结构&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/03/04/58b99366edad6.jpg&quot; alt=&quot;1.jpg&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="SSM" scheme="http://crossoverJie.github.io/categories/SSM/"/>
+    
+    
+      <category term="Maven" scheme="http://crossoverJie.github.io/tags/Maven/"/>
+    
+      <category term="重构" scheme="http://crossoverJie.github.io/tags/%E9%87%8D%E6%9E%84/"/>
+    
+  </entry>
   
   <entry>
     <title>SSM(九) 反射的实际应用 - 构建日志对象</title>
@@ -1264,79 +1334,6 @@
       <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
     
       <category term="Reflect" scheme="http://crossoverJie.github.io/tags/Reflect/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>第一次总结</title>
-    <link href="http://crossoverJie.github.io/2016/05/07/%E7%AC%AC%E4%B8%80%E6%AC%A1%E6%80%BB%E7%BB%93/"/>
-    <id>http://crossoverJie.github.io/2016/05/07/第一次总结/</id>
-    <published>2016-05-07T11:35:14.000Z</published>
-    <updated>2016-06-15T17:56:32.000Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><hr>
-<p>昨天到今天一共花了差不多两天的时间终于把博客搭好了。还买了一个域名，现在就迫不及待的想把<br>这段内容写下来。</p>
-<hr>
-<h1 id="感谢"><a href="#感谢" class="headerlink" title="感谢"></a>感谢</h1><hr>
-<p>首先非常感谢 <a href="http://tengj.top/" title="嘟爷的博客" target="_blank" rel="external">嘟爷</a>的帮忙，没有这些资料我可能还得自己研究好一段时间。<br><a id="more"></a></p>
-<h1 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h1><hr>
-<p>我是前天无意间在微博上看到嘟爷的一篇博文，就仔细看了下，发现写的非常好，然后就将他所有的博文大致的浏览了一下。</p>
-<p>我很早以前就打算搭一个博客，但是百度了一下发现还是挺麻烦的，加上最近也比较忙所有一直也就没有做，直到看到这篇博文才顺利的搭起了这个博客。中途遇到不少问题也都顺利解决了，真是学到了不少的东西。</p>
-<ul>
-<li>熟练了Markdown语法。</li>
-<li>真正使用了编辑神器 <strong>Sublime</strong>。</li>
-<li>使用阿里云解析了github和coding里的Pages服务。</li>
-<li>hexo和常用的主题配置。</li>
-</ul>
-<h1 id="我的配置"><a href="#我的配置" class="headerlink" title="我的配置"></a>我的配置</h1><hr>
-<h2 id="Hexo配置"><a href="#Hexo配置" class="headerlink" title="Hexo配置"></a>Hexo配置</h2><hr>
-<p><img src="http://i.imgur.com/IqaE8CF.png" alt="Hexo配置"></p>
-<hr>
-<h2 id="JackMan配置"><a href="#JackMan配置" class="headerlink" title="JackMan配置"></a>JackMan配置</h2><pre><code>imglogo:
-  enable: true             ## display image logo true/false.
-  src: img/logo.gif        ## `.svg` and `.png` are recommended,please put image into the theme folder `/jacman/source/img`.
-favicon: img/favicon.ico   ## size:32px*32px,`.ico` is recommended,please put image into the theme folder `/jacman/source/img`.     
-apple_icon: img/jacman.jpg ## size:114px*114px,please put image into the theme folder `/jacman/source/img`.
-author_img: img/author.jpg ## size:220px*220px.display author avatar picture.if don&apos;t want to display,please don&apos;t set this.
-banner_img: #img/banner.jpg ## size:1920px*200px+. Banner Picture
-### Theme Color 
-theme_color:
-    theme: &apos;#2ca6cb&apos;    ##the defaut theme color is blue
-
-# 代码高亮主题
-# available: default | night
-highlight_theme: night
-
-#### index post is expanding or not 
-index:
-  expand: false           ## default is unexpanding,so you can only see the short description of each post.
-  excerpt_link: Read More  
-
-close_aside: false  #close sidebar in post page if true
-mathjax: false      #enable mathjax if true
-
-### Creative Commons License Support, see http://creativecommons.org/ 
-### you can choose: by , by-nc , by-nc-nd , by-nc-sa , by-nd , by-sa , zero
-creative_commons: none
-</code></pre><h1 id="结束语"><a href="#结束语" class="headerlink" title="结束语"></a>结束语</h1><p>以上。。我做这个博客的初衷一是为了记录我的整个程序猿生涯的故事，二是希望能有大神能在过程中指出我的错误，能让我的水平更进一步。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;hr&gt;
-&lt;p&gt;昨天到今天一共花了差不多两天的时间终于把博客搭好了。还买了一个域名，现在就迫不及待的想把&lt;br&gt;这段内容写下来。&lt;/p&gt;
-&lt;hr&gt;
-&lt;h1 id=&quot;感谢&quot;&gt;&lt;a href=&quot;#感谢&quot; class=&quot;headerlink&quot; title=&quot;感谢&quot;&gt;&lt;/a&gt;感谢&lt;/h1&gt;&lt;hr&gt;
-&lt;p&gt;首先非常感谢 &lt;a href=&quot;http://tengj.top/&quot; title=&quot;嘟爷的博客&quot;&gt;嘟爷&lt;/a&gt;的帮忙，没有这些资料我可能还得自己研究好一段时间。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="blog" scheme="http://crossoverJie.github.io/categories/blog/"/>
-    
-    
-      <category term="总结" scheme="http://crossoverJie.github.io/tags/%E6%80%BB%E7%BB%93/"/>
-    
-      <category term="Markdown" scheme="http://crossoverJie.github.io/tags/Markdown/"/>
     
   </entry>
   

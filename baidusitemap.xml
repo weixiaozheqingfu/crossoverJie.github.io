@@ -4,6 +4,28 @@
 
     
   <url>
+    <loc>http://crossoverJie.github.io/2017/03/04/SSM10/</loc>
+    <lastmod>2017-03-03T16:58:38.000Z</lastmod>
+    <data>
+        <display>
+        <title>SSM(十) 项目重构-互联网项目的Maven结构</title>
+        <pubTime>2017-03-03T17:44:54.000Z</pubTime>
+        
+        <tag>Maven</tag>
+         
+        <tag>重构</tag>
+         
+         
+           
+             
+              <breadCrumb title="SSM" url="http://crossoverJie.github.io/categories/SSM/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://crossoverJie.github.io/2016/05/10/java-reflect/</loc>
     <lastmod>2017-01-19T03:52:49.000Z</lastmod>
     <data>
