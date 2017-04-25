@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://crossoverJie.github.io/"/>
-  <updated>2017-04-07T01:44:09.000Z</updated>
+  <updated>2017-04-25T10:02:53.000Z</updated>
   <id>http://crossoverJie.github.io/</id>
   
   <author>
@@ -14,6 +14,66 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>SSM(十二) SSM(十二) dubbo日志插件</title>
+    <link href="http://crossoverJie.github.io/2017/04/25/SSM12/"/>
+    <id>http://crossoverJie.github.io/2017/04/25/SSM12/</id>
+    <published>2017-04-25T10:01:54.000Z</published>
+    <updated>2017-04-25T10:02:53.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><img src="https://ooo.0o0.ooo/2017/04/25/58ff0b1b40d27.jpg" alt="dubbo-filter.jpg"></p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在之前<a href="http://crossoverjie.top/2017/04/07/SSM11/" target="_blank" rel="external">dubbo分布式框架中</a>讲到了如何利用dubbo来搭建一个微服务项目。其中还有一些值得优化提高开发效率的地方，比如日志：</p>
+<blockquote>
+<p>当我们一个项目拆分为N多个微服务之后，当其中一个调用另一个服务出现了问题，首先第一步自然是查看日志。 </p>
+<p>出现问题的有很多情况，如提供方自身代码的问题，调用方的姿势不对等。</p>
+<p>自身的问题这个管不了，但是我们可以对每一个入参、返回都加上日志，这样首先就可以判断调用方是否姿势不对了。</p>
+<p>为了规范日志已经后续的可扩展，我们可以单独提供一个插件给每个项目使用即可。</p>
+</blockquote>
+<p>效果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">2017-04-25 15:15:38,968 DEBUG [com.alibaba.dubbo.remoting.transport.DecodeHandler] -  [DUBBO] Decode decodeable message com.alibaba.dubbo.rpc.protocol.dubbo.DecodeableRpcInvocation, dubbo version: 2.5.3, current host: 127.0.0.1</div><div class="line">2017-04-25 15:15:39,484 DEBUG [com.crossoverJie.dubbo.filter.DubboTraceFilter] - dubbo请求数据:&#123;&quot;args&quot;:[1],&quot;interfaceName&quot;:&quot;com.crossoverJie.api.UserInfoApi&quot;,&quot;methodName&quot;:&quot;getUserInfo&quot;&#125;</div><div class="line">2017-04-25 15:15:39,484 INFO [com.crossoverJie.api.impl.UserInfoApiImpl] - 用户查询Id=1</div><div class="line">2017-04-25 15:15:39,505 DEBUG [org.mybatis.spring.SqlSessionUtils] - Creating a new SqlSession</div><div class="line">2017-04-25 15:15:39,525 DEBUG [org.mybatis.spring.SqlSessionUtils] - SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@6f56b29] was not registered for synchronization because synchronization is not active</div><div class="line">2017-04-25 15:15:39,549 DEBUG [org.mybatis.spring.transaction.SpringManagedTransaction] - JDBC Connection [com.alibaba.druid.proxy.jdbc.ConnectionProxyImpl@778b3121] will not be managed by Spring</div><div class="line">2017-04-25 15:15:39,555 DEBUG [com.crossoverJie.api.dubbo.dao.T_userDao.selectByPrimaryKey] - ==&gt;  Preparing: select id, username, password,roleId from t_user where id = ? </div><div class="line">2017-04-25 15:15:39,591 DEBUG [com.crossoverJie.api.dubbo.dao.T_userDao.selectByPrimaryKey] - ==&gt; Parameters: 1(Integer)</div><div class="line">2017-04-25 15:15:39,616 DEBUG [com.crossoverJie.api.dubbo.dao.T_userDao.selectByPrimaryKey] - &lt;==      Total: 1</div><div class="line">2017-04-25 15:15:39,616 DEBUG [com.alibaba.druid.pool.PreparedStatementPool] - &#123;conn-10003, pstmt-20000&#125; enter cache</div><div class="line">2017-04-25 15:15:39,617 DEBUG [org.mybatis.spring.SqlSessionUtils] - Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@6f56b29]</div><div class="line">2017-04-25 15:15:45,473 INFO [com.crossoverJie.dubbo.filter.DubboTraceFilter] - dubbo执行成功</div><div class="line">2017-04-25 15:15:45,476 DEBUG [com.crossoverJie.dubbo.filter.DubboTraceFilter] - dubbo返回数据&#123;&quot;args&quot;:[&#123;&quot;id&quot;:1,&quot;password&quot;:&quot;123456&quot;,&quot;roleId&quot;:1,&quot;userName&quot;:&quot;crossoverJie&quot;&#125;],&quot;interfaceName&quot;:&quot;com.crossoverJie.api.UserInfoApi&quot;,&quot;methodName&quot;:&quot;getUserInfo&quot;&#125;</div></pre></td></tr></table></figure>
+<a id="more"></a>
+<h1 id="dubbo-filter拓展"><a href="#dubbo-filter拓展" class="headerlink" title="dubbo filter拓展"></a>dubbo filter拓展</h1><p>参考<a href="http://dubbo.io/Developer+Guide-zh.htm#DeveloperGuide-zh-%E8%B0%83%E7%94%A8%E6%8B%A6%E6%88%AA%E6%89%A9%E5%B1%95" target="_blank" rel="external">官方文档</a>，我们可以通过<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">## 定义实体</div><div class="line">首先定义一个实体类用于保存调用过程中的一些数据：</div><div class="line">```java</div><div class="line">public class FilterDesc &#123;</div><div class="line"></div><div class="line">    private String interfaceName ;//接口名</div><div class="line">    private String methodName ;//方法名</div><div class="line">    private Object[] args ;//参数</div><div class="line">    //省略getter setter</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="DubboTraceFilter具体拦截逻辑"><a href="#DubboTraceFilter具体拦截逻辑" class="headerlink" title="DubboTraceFilter具体拦截逻辑"></a>DubboTraceFilter具体拦截逻辑</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Activate</span>(group = Constants.PROVIDER, order = -<span class="number">999</span>)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DubboTraceFilter</span> <span class="keyword">implements</span> <span class="title">Filter</span></span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Logger logger = LoggerFactory.getLogger(DubboTraceFilter.class);</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> Result <span class="title">invoke</span><span class="params">(Invoker&lt;?&gt; invoker, Invocation invocation)</span> <span class="keyword">throws</span> RpcException </span>&#123;</div><div class="line"></div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            FilterDesc filterReq = <span class="keyword">new</span> FilterDesc() ;</div><div class="line">            filterReq.setInterfaceName(invocation.getInvoker().getInterface().getName());</div><div class="line">            filterReq.setMethodName(invocation.getMethodName()) ;</div><div class="line">            filterReq.setArgs(invocation.getArguments());</div><div class="line"></div><div class="line">            logger.debug(<span class="string">"dubbo请求数据:"</span>+JSON.toJSONString(filterReq));</div><div class="line"></div><div class="line">            Result result = invoker.invoke(invocation);</div><div class="line">            <span class="keyword">if</span> (result.hasException() &amp;&amp; invoker.getInterface() != GenericService.class)&#123;</div><div class="line">                logger.error(<span class="string">"dubbo执行异常"</span>,result.getException());</div><div class="line">            &#125;<span class="keyword">else</span> &#123;</div><div class="line">                logger.info(<span class="string">"dubbo执行成功"</span>);</div><div class="line"></div><div class="line">                FilterDesc filterRsp = <span class="keyword">new</span> FilterDesc() ;</div><div class="line">                filterRsp.setMethodName(invocation.getMethodName());</div><div class="line">                filterRsp.setInterfaceName(invocation.getInvoker().getInterface().getName());</div><div class="line">                filterRsp.setArgs(<span class="keyword">new</span> Object[]&#123;result.getValue()&#125;);</div><div class="line">                logger.debug(<span class="string">"dubbo返回数据"</span>+JSON.toJSONString(filterRsp));</div><div class="line"></div><div class="line">            &#125;</div><div class="line">            <span class="keyword">return</span> result ;</div><div class="line"></div><div class="line">        &#125;<span class="keyword">catch</span> (RuntimeException e)&#123;</div><div class="line">            logger.error(<span class="string">"dubbo未知异常"</span> + RpcContext.getContext().getRemoteHost()</div><div class="line">                    + <span class="string">". service: "</span> + invoker.getInterface().getName() + <span class="string">", method: "</span> + invocation.getMethodName()</div><div class="line">                    + <span class="string">", exception: "</span> + e.getClass().getName() + <span class="string">": "</span> + e.getMessage(), e);</div><div class="line">            <span class="keyword">throw</span> e ;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>逻辑非常简单，只是对调用过程、异常、成功之后打印相应的日志而已。</p>
+<p>但是有个地方要注意一下：<br>需要在<code>resource</code>目录下加上<code>META-INF.dubbo/com.alibaba.dubbo.rpc.Filter</code>文件。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">dubboTraceFilter=com.crossoverJie.dubbo.filter.DubboTraceFilter</div></pre></td></tr></table></figure></p>
+<p>目录结构如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">src</div><div class="line"> |-main</div><div class="line">    |-java</div><div class="line">        |-com</div><div class="line">            |-xxx</div><div class="line">                |-XxxFilter.java (实现Filter接口)</div><div class="line">    |-resources</div><div class="line">        |-META-INF</div><div class="line">            |-dubbo</div><div class="line">                |-com.alibaba.dubbo.rpc.Filter (纯文本文件，内容为：xxx=com.xxx.XxxFilter)</div></pre></td></tr></table></figure></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>该项目已经托管到GitHub：<br><a href="https://github.com/crossoverJie/SSM-DUBBO-FILTER" target="_blank" rel="external">https://github.com/crossoverJie/SSM-DUBBO-FILTER</a></p>
+<h2 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h2><h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cd /SSM-DUBBO-FILTER</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mvn clean</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mvn install</div></pre></td></tr></table></figure>
+<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><p>在服务提供的项目中加上依赖，这样每次调用都会打上日志。<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.crossoverJie<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>SSM-TRACE-FILTER<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p><strong>在拦截器中最好不要加上一些耗时任务，需要考虑到性能问题。</strong></p>
+<blockquote>
+<p>项目地址：<a href="https://github.com/crossoverJie/SSM.git" target="_blank" rel="external">https://github.com/crossoverJie/SSM.git</a></p>
+<p>个人博客地址：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+<p>GitHub地址：<a href="https://github.com/crossoverJie" target="_blank" rel="external">https://github.com/crossoverJie</a>。</p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/04/25/58ff0b1b40d27.jpg&quot; alt=&quot;dubbo-filter.jpg&quot;&gt;&lt;/p&gt;
+&lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;p&gt;在之前&lt;a href=&quot;http://crossoverjie.top/2017/04/07/SSM11/&quot;&gt;dubbo分布式框架中&lt;/a&gt;讲到了如何利用dubbo来搭建一个微服务项目。其中还有一些值得优化提高开发效率的地方，比如日志：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;当我们一个项目拆分为N多个微服务之后，当其中一个调用另一个服务出现了问题，首先第一步自然是查看日志。 &lt;/p&gt;
+&lt;p&gt;出现问题的有很多情况，如提供方自身代码的问题，调用方的姿势不对等。&lt;/p&gt;
+&lt;p&gt;自身的问题这个管不了，但是我们可以对每一个入参、返回都加上日志，这样首先就可以判断调用方是否姿势不对了。&lt;/p&gt;
+&lt;p&gt;为了规范日志已经后续的可扩展，我们可以单独提供一个插件给每个项目使用即可。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;效果如下：&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;7&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;8&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;9&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;10&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;11&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;12&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;13&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;2017-04-25 15:15:38,968 DEBUG [com.alibaba.dubbo.remoting.transport.DecodeHandler] -  [DUBBO] Decode decodeable message com.alibaba.dubbo.rpc.protocol.dubbo.DecodeableRpcInvocation, dubbo version: 2.5.3, current host: 127.0.0.1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2017-04-25 15:15:39,484 DEBUG [com.crossoverJie.dubbo.filter.DubboTraceFilter] - dubbo请求数据:&amp;#123;&amp;quot;args&amp;quot;:[1],&amp;quot;interfaceName&amp;quot;:&amp;quot;com.crossoverJie.api.UserInfoApi&amp;quot;,&amp;quot;methodName&amp;quot;:&amp;quot;getUserInfo&amp;quot;&amp;#125;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2017-04-25 15:15:39,484 INFO [com.crossoverJie.api.impl.UserInfoApiImpl] - 用户查询Id=1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2017-04-25 15:15:39,505 DEBUG [org.mybatis.spring.SqlSessionUtils] - Creating a new SqlSession&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2017-04-25 15:15:39,525 DEBUG [org.mybatis.spring.SqlSessionUtils] - SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@6f56b29] was not registered for synchronization because synchronization is not active&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2017-04-25 15:15:39,549 DEBUG [org.mybatis.spring.transaction.SpringManagedTransaction] - JDBC Connection [com.alibaba.druid.proxy.jdbc.ConnectionProxyImpl@778b3121] will not be managed by Spring&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2017-04-25 15:15:39,555 DEBUG [com.crossoverJie.api.dubbo.dao.T_userDao.selectByPrimaryKey] - ==&amp;gt;  Preparing: select id, username, password,roleId from t_user where id = ? &lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2017-04-25 15:15:39,591 DEBUG [com.crossoverJie.api.dubbo.dao.T_userDao.selectByPrimaryKey] - ==&amp;gt; Parameters: 1(Integer)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2017-04-25 15:15:39,616 DEBUG [com.crossoverJie.api.dubbo.dao.T_userDao.selectByPrimaryKey] - &amp;lt;==      Total: 1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2017-04-25 15:15:39,616 DEBUG [com.alibaba.druid.pool.PreparedStatementPool] - &amp;#123;conn-10003, pstmt-20000&amp;#125; enter cache&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2017-04-25 15:15:39,617 DEBUG [org.mybatis.spring.SqlSessionUtils] - Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@6f56b29]&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2017-04-25 15:15:45,473 INFO [com.crossoverJie.dubbo.filter.DubboTraceFilter] - dubbo执行成功&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2017-04-25 15:15:45,476 DEBUG [com.crossoverJie.dubbo.filter.DubboTraceFilter] - dubbo返回数据&amp;#123;&amp;quot;args&amp;quot;:[&amp;#123;&amp;quot;id&amp;quot;:1,&amp;quot;password&amp;quot;:&amp;quot;123456&amp;quot;,&amp;quot;roleId&amp;quot;:1,&amp;quot;userName&amp;quot;:&amp;quot;crossoverJie&amp;quot;&amp;#125;],&amp;quot;interfaceName&amp;quot;:&amp;quot;com.crossoverJie.api.UserInfoApi&amp;quot;,&amp;quot;methodName&amp;quot;:&amp;quot;getUserInfo&amp;quot;&amp;#125;&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+    
+    </summary>
+    
+      <category term="SSM" scheme="http://crossoverJie.github.io/categories/SSM/"/>
+    
+    
+      <category term="dubbo" scheme="http://crossoverJie.github.io/tags/dubbo/"/>
+    
+      <category term="日志" scheme="http://crossoverJie.github.io/tags/%E6%97%A5%E5%BF%97/"/>
+    
+  </entry>
   
   <entry>
     <title>SSM(十一) 基于dubbo的分布式架构</title>
@@ -1185,179 +1245,6 @@
       <category term="baidu" scheme="http://crossoverJie.github.io/tags/baidu/"/>
     
       <category term="google" scheme="http://crossoverJie.github.io/tags/google/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>java多线程（一）多线程基础</title>
-    <link href="http://crossoverJie.github.io/2016/05/14/java-thread1/"/>
-    <id>http://crossoverJie.github.io/2016/05/14/java-thread1/</id>
-    <published>2016-05-14T12:09:10.000Z</published>
-    <updated>2016-06-16T15:23:58.000Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>本文主要讲解java多线程的基础，以及一些常用方法。关于线程同步、ExecutorService框架我会放到后续的文章进行讲解。</p>
-<hr>
-<h1 id="进程与线程的区别"><a href="#进程与线程的区别" class="headerlink" title="进程与线程的区别"></a>进程与线程的区别</h1><h2 id="进程"><a href="#进程" class="headerlink" title="进程"></a>进程</h2><p>进程简单的来说就是在内存中运行的应用程序，一个进程可以启动多个线程。<br>比如在windows中一个运行EXE文件就是一个进程。</p>
-<h2 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h2><p>同一个线程中的进程共用相同的地址空间，同时共享进程所拥有的内存和其他资源。<br><a id="more"></a></p>
-<hr>
-<h1 id="线程Demo-继承Thread类"><a href="#线程Demo-继承Thread类" class="headerlink" title="线程Demo-继承Thread类"></a>线程Demo-继承Thread类</h1><p>首先我们我们继承<code>java.lang.Thread</code>类来创建线程。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> top.crosssoverjie.study.Thread;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestThread</span> </span>&#123;</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">		System.out.println(<span class="string">"主线程ID是："</span> + Thread.currentThread().getId());</div><div class="line">		MyThread my = <span class="keyword">new</span> MyThread(<span class="string">"线程1"</span>);</div><div class="line">		my.start() ;</div><div class="line">		</div><div class="line">		MyThread my2 = <span class="keyword">new</span> MyThread(<span class="string">"线程2"</span>) ;</div><div class="line">		<span class="comment">/**</span></div><div class="line">		 * 这里直接调用my2的run()方法。</div><div class="line">		 */</div><div class="line">		my2.run() ;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyThread</span> <span class="keyword">extends</span> <span class="title">Thread</span> </span>&#123;</div><div class="line">	<span class="keyword">private</span> String name;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="title">MyThread</span><span class="params">(String name)</span> </span>&#123;</div><div class="line">		<span class="keyword">this</span>.name = name;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="meta">@Override</span></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">		System.out.println(<span class="string">"名字："</span> + name + <span class="string">"的线程ID是="</span></div><div class="line">				+ Thread.currentThread().getId());</div><div class="line">	&#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>输出结果:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">主线程ID是：<span class="number">1</span></div><div class="line">名字：线程<span class="number">2</span>的线程ID是=<span class="number">1</span></div><div class="line">名字：线程<span class="number">1</span>的线程ID是=<span class="number">9</span></div></pre></td></tr></table></figure></p>
-<p>由输出结果我们可以得出以下结论：</p>
-<blockquote>
-<ul>
-<li>my和my2的线程ID不相同，my2和主线程ID相同。说明直接调用<code>run()</code>方法不会创建新的线程，而是在主线程中直接调用的<code>run()</code>方法,和普通的方法调用没有区别。</li>
-<li>虽然my的<code>start()</code>方法是在my2的<code>run()</code>方法之前调用，但是却是后输出内容，说明新建的线程并不会影响主线程的执行。</li>
-</ul>
-</blockquote>
-<hr>
-<h1 id="线程Demo-实现Runnable接口"><a href="#线程Demo-实现Runnable接口" class="headerlink" title="线程Demo-实现Runnable接口"></a>线程Demo-实现Runnable接口</h1><p>除了继承<code>java.lang.Thread</code>类之外，我们还可以实现<code>java.lang.Runnable</code>接口来创建线程。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> top.crosssoverjie.study.Thread;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestRunnable</span> </span>&#123;</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">		System.out.println(<span class="string">"主线程的线程ID是"</span>+Thread.currentThread().getId());</div><div class="line">		MyThread2 my = <span class="keyword">new</span> MyThread2(<span class="string">"线程1"</span>) ;</div><div class="line">		Thread t = <span class="keyword">new</span> Thread(my) ;</div><div class="line">		t.start() ;</div><div class="line">		</div><div class="line">		MyThread2 my2 = <span class="keyword">new</span> MyThread2(<span class="string">"线程2"</span>) ;</div><div class="line">		Thread t2 = <span class="keyword">new</span> Thread(my2) ;</div><div class="line">		<span class="comment">/**</span></div><div class="line">		 * 方法调用，并不会创建线程，依然是主线程</div><div class="line">		 */</div><div class="line">		t2.run() ;</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyThread2</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</div><div class="line">	<span class="keyword">private</span> String name ;</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="title">MyThread2</span><span class="params">(String name)</span></span>&#123;</div><div class="line">		<span class="keyword">this</span>.name = name ;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="meta">@Override</span></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">		System.out.println(<span class="string">"线程"</span>+name+<span class="string">"的线程ID是"</span>+Thread.currentThread().getId());</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>输出结果:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">主线程的线程ID是<span class="number">1</span></div><div class="line">线程线程<span class="number">2</span>的线程ID是<span class="number">1</span></div><div class="line">线程线程<span class="number">1</span>的线程ID是<span class="number">9</span></div></pre></td></tr></table></figure></p>
-<p>notes:</p>
-<blockquote>
-<ul>
-<li>实现Runnable的方式需要将实现Runnable接口的类作为参数传递给Thread，然后通过Thread类调用<code>Start()</code>方法来创建线程。</li>
-<li>这两种方式都可以来创建线程，至于选择哪一种要看自己的需求。直接继承Thread类的话代码要简洁一些，但是由于java只支持单继承，所以如果要继承其他类的同时需要实现线程那就只能实现Runnable接口了，这里更推荐实现Runnable接口。</li>
-</ul>
-</blockquote>
-<p>实际上如果我们查看Thread类的源码我们会发现Thread是实现了Runnable接口的：<br><img src="http://i.imgur.com/FLsghcS.png" alt="Thread源码"></p>
-<hr>
-<h1 id="线程中常用的方法"><a href="#线程中常用的方法" class="headerlink" title="线程中常用的方法"></a>线程中常用的方法</h1><table>
-<thead>
-<tr>
-<th>序号</th>
-<th style="text-align:left">方法</th>
-<th style="text-align:left">介绍</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td style="text-align:left"><code>public void start()</code></td>
-<td style="text-align:left">使该线程执行，java虚拟机会调用该线程的<code>run()</code>方法。</td>
-</tr>
-<tr>
-<td>2</td>
-<td style="text-align:left"><code>public final void setName(String name)</code></td>
-<td style="text-align:left">修改线程名称。</td>
-</tr>
-<tr>
-<td>3</td>
-<td style="text-align:left"><code>public final void setPriority(int privority)</code></td>
-<td style="text-align:left">修改线程的优先级。</td>
-</tr>
-<tr>
-<td>4</td>
-<td style="text-align:left"><code>public final void setDaemon(false on)</code></td>
-<td style="text-align:left">将该线程标记为守护线程或用户线程，当正在运行线程都是守护线程时，java虚拟机退出，该方法必须在启动线程前调用。</td>
-</tr>
-<tr>
-<td>5</td>
-<td style="text-align:left"><code>public final void join(long mills)</code></td>
-<td style="text-align:left">等待该线程的终止时间最长为mills毫秒。</td>
-</tr>
-<tr>
-<td>6</td>
-<td style="text-align:left"><code>public void interrupt()</code></td>
-<td style="text-align:left">中断线程。</td>
-</tr>
-<tr>
-<td>7</td>
-<td style="text-align:left"><code>public static boolean isAlive()</code></td>
-<td style="text-align:left">测试线程是否处于活动状态。如果该线程已经启动尚未终止，则为活动状态。</td>
-</tr>
-<tr>
-<td>8</td>
-<td style="text-align:left"><code>public static void yield()</code></td>
-<td style="text-align:left">暂停当前线程执行的对象，并执行其他线程。</td>
-</tr>
-<tr>
-<td>9</td>
-<td style="text-align:left"><code>public static void sleep(long mills)</code></td>
-<td style="text-align:left">在指定毫秒数内，让当前执行的线程休眠(暂停)。</td>
-</tr>
-<tr>
-<td>10</td>
-<td style="text-align:left"><code>public static Thread currentThread()</code></td>
-<td style="text-align:left">返回当前线程的引用。</td>
-</tr>
-</tbody>
-</table>
-<h2 id="方法详解-public-static-void-sleep-long-mills"><a href="#方法详解-public-static-void-sleep-long-mills" class="headerlink" title="方法详解- public static void sleep(long mills)"></a>方法详解- <code>public static void sleep(long mills)</code></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> top.crosssoverjie.study.Thread;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestSleep</span> </span>&#123;</div><div class="line"></div><div class="line">	<span class="keyword">private</span> <span class="keyword">int</span> i = <span class="number">10</span> ;</div><div class="line">	<span class="keyword">private</span> Object ob = <span class="keyword">new</span> Object() ;</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">		TestSleep t = <span class="keyword">new</span> TestSleep() ;</div><div class="line">		MyThread3 thread1 = t.new MyThread3() ;</div><div class="line">		MyThread3 thread2 = t.new MyThread3() ;</div><div class="line">		thread1.start() ;</div><div class="line">		thread2.start() ;</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="class"><span class="keyword">class</span> <span class="title">MyThread3</span> <span class="keyword">extends</span> <span class="title">Thread</span></span>&#123;</div><div class="line">		<span class="meta">@Override</span></div><div class="line">		<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">			<span class="keyword">synchronized</span> (ob) &#123;</div><div class="line">				i++ ;</div><div class="line">				System.out.println(<span class="string">"i的值："</span>+i);</div><div class="line">				System.out.println(<span class="string">"线程："</span>+Thread.currentThread().getName()+<span class="string">"进入休眠状态"</span>);</div><div class="line">				<span class="keyword">try</span> &#123;</div><div class="line">					Thread.currentThread().sleep(<span class="number">1000</span>) ;</div><div class="line">				&#125; <span class="keyword">catch</span> (Exception e) &#123;</div><div class="line">					e.printStackTrace();</div><div class="line">				&#125;</div><div class="line">				System.out.println(<span class="string">"线程："</span>+Thread.currentThread().getName()+<span class="string">"休眠结束"</span>);</div><div class="line">				i++;</div><div class="line">				System.out.println(<span class="string">"i的值&gt;："</span>+i);</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>输出结果：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">i的值：<span class="number">11</span></div><div class="line">线程：Thread-<span class="number">0</span>进入休眠状态</div><div class="line">线程：Thread-<span class="number">0</span>休眠结束</div><div class="line">i的值&gt;：<span class="number">12</span></div><div class="line">i的值：<span class="number">13</span></div><div class="line">线程：Thread-<span class="number">1</span>进入休眠状态</div><div class="line">线程：Thread-<span class="number">1</span>休眠结束</div><div class="line">i的值&gt;：<span class="number">14</span></div></pre></td></tr></table></figure></p>
-<p>由输出结果我们可以得出：</p>
-<blockquote>
-<ul>
-<li>当Thread0进入休眠状态时，Thread1并没有继续执行，而是等待Thread0休眠结束释放了对象锁，Thread1才继续执行。<br>当调用<code>sleep()</code>方法时，必须捕获异常或者向上层抛出异常。当线程休眠时间满时，并不一定会马上执行，因为此时有可能CPU正在执行其他的任务，所以调用了<code>sleep()</code>方法相当于线程进入了阻塞状态。</li>
-</ul>
-</blockquote>
-<h2 id="方法详解-public-static-void-yield"><a href="#方法详解-public-static-void-yield" class="headerlink" title="方法详解- public static void yield()"></a>方法详解- <code>public static void yield()</code></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> top.crosssoverjie.study.Thread;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Testyield</span> </span>&#123;</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">		MyThread4 my = <span class="keyword">new</span> MyThread4() ;</div><div class="line">		my.start() ;</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyThread4</span> <span class="keyword">extends</span> <span class="title">Thread</span></span>&#123;</div><div class="line">	<span class="meta">@Override</span></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">long</span> open = System.currentTimeMillis();</div><div class="line">		<span class="keyword">int</span> count= <span class="number">0</span> ;</div><div class="line">		<span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span> ;i&lt;<span class="number">1000000</span>;i++)&#123;</div><div class="line">			count= count+(i+<span class="number">1</span>);</div><div class="line"><span class="comment">//			Thread.yield() ;</span></div><div class="line">		&#125;</div><div class="line">		<span class="keyword">long</span> end = System.currentTimeMillis();</div><div class="line">		System.out.println(<span class="string">"用时："</span>+(end-open)+<span class="string">"毫秒"</span>);</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>输出结果:<br><code>用时：1毫秒</code><br>如果将 Thread.yield()注释取消掉，输出结果:<br><code>用时：116毫秒</code></p>
-<blockquote>
-<ul>
-<li>调用<code>yield()</code>方法是为了让当前线程交出CPU权限，让CPU去执行其他线程。它和<code>sleep()</code>方法类似同样是不会释放锁。但是<code>yield()</code>不能控制具体的交出CUP的时间。并且它只能让相同优先级的线程获得CPU执行时间的机会。</li>
-<li>调用<code>yield()</code>方法不会让线程进入阻塞状态，而是进入就绪状态，它只需要等待重新获取CPU的时间，这一点和<code>sleep()</code>方法是不一样的。</li>
-</ul>
-</blockquote>
-<h2 id="方法详解-public-final-void-join"><a href="#方法详解-public-final-void-join" class="headerlink" title="方法详解- public final void join()"></a>方法详解- <code>public final void join()</code></h2><p>在很多情况下我们需要在子线程中执行大量的耗时任务，但是我们主线程又必须得等待子线程执行完毕之后才能结束，这就需要用到 <code>join()</code>方法了。<code>join()</code>方法的作用是等待线程对象销毁，如果子线程执行了这个方法，那么主线程就要等待子线程执行完毕之后才会销毁，请看下面这个例子：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> top.crosssoverjie.study.Thread;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Testjoin</span> </span>&#123;</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</div><div class="line">		<span class="keyword">new</span> MyThread5(<span class="string">"t1"</span>).start() ;</div><div class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</div><div class="line">			<span class="keyword">if</span>(i == <span class="number">5</span>)&#123;</div><div class="line">				MyThread5 my =<span class="keyword">new</span> MyThread5(<span class="string">"t2"</span>) ;</div><div class="line">				my.start() ;</div><div class="line">				my.join() ;</div><div class="line">			&#125;</div><div class="line">			System.out.println(<span class="string">"main当前线程："</span>+Thread.currentThread().getName()+<span class="string">" "</span>+i);</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyThread5</span> <span class="keyword">extends</span> <span class="title">Thread</span></span>&#123;</div><div class="line">	</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="title">MyThread5</span><span class="params">(String name)</span></span>&#123;</div><div class="line">		<span class="keyword">super</span>(name) ;</div><div class="line">	&#125;</div><div class="line">	<span class="meta">@Override</span></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++) &#123;</div><div class="line">			System.out.println(<span class="string">"当前线程："</span>+Thread.currentThread().getName()+<span class="string">" "</span>+i);</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>输出结果：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">main当前线程：main <span class="number">0</span></div><div class="line">当前线程：t1 <span class="number">0</span></div><div class="line">当前线程：t1 <span class="number">1</span></div><div class="line">main当前线程：main <span class="number">1</span></div><div class="line">当前线程：t1 <span class="number">2</span></div><div class="line">main当前线程：main <span class="number">2</span></div><div class="line">当前线程：t1 <span class="number">3</span></div><div class="line">main当前线程：main <span class="number">3</span></div><div class="line">当前线程：t1 <span class="number">4</span></div><div class="line">main当前线程：main <span class="number">4</span></div><div class="line">当前线程：t2 <span class="number">0</span></div><div class="line">当前线程：t2 <span class="number">1</span></div><div class="line">当前线程：t2 <span class="number">2</span></div><div class="line">当前线程：t2 <span class="number">3</span></div><div class="line">当前线程：t2 <span class="number">4</span></div><div class="line">main当前线程：main <span class="number">5</span></div><div class="line">main当前线程：main <span class="number">6</span></div><div class="line">main当前线程：main <span class="number">7</span></div><div class="line">main当前线程：main <span class="number">8</span></div><div class="line">main当前线程：main <span class="number">9</span></div></pre></td></tr></table></figure></p>
-<p>如果我们把<code>join()</code>方法注释掉之后：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">main当前线程：main <span class="number">0</span></div><div class="line">当前线程：t1 <span class="number">0</span></div><div class="line">main当前线程：main <span class="number">1</span></div><div class="line">当前线程：t1 <span class="number">1</span></div><div class="line">main当前线程：main <span class="number">2</span></div><div class="line">当前线程：t1 <span class="number">2</span></div><div class="line">main当前线程：main <span class="number">3</span></div><div class="line">当前线程：t1 <span class="number">3</span></div><div class="line">main当前线程：main <span class="number">4</span></div><div class="line">当前线程：t1 <span class="number">4</span></div><div class="line">main当前线程：main <span class="number">5</span></div><div class="line">main当前线程：main <span class="number">6</span></div><div class="line">main当前线程：main <span class="number">7</span></div><div class="line">main当前线程：main <span class="number">8</span></div><div class="line">main当前线程：main <span class="number">9</span></div><div class="line">当前线程：t2 <span class="number">0</span></div><div class="line">当前线程：t2 <span class="number">1</span></div><div class="line">当前线程：t2 <span class="number">2</span></div><div class="line">当前线程：t2 <span class="number">3</span></div><div class="line">当前线程：t2 <span class="number">4</span></div></pre></td></tr></table></figure></p>
-<p>由上我们可以得出以下结论：</p>
-<blockquote>
-<ul>
-<li>在使用了<code>join()</code>方法之后主线程会等待子线程结束之后才会结束。</li>
-</ul>
-</blockquote>
-<h2 id="方法详解-setDaemon-boolean-on-getDaemon"><a href="#方法详解-setDaemon-boolean-on-getDaemon" class="headerlink" title="方法详解- setDaemon(boolean on),getDaemon()"></a>方法详解- <code>setDaemon(boolean on)</code>,<code>getDaemon()</code></h2><p>用来设置是否为守护线程和判断是否为守护线程。<br>notes：</p>
-<blockquote>
-<ul>
-<li>守护线程依赖于创建他的线程，而用户线程则不需要。如果在<code>main()</code>方法中创建了一个守护线程，那么当main方法执行完毕之后守护线程也会关闭。而用户线程则不会，在JVM中垃圾收集器的线程就是守护线程。</li>
-</ul>
-</blockquote>
-<hr>
-<h1 id="优雅的终止线程"><a href="#优雅的终止线程" class="headerlink" title="优雅的终止线程"></a>优雅的终止线程</h1><p>有三种方法可以终止线程，如下：</p>
-<ol>
-<li>使用退出标识，使线程正常的退出，也就是当<code>run()</code>方法完成后线程终止。</li>
-<li><em>使用<code>stop()</code>方法强行关闭，这个方法现在已经被废弃，不推荐使用</em></li>
-<li>使用<code>interrupt()</code>方法终止线程。</li>
-</ol>
-<p>具体的实现代码我将在下一篇博文中将到。。</p>
-<h1 id="线程的优先级"><a href="#线程的优先级" class="headerlink" title="线程的优先级"></a>线程的优先级</h1><p>在操作系统中线程是分优先级的，优先级高的线程CPU将会提供更多的资源，在java中我们可以通过<code>setPriority(int newPriority)</code>方法来更改线程的优先级。<br>在java中分为1~10这个十个优先级，设置不在这个范围内的优先级将会抛出<code>IllegalArgumentException</code>异常。<br>java中有三个预设好的优先级：</p>
-<blockquote>
-<ul>
-<li><code>public final static int MIN_PRIORITY = 1;</code></li>
-<li><code>public final static int NORM_PRIORITY = 5;</code></li>
-<li><code>public final static int MAX_PRIORITY = 10;</code></li>
-</ul>
-</blockquote>
-<hr>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><blockquote>
-<ul>
-<li><a href="http://blog.csdn.net/anhuidelinger/article/details/11746365" target="_blank" rel="external">如何终止线程</a></li>
-<li><a href="http://www.mamicode.com/info-detail-517008.html" target="_blank" rel="external">java多线程学习</a></li>
-</ul>
-</blockquote>
-<h1 id="java多线程思维图"><a href="#java多线程思维图" class="headerlink" title="java多线程思维图"></a>java多线程思维图</h1><p><img src="http://i.imgur.com/PCfshMD.png" alt=""></p>
-<hr>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>以上就是我总结的java多线程基础知识，后续会补充线程关闭、线程状态、线程同步和有返回结果的多线程。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;p&gt;本文主要讲解java多线程的基础，以及一些常用方法。关于线程同步、ExecutorService框架我会放到后续的文章进行讲解。&lt;/p&gt;
-&lt;hr&gt;
-&lt;h1 id=&quot;进程与线程的区别&quot;&gt;&lt;a href=&quot;#进程与线程的区别&quot; class=&quot;headerlink&quot; title=&quot;进程与线程的区别&quot;&gt;&lt;/a&gt;进程与线程的区别&lt;/h1&gt;&lt;h2 id=&quot;进程&quot;&gt;&lt;a href=&quot;#进程&quot; class=&quot;headerlink&quot; title=&quot;进程&quot;&gt;&lt;/a&gt;进程&lt;/h2&gt;&lt;p&gt;进程简单的来说就是在内存中运行的应用程序，一个进程可以启动多个线程。&lt;br&gt;比如在windows中一个运行EXE文件就是一个进程。&lt;/p&gt;
-&lt;h2 id=&quot;线程&quot;&gt;&lt;a href=&quot;#线程&quot; class=&quot;headerlink&quot; title=&quot;线程&quot;&gt;&lt;/a&gt;线程&lt;/h2&gt;&lt;p&gt;同一个线程中的进程共用相同的地址空间，同时共享进程所拥有的内存和其他资源。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="java多线程" scheme="http://crossoverJie.github.io/categories/java%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
-    
-    
-      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
-    
-      <category term="Thread" scheme="http://crossoverJie.github.io/tags/Thread/"/>
-    
-      <category term="Runnable" scheme="http://crossoverJie.github.io/tags/Runnable/"/>
     
   </entry>
   

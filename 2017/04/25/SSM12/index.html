@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Java,Callable,ExecutorService,Future,Executors," />
+  <meta name="keywords" content="dubbo,日志," />
 
 
 
@@ -86,22 +86,30 @@
 
 
 
-<meta name="description" content="前言之前我们使用多线程要么是继承Thread类，要么是实现Runnable接口，然后重写一下run()方法即可。但是只有的话如果有死锁、对共享资源的访问和随时监控线程状态就不行了，于是在Java5之后就有了Callable接口。
+<meta name="description" content="前言在之前dubbo分布式框架中讲到了如何利用dubbo来搭建一个微服务项目。其中还有一些值得优化提高开发效率的地方，比如日志：
 
-简单的实现有返回值的线程代码如下：CallableFuture类1234567891011121314151617181920212223242526272829303">
+当我们一个项目拆分为N多个微服务之后，当其中一个调用另一个服务出现了问题，首先第一步自然是查看日志。 
+出现问题的有很多情况，如提供方自身代码的问题，调用方的姿势不对等。
+自身的问题这个管不了，但是我们可以对每一个入参、返回都加上日志，这样首先就可以判断调用方是否姿">
 <meta property="og:type" content="article">
-<meta property="og:title" content="java多线程（二）有返回值的多线程">
-<meta property="og:url" content="http://crossoverJie.github.io/2016/05/27/java-thread2/index.html">
+<meta property="og:title" content="SSM(十二) SSM(十二) dubbo日志插件">
+<meta property="og:url" content="http://crossoverJie.github.io/2017/04/25/SSM12/index.html">
 <meta property="og:site_name" content="crossoverJie's Blog">
-<meta property="og:description" content="前言之前我们使用多线程要么是继承Thread类，要么是实现Runnable接口，然后重写一下run()方法即可。但是只有的话如果有死锁、对共享资源的访问和随时监控线程状态就不行了，于是在Java5之后就有了Callable接口。
+<meta property="og:description" content="前言在之前dubbo分布式框架中讲到了如何利用dubbo来搭建一个微服务项目。其中还有一些值得优化提高开发效率的地方，比如日志：
 
-简单的实现有返回值的线程代码如下：CallableFuture类1234567891011121314151617181920212223242526272829303">
-<meta property="og:updated_time" content="2016-06-16T15:24:10.000Z">
+当我们一个项目拆分为N多个微服务之后，当其中一个调用另一个服务出现了问题，首先第一步自然是查看日志。 
+出现问题的有很多情况，如提供方自身代码的问题，调用方的姿势不对等。
+自身的问题这个管不了，但是我们可以对每一个入参、返回都加上日志，这样首先就可以判断调用方是否姿">
+<meta property="og:image" content="https://ooo.0o0.ooo/2017/04/25/58ff0b1b40d27.jpg">
+<meta property="og:updated_time" content="2017-04-25T10:02:53.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="java多线程（二）有返回值的多线程">
-<meta name="twitter:description" content="前言之前我们使用多线程要么是继承Thread类，要么是实现Runnable接口，然后重写一下run()方法即可。但是只有的话如果有死锁、对共享资源的访问和随时监控线程状态就不行了，于是在Java5之后就有了Callable接口。
+<meta name="twitter:title" content="SSM(十二) SSM(十二) dubbo日志插件">
+<meta name="twitter:description" content="前言在之前dubbo分布式框架中讲到了如何利用dubbo来搭建一个微服务项目。其中还有一些值得优化提高开发效率的地方，比如日志：
 
-简单的实现有返回值的线程代码如下：CallableFuture类1234567891011121314151617181920212223242526272829303">
+当我们一个项目拆分为N多个微服务之后，当其中一个调用另一个服务出现了问题，首先第一步自然是查看日志。 
+出现问题的有很多情况，如提供方自身代码的问题，调用方的姿势不对等。
+自身的问题这个管不了，但是我们可以对每一个入参、返回都加上日志，这样首先就可以判断调用方是否姿">
+<meta name="twitter:image" content="https://ooo.0o0.ooo/2017/04/25/58ff0b1b40d27.jpg">
 
 
 
@@ -122,9 +130,9 @@
 
 
 
-  <link rel="canonical" href="http://crossoverJie.github.io/2016/05/27/java-thread2/"/>
+  <link rel="canonical" href="http://crossoverJie.github.io/2017/04/25/SSM12/"/>
 
-  <title> java多线程（二）有返回值的多线程 | crossoverJie's Blog </title>
+  <title> SSM(十二) SSM(十二) dubbo日志插件 | crossoverJie's Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -280,7 +288,7 @@
             
             
               
-                java多线程（二）有返回值的多线程
+                SSM(十二) SSM(十二) dubbo日志插件
               
             
           </h1>
@@ -292,8 +300,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-05-27T17:39:16+08:00" content="2016-05-27">
-              2016-05-27
+            <time itemprop="dateCreated" datetime="2017-04-25T18:01:54+08:00" content="2017-04-25">
+              2017-04-25
             </time>
           </span>
 
@@ -306,8 +314,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/java多线程/" itemprop="url" rel="index">
-                    <span itemprop="name">java多线程</span>
+                  <a href="/categories/SSM/" itemprop="url" rel="index">
+                    <span itemprop="name">SSM</span>
                   </a>
                 </span>
 
@@ -322,8 +330,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/05/27/java-thread2/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/05/27/java-thread2/" itemprop="commentsCount"></span>
+                <a href="/2017/04/25/SSM12/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/04/25/SSM12/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -333,7 +341,7 @@
 
           
           
-             <span id="/2016/05/27/java-thread2/" class="leancloud_visitors" data-flag-title="java多线程（二）有返回值的多线程">
+             <span id="/2017/04/25/SSM12/" class="leancloud_visitors" data-flag-title="SSM(十二) SSM(十二) dubbo日志插件">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -360,14 +368,33 @@
       
 
       
-        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>之前我们使用多线程要么是继承<code>Thread</code>类，要么是实现<code>Runnable</code>接口，然后重写一下<code>run()</code>方法即可。<br>但是只有的话如果有死锁、对共享资源的访问和随时监控线程状态就不行了，于是在Java5之后就有了Callable接口。</p>
-<hr>
-<h1 id="简单的实现有返回值的线程"><a href="#简单的实现有返回值的线程" class="headerlink" title="简单的实现有返回值的线程"></a>简单的实现有返回值的线程</h1><p>代码如下：<br><code>CallableFuture</code>类<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> top.crosssoverjie.study.Thread;</div><div class="line"></div><div class="line"><span class="keyword">import</span> java.util.concurrent.ExecutionException;</div><div class="line"><span class="keyword">import</span> java.util.concurrent.ExecutorService;</div><div class="line"><span class="keyword">import</span> java.util.concurrent.Executors;</div><div class="line"><span class="keyword">import</span> java.util.concurrent.Future;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CallableFuture</span> </span>&#123;</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">		<span class="comment">//创建一个线程池</span></div><div class="line">		ExecutorService pool = Executors.newFixedThreadPool(<span class="number">3</span>) ;</div><div class="line">		</div><div class="line">		<span class="comment">//创建三个有返回值的任务</span></div><div class="line">		CallableTest2 c1 = <span class="keyword">new</span> CallableTest2(<span class="string">"线程1"</span>) ;</div><div class="line">		CallableTest2 c2 = <span class="keyword">new</span> CallableTest2(<span class="string">"线程2"</span>) ;</div><div class="line">		CallableTest2 c3 = <span class="keyword">new</span> CallableTest2(<span class="string">"线程3"</span>) ;</div><div class="line">		</div><div class="line">		Future f1 = pool.submit(c1) ;</div><div class="line">		Future f2 = pool.submit(c2) ;</div><div class="line">		Future f3 = pool.submit(c3) ;</div><div class="line">		</div><div class="line">		<span class="keyword">try</span> &#123;</div><div class="line">			System.out.println(f1.get().toString());</div><div class="line">			System.out.println(f2.get().toString());</div><div class="line">			System.out.println(f3.get().toString());</div><div class="line">		&#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</div><div class="line">			e.printStackTrace();</div><div class="line">		&#125; <span class="keyword">catch</span> (ExecutionException e) &#123;</div><div class="line">			e.printStackTrace();</div><div class="line">		&#125;<span class="keyword">finally</span>&#123;</div><div class="line">			pool.shutdown();</div><div class="line">		&#125;</div><div class="line">		</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+        <p><img src="https://ooo.0o0.ooo/2017/04/25/58ff0b1b40d27.jpg" alt="dubbo-filter.jpg"></p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在之前<a href="http://crossoverjie.top/2017/04/07/SSM11/" target="_blank" rel="external">dubbo分布式框架中</a>讲到了如何利用dubbo来搭建一个微服务项目。其中还有一些值得优化提高开发效率的地方，比如日志：</p>
+<blockquote>
+<p>当我们一个项目拆分为N多个微服务之后，当其中一个调用另一个服务出现了问题，首先第一步自然是查看日志。 </p>
+<p>出现问题的有很多情况，如提供方自身代码的问题，调用方的姿势不对等。</p>
+<p>自身的问题这个管不了，但是我们可以对每一个入参、返回都加上日志，这样首先就可以判断调用方是否姿势不对了。</p>
+<p>为了规范日志已经后续的可扩展，我们可以单独提供一个插件给每个项目使用即可。</p>
+</blockquote>
+<p>效果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">2017-04-25 15:15:38,968 DEBUG [com.alibaba.dubbo.remoting.transport.DecodeHandler] -  [DUBBO] Decode decodeable message com.alibaba.dubbo.rpc.protocol.dubbo.DecodeableRpcInvocation, dubbo version: 2.5.3, current host: 127.0.0.1</div><div class="line">2017-04-25 15:15:39,484 DEBUG [com.crossoverJie.dubbo.filter.DubboTraceFilter] - dubbo请求数据:&#123;&quot;args&quot;:[1],&quot;interfaceName&quot;:&quot;com.crossoverJie.api.UserInfoApi&quot;,&quot;methodName&quot;:&quot;getUserInfo&quot;&#125;</div><div class="line">2017-04-25 15:15:39,484 INFO [com.crossoverJie.api.impl.UserInfoApiImpl] - 用户查询Id=1</div><div class="line">2017-04-25 15:15:39,505 DEBUG [org.mybatis.spring.SqlSessionUtils] - Creating a new SqlSession</div><div class="line">2017-04-25 15:15:39,525 DEBUG [org.mybatis.spring.SqlSessionUtils] - SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@6f56b29] was not registered for synchronization because synchronization is not active</div><div class="line">2017-04-25 15:15:39,549 DEBUG [org.mybatis.spring.transaction.SpringManagedTransaction] - JDBC Connection [com.alibaba.druid.proxy.jdbc.ConnectionProxyImpl@778b3121] will not be managed by Spring</div><div class="line">2017-04-25 15:15:39,555 DEBUG [com.crossoverJie.api.dubbo.dao.T_userDao.selectByPrimaryKey] - ==&gt;  Preparing: select id, username, password,roleId from t_user where id = ? </div><div class="line">2017-04-25 15:15:39,591 DEBUG [com.crossoverJie.api.dubbo.dao.T_userDao.selectByPrimaryKey] - ==&gt; Parameters: 1(Integer)</div><div class="line">2017-04-25 15:15:39,616 DEBUG [com.crossoverJie.api.dubbo.dao.T_userDao.selectByPrimaryKey] - &lt;==      Total: 1</div><div class="line">2017-04-25 15:15:39,616 DEBUG [com.alibaba.druid.pool.PreparedStatementPool] - &#123;conn-10003, pstmt-20000&#125; enter cache</div><div class="line">2017-04-25 15:15:39,617 DEBUG [org.mybatis.spring.SqlSessionUtils] - Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@6f56b29]</div><div class="line">2017-04-25 15:15:45,473 INFO [com.crossoverJie.dubbo.filter.DubboTraceFilter] - dubbo执行成功</div><div class="line">2017-04-25 15:15:45,476 DEBUG [com.crossoverJie.dubbo.filter.DubboTraceFilter] - dubbo返回数据&#123;&quot;args&quot;:[&#123;&quot;id&quot;:1,&quot;password&quot;:&quot;123456&quot;,&quot;roleId&quot;:1,&quot;userName&quot;:&quot;crossoverJie&quot;&#125;],&quot;interfaceName&quot;:&quot;com.crossoverJie.api.UserInfoApi&quot;,&quot;methodName&quot;:&quot;getUserInfo&quot;&#125;</div></pre></td></tr></table></figure>
 <a id="more"></a>
-<p>·CallableTest2·类：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> top.crosssoverjie.study.Thread;</div><div class="line"></div><div class="line"><span class="keyword">import</span> java.util.concurrent.Callable;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CallableTest2</span> <span class="keyword">implements</span> <span class="title">Callable</span> </span>&#123;</div><div class="line">	<span class="keyword">private</span> String name ;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="title">CallableTest2</span><span class="params">(String name)</span> </span>&#123;</div><div class="line">		<span class="keyword">this</span>.name = name;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="meta">@Override</span></div><div class="line">	<span class="function"><span class="keyword">public</span> Object <span class="title">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">		<span class="keyword">return</span> name+<span class="string">"返回了东西"</span>;</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>运行结果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">线程1返回了东西</div><div class="line">线程2返回了东西</div><div class="line">线程3返回了东西</div></pre></td></tr></table></figure></p>
-<hr>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>以上就是一个简单的例子，需要了解更多详情可以去看那几个类的API。</p>
+<h1 id="dubbo-filter拓展"><a href="#dubbo-filter拓展" class="headerlink" title="dubbo filter拓展"></a>dubbo filter拓展</h1><p>参考<a href="http://dubbo.io/Developer+Guide-zh.htm#DeveloperGuide-zh-%E8%B0%83%E7%94%A8%E6%8B%A6%E6%88%AA%E6%89%A9%E5%B1%95" target="_blank" rel="external">官方文档</a>，我们可以通过<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">## 定义实体</div><div class="line">首先定义一个实体类用于保存调用过程中的一些数据：</div><div class="line">```java</div><div class="line">public class FilterDesc &#123;</div><div class="line"></div><div class="line">    private String interfaceName ;//接口名</div><div class="line">    private String methodName ;//方法名</div><div class="line">    private Object[] args ;//参数</div><div class="line">    //省略getter setter</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="DubboTraceFilter具体拦截逻辑"><a href="#DubboTraceFilter具体拦截逻辑" class="headerlink" title="DubboTraceFilter具体拦截逻辑"></a>DubboTraceFilter具体拦截逻辑</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Activate</span>(group = Constants.PROVIDER, order = -<span class="number">999</span>)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DubboTraceFilter</span> <span class="keyword">implements</span> <span class="title">Filter</span></span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Logger logger = LoggerFactory.getLogger(DubboTraceFilter.class);</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> Result <span class="title">invoke</span><span class="params">(Invoker&lt;?&gt; invoker, Invocation invocation)</span> <span class="keyword">throws</span> RpcException </span>&#123;</div><div class="line"></div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            FilterDesc filterReq = <span class="keyword">new</span> FilterDesc() ;</div><div class="line">            filterReq.setInterfaceName(invocation.getInvoker().getInterface().getName());</div><div class="line">            filterReq.setMethodName(invocation.getMethodName()) ;</div><div class="line">            filterReq.setArgs(invocation.getArguments());</div><div class="line"></div><div class="line">            logger.debug(<span class="string">"dubbo请求数据:"</span>+JSON.toJSONString(filterReq));</div><div class="line"></div><div class="line">            Result result = invoker.invoke(invocation);</div><div class="line">            <span class="keyword">if</span> (result.hasException() &amp;&amp; invoker.getInterface() != GenericService.class)&#123;</div><div class="line">                logger.error(<span class="string">"dubbo执行异常"</span>,result.getException());</div><div class="line">            &#125;<span class="keyword">else</span> &#123;</div><div class="line">                logger.info(<span class="string">"dubbo执行成功"</span>);</div><div class="line"></div><div class="line">                FilterDesc filterRsp = <span class="keyword">new</span> FilterDesc() ;</div><div class="line">                filterRsp.setMethodName(invocation.getMethodName());</div><div class="line">                filterRsp.setInterfaceName(invocation.getInvoker().getInterface().getName());</div><div class="line">                filterRsp.setArgs(<span class="keyword">new</span> Object[]&#123;result.getValue()&#125;);</div><div class="line">                logger.debug(<span class="string">"dubbo返回数据"</span>+JSON.toJSONString(filterRsp));</div><div class="line"></div><div class="line">            &#125;</div><div class="line">            <span class="keyword">return</span> result ;</div><div class="line"></div><div class="line">        &#125;<span class="keyword">catch</span> (RuntimeException e)&#123;</div><div class="line">            logger.error(<span class="string">"dubbo未知异常"</span> + RpcContext.getContext().getRemoteHost()</div><div class="line">                    + <span class="string">". service: "</span> + invoker.getInterface().getName() + <span class="string">", method: "</span> + invocation.getMethodName()</div><div class="line">                    + <span class="string">", exception: "</span> + e.getClass().getName() + <span class="string">": "</span> + e.getMessage(), e);</div><div class="line">            <span class="keyword">throw</span> e ;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>逻辑非常简单，只是对调用过程、异常、成功之后打印相应的日志而已。</p>
+<p>但是有个地方要注意一下：<br>需要在<code>resource</code>目录下加上<code>META-INF.dubbo/com.alibaba.dubbo.rpc.Filter</code>文件。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">dubboTraceFilter=com.crossoverJie.dubbo.filter.DubboTraceFilter</div></pre></td></tr></table></figure></p>
+<p>目录结构如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">src</div><div class="line"> |-main</div><div class="line">    |-java</div><div class="line">        |-com</div><div class="line">            |-xxx</div><div class="line">                |-XxxFilter.java (实现Filter接口)</div><div class="line">    |-resources</div><div class="line">        |-META-INF</div><div class="line">            |-dubbo</div><div class="line">                |-com.alibaba.dubbo.rpc.Filter (纯文本文件，内容为：xxx=com.xxx.XxxFilter)</div></pre></td></tr></table></figure></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>该项目已经托管到GitHub：<br><a href="https://github.com/crossoverJie/SSM-DUBBO-FILTER" target="_blank" rel="external">https://github.com/crossoverJie/SSM-DUBBO-FILTER</a></p>
+<h2 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h2><h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cd /SSM-DUBBO-FILTER</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mvn clean</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mvn install</div></pre></td></tr></table></figure>
+<h3 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h3><p>在服务提供的项目中加上依赖，这样每次调用都会打上日志。<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.crossoverJie<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>SSM-TRACE-FILTER<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p><strong>在拦截器中最好不要加上一些耗时任务，需要考虑到性能问题。</strong></p>
+<blockquote>
+<p>项目地址：<a href="https://github.com/crossoverJie/SSM.git" target="_blank" rel="external">https://github.com/crossoverJie/SSM.git</a></p>
+<p>个人博客地址：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+<p>GitHub地址：<a href="https://github.com/crossoverJie" target="_blank" rel="external">https://github.com/crossoverJie</a>。</p>
+</blockquote>
 
       
     </div>
@@ -410,15 +437,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Java/" rel="tag">#Java</a>
+            <a href="/tags/dubbo/" rel="tag">#dubbo</a>
           
-            <a href="/tags/Callable/" rel="tag">#Callable</a>
-          
-            <a href="/tags/ExecutorService/" rel="tag">#ExecutorService</a>
-          
-            <a href="/tags/Future/" rel="tag">#Future</a>
-          
-            <a href="/tags/Executors/" rel="tag">#Executors</a>
+            <a href="/tags/日志/" rel="tag">#日志</a>
           
         </div>
       
@@ -427,17 +448,13 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/05/19/baidu-google/" rel="next" title="让百度和google收录我们的网站">
-                <i class="fa fa-chevron-left"></i> 让百度和google收录我们的网站
+              <a href="/2017/04/07/SSM11/" rel="next" title="SSM(十一) 基于dubbo的分布式架构">
+                <i class="fa fa-chevron-left"></i> SSM(十一) 基于dubbo的分布式架构
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016/06/05/normal-skill1/" rel="prev" title="日常记录（一）MySQL被锁解决方案">
-                日常记录（一）MySQL被锁解决方案 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -666,7 +683,7 @@
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#简单的实现有返回值的线程"><span class="nav-number">2.</span> <span class="nav-text">简单的实现有返回值的线程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#dubbo-filter拓展"><span class="nav-number">2.</span> <span class="nav-text">dubbo filter拓展</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#DubboTraceFilter具体拦截逻辑"><span class="nav-number">2.1.</span> <span class="nav-text">DubboTraceFilter具体拦截逻辑</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#使用方法"><span class="nav-number">3.1.</span> <span class="nav-text">使用方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装"><span class="nav-number">3.1.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用"><span class="nav-number">3.1.2.</span> <span class="nav-text">使用</span></a></li></ol></li></ol></li></ol></div>
             
           </div>
         </section>
@@ -809,9 +826,9 @@
 
     <script type="text/javascript">
       var disqus_shortname = 'crossoverjie';
-      var disqus_identifier = '2016/05/27/java-thread2/';
-      var disqus_title = "java多线程（二）有返回值的多线程";
-      var disqus_url = 'http://crossoverJie.github.io/2016/05/27/java-thread2/';
+      var disqus_identifier = '2017/04/25/SSM12/';
+      var disqus_title = "SSM(十二) SSM(十二) dubbo日志插件";
+      var disqus_url = 'http://crossoverJie.github.io/2017/04/25/SSM12/';
 
       function run_disqus_script(disqus_script){
         var dsq = document.createElement('script');
