@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://crossoverJie.github.io/"/>
-  <updated>2017-04-25T10:02:53.000Z</updated>
+  <updated>2017-04-25T10:07:48.000Z</updated>
   <id>http://crossoverJie.github.io/</id>
   
   <author>
@@ -16,11 +16,11 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>SSM(十二) SSM(十二) dubbo日志插件</title>
+    <title>SSM(十二) dubbo日志插件</title>
     <link href="http://crossoverJie.github.io/2017/04/25/SSM12/"/>
     <id>http://crossoverJie.github.io/2017/04/25/SSM12/</id>
     <published>2017-04-25T10:01:54.000Z</published>
-    <updated>2017-04-25T10:02:53.000Z</updated>
+    <updated>2017-04-25T10:07:48.000Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://ooo.0o0.ooo/2017/04/25/58ff0b1b40d27.jpg" alt="dubbo-filter.jpg"></p>
 <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在之前<a href="http://crossoverjie.top/2017/04/07/SSM11/" target="_blank" rel="external">dubbo分布式框架中</a>讲到了如何利用dubbo来搭建一个微服务项目。其中还有一些值得优化提高开发效率的地方，比如日志：</p>
