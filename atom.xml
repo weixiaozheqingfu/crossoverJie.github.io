@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://crossoverJie.github.io/"/>
-  <updated>2017-05-03T14:47:09.000Z</updated>
+  <updated>2017-05-07T07:55:54.000Z</updated>
   <id>http://crossoverJie.github.io/</id>
   
   <author>
@@ -16,9 +16,53 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>科普-为自己的博客免费加上小绿锁</title>
+    <link href="http://crossoverJie.github.io/2017/05/07/SSM13/"/>
+    <id>http://crossoverJie.github.io/2017/05/07/SSM13/</id>
+    <published>2017-05-06T17:01:54.000Z</published>
+    <updated>2017-05-07T07:55:54.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><img src="https://user-gold-cdn.xitu.io/2017/5/7/65fe4b27f7b059b798d1e7542218e34e" alt="https.jpg"></p>
+<p>在如今的<code>HTTPS</code>大当其道的情况下自己的博客要是还没有用上。作为互联网的螺丝钉(<code>码农</code>)岂不是很没面子。</p>
+<h1 id="使用CLOUDFLARE"><a href="#使用CLOUDFLARE" class="headerlink" title="使用CLOUDFLARE"></a>使用CLOUDFLARE</h1><p>这里使用<a href="http://www.CLOUDFLARE.com" target="_blank" rel="external">CLOUDFLARE</a>来提供<code>HTTPS</code>服务。</p>
+<ul>
+<li>在其官网进行注册，按照提示添加好自己的域名即可。</li>
+<li>之后需要在自己域名的提供商处修改<code>DNS服务器</code>，我是在万网购买的修改后如下图：<br><img src="https://user-gold-cdn.xitu.io/2017/5/7/8ddea982a2a39fb1b2b95f3f52087dff" alt="修改DNS.jpg"><br>其中的<code>DNS服务器地址</code>由<code>CLOUDFLARE</code>是提供的。<br>修改完成之后通常需要等待一段时间才能生效。</li>
+<li>接着在<code>CLOUDFLARE</code>配置<code>DNS</code>解析：<br><img src="https://user-gold-cdn.xitu.io/2017/5/7/0d79bc1189f2ab3bc34f856e44055eb9" alt="DNS解析.jpg"><br>点击<code>CLOUDFLARE</code>顶部的<code>DNS</code>进行如我上图中的配置，和之前的配置没有什么区别。</li>
+</ul>
+<p>等待一段时间之后发现使用<code>HTTP</code>,<code>HTTPS</code>都能访问，但是最好还是能在访问<code>HTTP</code>的时候能强制跳转到<code>HTTPS</code>.</p>
+<ul>
+<li>在<code>CLOUDFLARE</code>菜单栏点击<code>page-rules</code>之后新建一个<code>page rule</code>：<br><img src="https://user-gold-cdn.xitu.io/2017/5/7/047b42017deb3cd5f2ef550c6ac4e673" alt="强制https.jpg"><br>这样整个网站的请求都会强制到请求到<code>HTTPS</code>.</li>
+</ul>
+<h1 id="主题配置"><a href="#主题配置" class="headerlink" title="主题配置"></a>主题配置</h1><p>由于我才用的是<code>Hexo</code>中的<code>Next</code>主题，其中配置了<code>CNZZ</code>站长统计。其中配置的<code>CNZZ</code>统计JS是才用的<code>HTTP</code>。导致在首页的时候<code>chrome</code>一直提示感叹号。<br>修改站点<code>themes/next/layout/_scripts/third-party/analytics</code>目录下的<code>cnzz-analytics.swig</code>文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&#123;% if theme.cnzz_siteid %&#125;</div><div class="line"></div><div class="line">  &lt;div style=&quot;display: none;&quot;&gt;</div><div class="line">    &lt;script src=&quot;https://s6.cnzz.com/stat.php?id=&#123;&#123; theme.cnzz_siteid &#125;&#125;&amp;web_id=&#123;&#123; theme.cnzz_siteid &#125;&#125;&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;</div><div class="line">  &lt;/div&gt;</div><div class="line"></div><div class="line">&#123;% endif %&#125;</div></pre></td></tr></table></figure></p>
+<p>之后再进行构建的时候就会使用<code>HTTPS</code>.</p>
+<blockquote>
+<p>值得注意一点的是之后文章中所使用的图片都要用<code>HTTPS</code>的地址了，不然<code>chrome</code>会提示感叹号。</p>
+<p>个人博客地址：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+<p>GitHub地址：<a href="https://github.com/crossoverJie" target="_blank" rel="external">https://github.com/crossoverJie</a>。</p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;img src=&quot;https://user-gold-cdn.xitu.io/2017/5/7/65fe4b27f7b059b798d1e7542218e34e&quot; alt=&quot;https.jpg&quot;&gt;&lt;/p&gt;
+&lt;p&gt;在如今的&lt;code&gt;HTTPS&lt;/code&gt;大当其道的情况下
+    
+    </summary>
+    
+      <category term="科普" scheme="http://crossoverJie.github.io/categories/%E7%A7%91%E6%99%AE/"/>
+    
+    
+      <category term="HTTPS" scheme="http://crossoverJie.github.io/tags/HTTPS/"/>
+    
+      <category term="HTTP" scheme="http://crossoverJie.github.io/tags/HTTP/"/>
+    
+  </entry>
+  
+  <entry>
     <title>SSM(十三) 将dubbo暴露出HTTP服务</title>
-    <link href="http://crossoverJie.github.io/2017/05/02/SSM13/"/>
-    <id>http://crossoverJie.github.io/2017/05/02/SSM13/</id>
+    <link href="http://crossoverJie.github.io/2017/05/02/%E7%A7%91%E6%99%AE-%E4%B8%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E5%8D%9A%E5%AE%A2%E5%85%8D%E8%B4%B9%E5%8A%A0%E4%B8%8A%E5%B0%8F%E7%BB%BF%E9%94%81/"/>
+    <id>http://crossoverJie.github.io/2017/05/02/科普-为自己的博客免费加上小绿锁/</id>
     <published>2017-05-01T17:01:54.000Z</published>
     <updated>2017-05-03T14:47:09.000Z</updated>
     
@@ -98,11 +142,11 @@
       <category term="SSM" scheme="http://crossoverJie.github.io/categories/SSM/"/>
     
     
+      <category term="dubbo" scheme="http://crossoverJie.github.io/tags/dubbo/"/>
+    
       <category term="Spring" scheme="http://crossoverJie.github.io/tags/Spring/"/>
     
       <category term="SpringMVC" scheme="http://crossoverJie.github.io/tags/SpringMVC/"/>
-    
-      <category term="dubbo" scheme="http://crossoverJie.github.io/tags/dubbo/"/>
     
   </entry>
   
@@ -1245,46 +1289,6 @@
     
     
       <category term="MySQL" scheme="http://crossoverJie.github.io/tags/MySQL/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>java多线程（二）有返回值的多线程</title>
-    <link href="http://crossoverJie.github.io/2016/05/27/java-thread2/"/>
-    <id>http://crossoverJie.github.io/2016/05/27/java-thread2/</id>
-    <published>2016-05-27T09:39:16.000Z</published>
-    <updated>2016-06-16T15:24:10.000Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>之前我们使用多线程要么是继承<code>Thread</code>类，要么是实现<code>Runnable</code>接口，然后重写一下<code>run()</code>方法即可。<br>但是只有的话如果有死锁、对共享资源的访问和随时监控线程状态就不行了，于是在Java5之后就有了Callable接口。</p>
-<hr>
-<h1 id="简单的实现有返回值的线程"><a href="#简单的实现有返回值的线程" class="headerlink" title="简单的实现有返回值的线程"></a>简单的实现有返回值的线程</h1><p>代码如下：<br><code>CallableFuture</code>类<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> top.crosssoverjie.study.Thread;</div><div class="line"></div><div class="line"><span class="keyword">import</span> java.util.concurrent.ExecutionException;</div><div class="line"><span class="keyword">import</span> java.util.concurrent.ExecutorService;</div><div class="line"><span class="keyword">import</span> java.util.concurrent.Executors;</div><div class="line"><span class="keyword">import</span> java.util.concurrent.Future;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CallableFuture</span> </span>&#123;</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">		<span class="comment">//创建一个线程池</span></div><div class="line">		ExecutorService pool = Executors.newFixedThreadPool(<span class="number">3</span>) ;</div><div class="line">		</div><div class="line">		<span class="comment">//创建三个有返回值的任务</span></div><div class="line">		CallableTest2 c1 = <span class="keyword">new</span> CallableTest2(<span class="string">"线程1"</span>) ;</div><div class="line">		CallableTest2 c2 = <span class="keyword">new</span> CallableTest2(<span class="string">"线程2"</span>) ;</div><div class="line">		CallableTest2 c3 = <span class="keyword">new</span> CallableTest2(<span class="string">"线程3"</span>) ;</div><div class="line">		</div><div class="line">		Future f1 = pool.submit(c1) ;</div><div class="line">		Future f2 = pool.submit(c2) ;</div><div class="line">		Future f3 = pool.submit(c3) ;</div><div class="line">		</div><div class="line">		<span class="keyword">try</span> &#123;</div><div class="line">			System.out.println(f1.get().toString());</div><div class="line">			System.out.println(f2.get().toString());</div><div class="line">			System.out.println(f3.get().toString());</div><div class="line">		&#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</div><div class="line">			e.printStackTrace();</div><div class="line">		&#125; <span class="keyword">catch</span> (ExecutionException e) &#123;</div><div class="line">			e.printStackTrace();</div><div class="line">		&#125;<span class="keyword">finally</span>&#123;</div><div class="line">			pool.shutdown();</div><div class="line">		&#125;</div><div class="line">		</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<a id="more"></a>
-<p>·CallableTest2·类：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> top.crosssoverjie.study.Thread;</div><div class="line"></div><div class="line"><span class="keyword">import</span> java.util.concurrent.Callable;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CallableTest2</span> <span class="keyword">implements</span> <span class="title">Callable</span> </span>&#123;</div><div class="line">	<span class="keyword">private</span> String name ;</div><div class="line"></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="title">CallableTest2</span><span class="params">(String name)</span> </span>&#123;</div><div class="line">		<span class="keyword">this</span>.name = name;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="meta">@Override</span></div><div class="line">	<span class="function"><span class="keyword">public</span> Object <span class="title">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">		<span class="keyword">return</span> name+<span class="string">"返回了东西"</span>;</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>运行结果：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">线程1返回了东西</div><div class="line">线程2返回了东西</div><div class="line">线程3返回了东西</div></pre></td></tr></table></figure></p>
-<hr>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>以上就是一个简单的例子，需要了解更多详情可以去看那几个类的API。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;p&gt;之前我们使用多线程要么是继承&lt;code&gt;Thread&lt;/code&gt;类，要么是实现&lt;code&gt;Runnable&lt;/code&gt;接口，然后重写一下&lt;code&gt;run()&lt;/code&gt;方法即可。&lt;br&gt;但是只有的话如果有死锁、对共享资源的访问和随时监控线程状态就不行了，于是在Java5之后就有了Callable接口。&lt;/p&gt;
-&lt;hr&gt;
-&lt;h1 id=&quot;简单的实现有返回值的线程&quot;&gt;&lt;a href=&quot;#简单的实现有返回值的线程&quot; class=&quot;headerlink&quot; title=&quot;简单的实现有返回值的线程&quot;&gt;&lt;/a&gt;简单的实现有返回值的线程&lt;/h1&gt;&lt;p&gt;代码如下：&lt;br&gt;&lt;code&gt;CallableFuture&lt;/code&gt;类&lt;br&gt;&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;7&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;8&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;9&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;10&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;11&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;12&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;13&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;14&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;15&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;16&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;17&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;18&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;19&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;20&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;21&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;22&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;23&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;24&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;25&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;26&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;27&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;28&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;29&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;30&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;31&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;32&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;33&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;34&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;35&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;package&lt;/span&gt; top.crosssoverjie.study.Thread;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; java.util.concurrent.ExecutionException;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; java.util.concurrent.ExecutorService;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; java.util.concurrent.Executors;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; java.util.concurrent.Future;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;CallableFuture&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;	&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(String[] args)&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;		&lt;span class=&quot;comment&quot;&gt;//创建一个线程池&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;		ExecutorService pool = Executors.newFixedThreadPool(&lt;span class=&quot;number&quot;&gt;3&lt;/span&gt;) ;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;		&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;		&lt;span class=&quot;comment&quot;&gt;//创建三个有返回值的任务&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;		CallableTest2 c1 = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; CallableTest2(&lt;span class=&quot;string&quot;&gt;&quot;线程1&quot;&lt;/span&gt;) ;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;		CallableTest2 c2 = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; CallableTest2(&lt;span class=&quot;string&quot;&gt;&quot;线程2&quot;&lt;/span&gt;) ;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;		CallableTest2 c3 = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; CallableTest2(&lt;span class=&quot;string&quot;&gt;&quot;线程3&quot;&lt;/span&gt;) ;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;		&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;		Future f1 = pool.submit(c1) ;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;		Future f2 = pool.submit(c2) ;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;		Future f3 = pool.submit(c3) ;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;		&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;		&lt;span class=&quot;keyword&quot;&gt;try&lt;/span&gt; &amp;#123;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;			System.out.println(f1.get().toString());&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;			System.out.println(f2.get().toString());&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;			System.out.println(f3.get().toString());&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;		&amp;#125; &lt;span class=&quot;keyword&quot;&gt;catch&lt;/span&gt; (InterruptedException e) &amp;#123;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;			e.printStackTrace();&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;		&amp;#125; &lt;span class=&quot;keyword&quot;&gt;catch&lt;/span&gt; (ExecutionException e) &amp;#123;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;			e.printStackTrace();&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;		&amp;#125;&lt;span class=&quot;keyword&quot;&gt;finally&lt;/span&gt;&amp;#123;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;			pool.shutdown();&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;		&amp;#125;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;		&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;	&amp;#125;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&amp;#125;&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="java多线程" scheme="http://crossoverJie.github.io/categories/java%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
-    
-    
-      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
-    
-      <category term="Callable" scheme="http://crossoverJie.github.io/tags/Callable/"/>
-    
-      <category term="ExecutorService" scheme="http://crossoverJie.github.io/tags/ExecutorService/"/>
-    
-      <category term="Future" scheme="http://crossoverJie.github.io/tags/Future/"/>
-    
-      <category term="Executors" scheme="http://crossoverJie.github.io/tags/Executors/"/>
     
   </entry>
   

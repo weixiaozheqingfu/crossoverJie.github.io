@@ -3,6 +3,28 @@
 
 
     
+  <url>
+    <loc>http://crossoverJie.github.io/2017/05/07/SSM13/</loc>
+    <lastmod>2017-05-07T07:55:54.000Z</lastmod>
+    <data>
+        <display>
+        <title>科普-为自己的博客免费加上小绿锁</title>
+        <pubTime>2017-05-06T17:01:54.000Z</pubTime>
+        
+        <tag>HTTPS</tag>
+         
+        <tag>HTTP</tag>
+         
+         
+           
+             
+              <breadCrumb title="科普" url="http://crossoverJie.github.io/categories/%E7%A7%91%E6%99%AE/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
     
   <url>
     <loc>http://crossoverJie.github.io/2017/01/05/SSM8/</loc>
@@ -139,18 +161,18 @@
 
     
   <url>
-    <loc>http://crossoverJie.github.io/2017/05/02/SSM13/</loc>
+    <loc>http://crossoverJie.github.io/2017/05/02/%E7%A7%91%E6%99%AE-%E4%B8%BA%E8%87%AA%E5%B7%B1%E7%9A%84%E5%8D%9A%E5%AE%A2%E5%85%8D%E8%B4%B9%E5%8A%A0%E4%B8%8A%E5%B0%8F%E7%BB%BF%E9%94%81/</loc>
     <lastmod>2017-05-03T14:47:09.000Z</lastmod>
     <data>
         <display>
         <title>SSM(十三) 将dubbo暴露出HTTP服务</title>
         <pubTime>2017-05-01T17:01:54.000Z</pubTime>
         
+        <tag>dubbo</tag>
+         
         <tag>Spring</tag>
          
         <tag>SpringMVC</tag>
-         
-        <tag>dubbo</tag>
          
          
            
