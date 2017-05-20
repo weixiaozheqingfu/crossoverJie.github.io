@@ -3,21 +3,19 @@
 
 
     
-    
-    
   <url>
     <loc>http://crossoverJie.github.io/2017/05/07/SSM13/</loc>
-    <lastmod>2017-05-07T08:48:30.000Z</lastmod>
+    <lastmod>2017-05-20T05:40:59.000Z</lastmod>
     <data>
         <display>
         <title>SSM(十三) 将dubbo暴露出HTTP服务</title>
         <pubTime>2017-05-06T17:01:54.000Z</pubTime>
         
+        <tag>dubbo</tag>
+         
         <tag>Java</tag>
          
         <tag>HTTP</tag>
-         
-        <tag>dubbo</tag>
          
          
            
@@ -28,6 +26,8 @@
     </data>
     </url>
 
+    
+    
     
   <url>
     <loc>http://crossoverJie.github.io/2017/05/07/https/</loc>
