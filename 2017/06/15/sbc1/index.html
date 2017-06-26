@@ -1,0 +1,1025 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Java,SpringBoot,SpringCloud," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="crossoverJie's Blog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="前言
+有看过我之前的SSM系列的朋友应该有一点印象是非常深刻的。
+
+那就是需要配置的配置文件非常多，什么Spring、mybatis、redis、mq之类的配置文件非常多，并且还存在各种版本，甚至有些版本还互不兼容。其中有很多可能就是刚开始整合的时候需要配置，之后压根就不会再动了。
+
+鉴于此，Spring又推出了又一神器SpringBoot.
+它可以让我们更加快速的开发Spring应用，甚至做到了">
+<meta property="og:type" content="article">
+<meta property="og:title" content="sbc(一)SpringBoot+SpringCloud初探">
+<meta property="og:url" content="http://crossoverJie.github.io/2017/06/15/sbc1/index.html">
+<meta property="og:site_name" content="crossoverJie's Blog">
+<meta property="og:description" content="前言
+有看过我之前的SSM系列的朋友应该有一点印象是非常深刻的。
+
+那就是需要配置的配置文件非常多，什么Spring、mybatis、redis、mq之类的配置文件非常多，并且还存在各种版本，甚至有些版本还互不兼容。其中有很多可能就是刚开始整合的时候需要配置，之后压根就不会再动了。
+
+鉴于此，Spring又推出了又一神器SpringBoot.
+它可以让我们更加快速的开发Spring应用，甚至做到了">
+<meta property="og:image" content="https://ooo.0o0.ooo/2017/06/15/59417275b1746.jpg">
+<meta property="og:image" content="https://ooo.0o0.ooo/2017/06/16/5942bbbb8797e.jpg">
+<meta property="og:image" content="https://ooo.0o0.ooo/2017/06/16/5942bde60ac4c.jpg">
+<meta property="og:image" content="https://ooo.0o0.ooo/2017/06/26/5950a607afe13.jpg">
+<meta property="og:image" content="https://ooo.0o0.ooo/2017/06/26/5950de9914c91.jpg">
+<meta property="og:image" content="https://ooo.0o0.ooo/2017/06/26/59511b85974be.jpg">
+<meta property="og:image" content="https://ooo.0o0.ooo/2017/06/26/59511cef59d46.jpg">
+<meta property="og:image" content="https://ooo.0o0.ooo/2017/06/26/595129f117276.jpg">
+<meta property="og:updated_time" content="2017-06-26T17:16:14.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="sbc(一)SpringBoot+SpringCloud初探">
+<meta name="twitter:description" content="前言
+有看过我之前的SSM系列的朋友应该有一点印象是非常深刻的。
+
+那就是需要配置的配置文件非常多，什么Spring、mybatis、redis、mq之类的配置文件非常多，并且还存在各种版本，甚至有些版本还互不兼容。其中有很多可能就是刚开始整合的时候需要配置，之后压根就不会再动了。
+
+鉴于此，Spring又推出了又一神器SpringBoot.
+它可以让我们更加快速的开发Spring应用，甚至做到了">
+<meta name="twitter:image" content="https://ooo.0o0.ooo/2017/06/15/59417275b1746.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 555390,
+      author: '博主大大'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://crossoverJie.github.io/2017/06/15/sbc1/"/>
+
+  <title> sbc(一)SpringBoot+SpringCloud初探 | crossoverJie's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s6.cnzz.com/stat.php?id=1259025147&web_id=1259025147" type="text/javascript"></script>
+  </div>
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">crossoverJie's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">会crossover的程序猿</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                sbc(一)SpringBoot+SpringCloud初探
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-06-15T21:40:15+08:00" content="2017-06-15">
+              2017-06-15
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/sbc/" itemprop="url" rel="index">
+                    <span itemprop="name">sbc</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/06/15/sbc1/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/06/15/sbc1/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/06/15/sbc1/" class="leancloud_visitors" data-flag-title="sbc(一)SpringBoot+SpringCloud初探">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+              &nbsp; | &nbsp;
+              <span class="page-pv">本文总阅读量
+              <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+              </span>
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p><img src="https://ooo.0o0.ooo/2017/06/15/59417275b1746.jpg" alt="sb1.jpg"></p>
+<p>有看过我之前的<a href="https://github.com/crossoverJie/SSM" target="_blank" rel="external">SSM</a>系列的朋友应该有一点印象是非常深刻的。</p>
+<blockquote>
+<p>那就是需要配置的配置文件非常多，什么<code>Spring</code>、<code>mybatis</code>、<code>redis</code>、<code>mq</code>之类的配置文件非常多，并且还存在各种版本，甚至有些版本还互不兼容。其中有很多可能就是刚开始整合的时候需要配置，之后压根就不会再动了。</p>
+</blockquote>
+<p>鉴于此，<code>Spring</code>又推出了又一神器<a href="https://projects.spring.io/spring-boot/" target="_blank" rel="external">SpringBoot</a>.</p>
+<p>它可以让我们更加快速的开发<code>Spring</code>应用，甚至做到了开箱即用。<br>由于在实际开发中我们使用<code>SpringBoot</code>+<code>SpringCloud</code>进行了一段时间的持续交付，并在生产环境得到了验证，其中也有不少踩坑的地方，借此机会和大家分享交流一下。</p>
+<p>本篇我们首先会用利用<code>SpringBoot</code>构建出一个简单的<code>REST API</code>.<br>接着会创建另一个<code>SpringBoot</code>项目，基于<code>SpringCloud</code>部署，并在两个应用之间进行调用。</p>
+<h1 id="使用SpringBoot构建REST-API"><a href="#使用SpringBoot构建REST-API" class="headerlink" title="使用SpringBoot构建REST API"></a>使用<code>SpringBoot</code>构建<code>REST API</code></h1><p>我们可以使用<code>Spring</code>官方提供的初始化工具帮我们生成一个基础项目：<a href="http://start.spring.io/" target="_blank" rel="external">http://start.spring.io/</a>,如下图所示：<br><img src="https://ooo.0o0.ooo/2017/06/16/5942bbbb8797e.jpg" alt="sb2.jpg"></p>
+<p>填入相应信息即可。由于只是要实现<code>REST API</code>所以这里只需要引用<code>web</code>依赖即可。</p>
+<p>将生成好的项目导入<code>IDE</code>(我使用的是<code>idea</code>)中,目录结构如下;<br><img src="https://ooo.0o0.ooo/2017/06/16/5942bde60ac4c.jpg" alt="sb3.jpg"></p>
+<ul>
+<li>其中的<code>SbcUserApplication</code>是整个应用的入口。</li>
+<li><code>resource/application.properties</code>这里是存放整个应用的配置文件。</li>
+<li>其中的<code>static</code>和<code>templates</code>是存放静态资源以及前端模板的地方，由于我们采用了前后端分离，所以这些目录基本上用不上了。</li>
+</ul>
+<p>通过运行<code>SbcUserApplication</code>类的<code>main</code>方法可以启动<code>SpringBoot</code>项目。</p>
+<p>接着在<code>PostMan</code>中进行调用，看到以下结果表明启动成功了：</p>
+<p><img src="https://ooo.0o0.ooo/2017/06/26/5950a607afe13.jpg" alt="springBoot01.jpg"></p>
+<p>这样一看是不是要比之前用<code>Spring+SpringMVC</code>来整合要方便快捷很多。</p>
+<h1 id="创建另一个SpringBoot项目"><a href="#创建另一个SpringBoot项目" class="headerlink" title="创建另一个SpringBoot项目"></a>创建另一个<code>SpringBoot</code>项目</h1><p>当我们的项目采用微服务构建之后自然就会被拆分成N多个独立的应用。比如上文中的<code>sbc-user</code>用于用户管理。这里再创建一个<code>sbc-order</code>用户生成订单。</p>
+<blockquote>
+<p>为了方便之后的代码复用，我将<code>common</code>包中的一些枚举值、工具类单独提到<code>sbc-common</code>应用中了，这样有其他应用要使用这些基础类直接引入这个依赖即可。</p>
+</blockquote>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.crossoverJie<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>sbc-common<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>创建步骤和上文差不多，这里就不再赘述了。<br>其中有一个<code>order/getOrderNo</code>的服务，调用结果如下：</p>
+<p><img src="https://ooo.0o0.ooo/2017/06/26/5950de9914c91.jpg" alt="springBoot02.jpg"></p>
+<p>之后会利用<code>SpringCloud</code>来将两个服务关联起来，并可以互相调用。</p>
+<h1 id="使用SpringCloud进行分布式调用"><a href="#使用SpringCloud进行分布式调用" class="headerlink" title="使用SpringCloud进行分布式调用"></a>使用<code>SpringCloud</code>进行分布式调用</h1><h2 id="搭建eureka注册中心"><a href="#搭建eureka注册中心" class="headerlink" title="搭建eureka注册中心"></a>搭建<code>eureka</code>注册中心</h2><p>既然是要搭建微服务那自然少不了注册中心了，之前讲的<code>dubbo</code>采用的是<code>zookeeper</code>作为注册中心，<code>SpringCloud</code>则采用的是<code>Netflix Eureka</code>来做服务的注册与发现。</p>
+<p>新建一个项目<code>sbc-service</code>,目录结构如下：</p>
+<p><img src="https://ooo.0o0.ooo/2017/06/26/59511b85974be.jpg" alt="springBoot03.jpg"></p>
+<p>核心的<code>pom.xml</code></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-eureka-server<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">	<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>ch.qos.logback<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>logback-classic<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="name">version</span>&gt;</span>1.2.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">	<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;<span class="name">dependencyManagement</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">			<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">			<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">			<span class="tag">&lt;<span class="name">version</span>&gt;</span>Brixton.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">			<span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></div><div class="line">			<span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></div><div class="line">		<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line">	<span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependencyManagement</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>非常easy，只需要引入<code>eureka</code>的依赖即可。<br>然后在入口类加入一个注解<code>@EnableEurekaServer</code>，即可将该项目作为服务注册中心：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> com.crossoverJie.service;</div><div class="line"></div><div class="line"><span class="keyword">import</span> org.slf4j.Logger;</div><div class="line"><span class="keyword">import</span> org.slf4j.LoggerFactory;</div><div class="line"><span class="keyword">import</span> org.springframework.boot.SpringApplication;</div><div class="line"><span class="keyword">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;</div><div class="line"><span class="keyword">import</span> org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;</div><div class="line"></div><div class="line"><span class="meta">@EnableEurekaServer</span></div><div class="line"><span class="meta">@SpringBootApplication</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EurekaApplication</span> </span>&#123;</div><div class="line">	<span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> Logger logger = LoggerFactory.getLogger(EurekaApplication.class);</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line"></div><div class="line">		SpringApplication.run(EurekaApplication.class, args);</div><div class="line">		logger.info(<span class="string">"SpringBoot Start Success"</span>);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>接着修改配置文件<code>application.properties</code>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">server.port=8888</div><div class="line"></div><div class="line"># 不向注册中心注册自己</div><div class="line">eureka.client.register-with-eureka=false</div><div class="line"></div><div class="line"># 不需要检索服务</div><div class="line">eureka.client.fetch-registry=false</div><div class="line"></div><div class="line">eureka.client.serviceUrl.defaultZone=http://localhost:$&#123;server.port&#125;/eureka/</div></pre></td></tr></table></figure>
+<p>配置一下端口以及注册中心的地址即可。<br>然后按照正常启动<code>springBoot</code>项目一样启动即可。</p>
+<p>在地址栏输入<a href="http://localhost:8888/" target="_blank" rel="external">http://localhost:8888</a>看到一下界面：</p>
+<p><img src="https://ooo.0o0.ooo/2017/06/26/59511cef59d46.jpg" alt="springBoot04.jpg"></p>
+<p>当然现在在注册中心还看不到任何一个应用，下面需要将上文的<code>sbc-user,sbc-order</code>注册进来。</p>
+<h2 id="向注册中心注册服务提供者"><a href="#向注册中心注册服务提供者" class="headerlink" title="向注册中心注册服务提供者"></a>向注册中心注册服务提供者</h2><p>只需要在<code>application.properties</code>配置文件中加上注册中心的配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">eureka.client.serviceUrl.defaultZone=http://localhost:8888/eureka/</div></pre></td></tr></table></figure>
+<p>并在<code>sbc-order</code>的主类中加入<code>@EnableDiscoveryClient</code>注解即可完成注册服务。</p>
+<p>启动注册中心以及应用，在注册中心看到一下界面则成功注册:</p>
+<p><img src="https://ooo.0o0.ooo/2017/06/26/595129f117276.jpg" alt="springBoot05.jpg"></p>
+<h2 id="消费注册中心的服务"><a href="#消费注册中心的服务" class="headerlink" title="消费注册中心的服务"></a>消费注册中心的服务</h2><p>服务是注册上去了，自然是需要消费了，这里就简单模拟了在调用<code>http://localhost:8080/user/getUser</code>这个接口的时候<code>getUser</code>接口会去调用<code>order</code>的<code>getOrder</code>服务。</p>
+<p>这里会用到另一个依赖:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-ribbon<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>他可以帮我们做到客户端负载，具体使用如下：</p>
+<ul>
+<li>加入ribbon依赖。</li>
+<li>在主类中开启<code>@LoadBalanced</code>客户端负载。</li>
+<li>创建<code>restTemplate</code>类的实例</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Bean</span></div><div class="line">	<span class="meta">@LoadBalanced</span></div><div class="line">	<span class="function"><span class="keyword">public</span> RestTemplate <span class="title">restTemplate</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">return</span> <span class="keyword">new</span> RestTemplate();</div><div class="line">	&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>使用<code>restTemplate</code>调用远程服务:</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="meta">@Autowired</span></div><div class="line">  <span class="keyword">private</span> RestTemplate restTemplate;</div><div class="line">  </div><div class="line"><span class="meta">@RequestMapping</span>(value = <span class="string">"/getUser"</span>,method = RequestMethod.POST)</div><div class="line">  <span class="function"><span class="keyword">public</span> UserRes <span class="title">getUser</span><span class="params">(@RequestBody UserReq userReq)</span></span>&#123;</div><div class="line">      OrderNoReq req = <span class="keyword">new</span> OrderNoReq() ;</div><div class="line">      req.setReqNo(<span class="string">"1213"</span>);</div><div class="line">      <span class="comment">//调用远程服务</span></div><div class="line">      ResponseEntity&lt;Object&gt; res = restTemplate.postForEntity(<span class="string">"http://sbc-order/order/getOrderNo"</span>, req, Object.class);</div><div class="line">      logger.info(<span class="string">"res="</span>+JSON.toJSONString(res));</div><div class="line"></div><div class="line">      logger.debug(<span class="string">"入参="</span>+ JSON.toJSONString(userReq));</div><div class="line">      UserRes userRes = <span class="keyword">new</span> UserRes() ;</div><div class="line">      userRes.setUserId(<span class="number">123</span>);</div><div class="line">      userRes.setUserName(<span class="string">"张三"</span>);</div><div class="line"></div><div class="line">      userRes.setReqNo(userReq.getReqNo());</div><div class="line">      userRes.setCode(StatusEnum.SUCCESS.getCode());</div><div class="line">      userRes.setMessage(<span class="string">"成功"</span>);</div><div class="line"></div><div class="line">      <span class="keyword">return</span> userRes ;</div><div class="line"></div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<p>由于我的远程接口是<code>post</code>,所以使用了<code>postForEntity()</code>方法，如果是<code>get</code>就换成<code>getForEntity()</code>即可。</p>
+<blockquote>
+<p>注意这里是使用应用名<code>sbc-order(配置于sbc-order的application.properties中)</code>来进行调用的，并不是一个IP地址。</p>
+</blockquote>
+<p>启动注册中心、两个应用。<br>用<code>PostMan</code>调用<code>getUser</code>接口时控制台打印:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">2017-06-27 00:18:04.534  INFO 63252 --- [nio-8080-exec-3] c.c.sbcuser.controller.UserController    : res=&#123;&quot;body&quot;:&#123;&quot;code&quot;:&quot;4000&quot;,&quot;message&quot;:&quot;appID不能为空&quot;,&quot;reqNo&quot;:&quot;1213&quot;&#125;,&quot;headers&quot;:&#123;&quot;X-Application-Context&quot;:[&quot;sbc-order:8181&quot;],&quot;Content-Type&quot;:[&quot;application/xml;charset=UTF-8&quot;],&quot;Transfer-Encoding&quot;:[&quot;chunked&quot;],&quot;Date&quot;:[&quot;Mon, 26 Jun 2017 16:18:04 GMT&quot;]&#125;,&quot;statusCode&quot;:&quot;OK&quot;,&quot;statusCodeValue&quot;:200&#125;</div></pre></td></tr></table></figure>
+<p>由于并没有传递<code>appId</code>所以<code>order</code>服务返回了一个错误，也正说明是远程调用到了该服务。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><blockquote>
+<p>ps:这里只是简单使用了<code>ribbon</code>来进行服务调用，但在实际的开发中还是比较少的使用这种方式来调用远程服务，而是使用<code>Feign</code>进行声明式调用，可以简化客户端代码，具体使用方式请持续关注。</p>
+</blockquote>
+<p>本次算是<code>springBoot+springCloud</code>的入门，还有很多东西没有讲到，之后我将会根据实际使用的一些经验继续分享<code>SpringCloud</code>这个新兴框架。</p>
+<blockquote>
+<p>项目地址：<a href="https://github.com/crossoverJie/springboot-cloud" target="_blank" rel="external">https://github.com/crossoverJie/springboot-cloud</a></p>
+<p>个人博客地址：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+<div id="wechat_subscriber" style="display: block； padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/uploads/weixinchat.jpg" alt="crossoverJie wechat" style="width: 200px; max-width: 100%;"/>
+    <div>我很有眼光！</div>
+</div>
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>就是有钱。。</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/weixin-reward-image.jpg" alt="crossoverJie WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/alipay-reward-image.jpg" alt="crossoverJie Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag">#Java</a>
+          
+            <a href="/tags/SpringBoot/" rel="tag">#SpringBoot</a>
+          
+            <a href="/tags/SpringCloud/" rel="tag">#SpringCloud</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/05/24/SSM14/" rel="next" title="SSM(十四) 基于annotation的http防重插件">
+                <i class="fa fa-chevron-left"></i> SSM(十四) 基于annotation的http防重插件
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  <p>热评文章</p>
+  <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/crossoverjie.jpg"
+               alt="crossoverJie" />
+          <p class="site-author-name" itemprop="name">crossoverJie</p>
+          <p class="site-description motion-element" itemprop="description">You never know what you can do till you try.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">29</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">42</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/crossoverJie" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/crossoverJie" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  微博
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.jianshu.com/users/e2d07947c112/latest_articles" target="_blank" title="简书">
+                  
+                    <i class="fa fa-fw fa-edit"></i>
+                  
+                  简书
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://wuchong.me" title="Jark's Blog" target="_blank">Jark's Blog</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://tengj.top" title="嘟嘟独立博客" target="_blank">嘟嘟独立博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://notes.iissnan.com" title="IIssNan" target="_blank">IIssNan</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://notes.wanghao.work" title="doublemine" target="_blank">doublemine</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://code.youmeek.com" title="Judas.n" target="_blank">Judas.n</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cppba.com" title="大黄蜂" target="_blank">大黄蜂</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://yemengying.com/" title="程序媛妹纸" target="_blank">程序媛妹纸</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yiyeti.cc/" title="独立博客资源导航" target="_blank">独立博客资源导航</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://qifuguang.me/" title="qifuguang.me" target="_blank">qifuguang.me</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#使用SpringBoot构建REST-API"><span class="nav-number">2.</span> <span class="nav-text">使用SpringBoot构建REST API</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#创建另一个SpringBoot项目"><span class="nav-number">3.</span> <span class="nav-text">创建另一个SpringBoot项目</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#使用SpringCloud进行分布式调用"><span class="nav-number">4.</span> <span class="nav-text">使用SpringCloud进行分布式调用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#搭建eureka注册中心"><span class="nav-number">4.1.</span> <span class="nav-text">搭建eureka注册中心</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#向注册中心注册服务提供者"><span class="nav-number">4.2.</span> <span class="nav-text">向注册中心注册服务提供者</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#消费注册中心的服务"><span class="nav-number">4.3.</span> <span class="nav-text">消费注册中心的服务</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">crossoverJie</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv"><i class="fa fa-user"></i><span class="busuanzi-value" id="busuanzi_value_site_uv"></span>人数</span>
+  
+
+  
+    <span class="site-pv">您是第<span class="busuanzi-value" id="busuanzi_value_site_pv"></span>位童鞋</span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'crossoverjie';
+      var disqus_identifier = '2017/06/15/sbc1/';
+      var disqus_title = "sbc(一)SpringBoot+SpringCloud初探";
+      var disqus_url = 'http://crossoverJie.github.io/2017/06/15/sbc1/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+
+  
+  
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("Qv6ckEtL1pe3PJD10qoOLKtg-gzGzoHsz", "NXiHFodQfmI8oxkK6IThhjrF");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+<script type="text/javascript" src="/js/src/particle.js" count="50" zindex="-2" opacity="1" color="0,104,183"></script>
+</body>
+</html>

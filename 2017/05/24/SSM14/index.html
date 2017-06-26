@@ -102,7 +102,7 @@
 <meta property="og:image" content="https://ooo.0o0.ooo/2017/05/24/59253bc021bf3.jpg">
 <meta property="og:image" content="https://ooo.0o0.ooo/2017/05/24/59253bc0291c1.jpg">
 <meta property="og:image" content="https://ooo.0o0.ooo/2017/05/24/59253bc04016d.jpg">
-<meta property="og:updated_time" content="2017-05-24T09:09:13.000Z">
+<meta property="og:updated_time" content="2017-05-24T09:10:26.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="SSM(十四) 基于annotation的http防重插件">
 <meta name="twitter:description" content="前言针对于我们现在常用的RESTful API通常我们需要对请求进行唯一标识，也就是每次都要带上一个请求号,如reqNO。
@@ -375,8 +375,7 @@
 <p>其中定义了一个<code>desc()</code>的方法其实并没有用到，但如果需要在使用注解的时候需要自定义一些<code>filed(域)</code>的需求可以按照这样的方式写到这里，通过反射都可以获取到具体的值。<br>如：<code>@CheckReqNo(desc = &quot;abc&quot;)</code>就可以获取到<code>&quot;abc&quot;</code>的值。</p>
 <h1 id="切面注解"><a href="#切面注解" class="headerlink" title="切面注解"></a>切面注解</h1><p>按照之前的想法是在对所有使用了该注解的方法进行切面：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Aspect</span></div><div class="line"><span class="meta">@Component</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ReqNoDrcAspect</span> </span>&#123;</div><div class="line"></div><div class="line">	<span class="keyword">private</span> <span class="keyword">static</span> Logger logger = LoggerFactory.getLogger(ReqNoDrcAspect.class);</div><div class="line"></div><div class="line">	<span class="meta">@Value</span>(<span class="string">"$&#123;redis.prefixReq:reqNo&#125;"</span>)</div><div class="line">	<span class="keyword">private</span> String prefixReq ;</div><div class="line"></div><div class="line">	<span class="meta">@Value</span>(<span class="string">"$&#123;redis.day:1&#125;"</span>)</div><div class="line">	<span class="keyword">private</span> <span class="keyword">long</span> day ;</div><div class="line"></div><div class="line">	<span class="meta">@Autowired</span></div><div class="line">	<span class="keyword">private</span> RedisTemplate&lt;String, String&gt; redisTemplate;</div><div class="line">	</div><div class="line">	<span class="meta">@PostConstruct</span></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">		logger.info(<span class="string">"SSM-REQUEST-CHECK init......"</span>);</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	<span class="meta">@Pointcut</span>(<span class="string">"@annotation(com.crossoverJie.request.anotation.CheckReqNo)"</span>)</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">checkRepeat</span><span class="params">()</span></span>&#123;</div><div class="line">		</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	<span class="meta">@Before</span>(<span class="string">"checkRepeat()"</span>)</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">before</span><span class="params">(JoinPoint joinPoint)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">		BaseRequest request;</div><div class="line">		request = getBaseRequest(joinPoint);</div><div class="line">		<span class="keyword">if</span>(request != <span class="keyword">null</span>)&#123;</div><div class="line">			<span class="keyword">final</span> String reqNo = request.getReqNo();</div><div class="line">			<span class="keyword">if</span>(StringUtil.isEmpty(reqNo))&#123;</div><div class="line">				<span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"reqNo不能为空"</span>);</div><div class="line">			&#125;<span class="keyword">else</span>&#123;</div><div class="line">				<span class="keyword">try</span> &#123;</div><div class="line">					String tempReqNo = redisTemplate.opsForValue().get(prefixReq +reqNo);</div><div class="line">					logger.debug(<span class="string">"tempReqNo="</span>+tempReqNo);</div><div class="line"></div><div class="line">					<span class="keyword">if</span>((StringUtil.isEmpty(tempReqNo)))&#123;</div><div class="line">						redisTemplate.opsForValue().set(prefixReq + reqNo, reqNo, day, TimeUnit.DAYS);</div><div class="line">					&#125;<span class="keyword">else</span>&#123;</div><div class="line">						<span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"请求号重复,reqNo="</span>+reqNo);</div><div class="line">					&#125;</div><div class="line"></div><div class="line">				&#125; <span class="keyword">catch</span> (RedisConnectionFailureException e)&#123;</div><div class="line">					logger.error(<span class="string">"redis操作异常"</span>,e);</div><div class="line">					<span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"need redisService"</span>) ;</div><div class="line">				&#125;</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">			</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	</div><div class="line">	 </div><div class="line">	 <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> BaseRequest <span class="title">getBaseRequest</span><span class="params">(JoinPoint joinPoint)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">		 BaseRequest returnRequest = <span class="keyword">null</span>;</div><div class="line">		 Object[] arguments = joinPoint.getArgs();</div><div class="line">		 <span class="keyword">if</span>(arguments != <span class="keyword">null</span> &amp;&amp; arguments.length &gt; <span class="number">0</span>)&#123;</div><div class="line">			 returnRequest = (BaseRequest) arguments[<span class="number">0</span>];</div><div class="line">		 &#125;</div><div class="line">	     <span class="keyword">return</span> returnRequest;</div><div class="line">	 &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <p>使用<code>@Aspect</code>来定义了一个切面。<br>其中<code>prefixReq,day</code>域可以自定义缓存请求号时的<code>key</code>前缀以及缓存的时间。</p>
-<p>最关键的一点是用</p>
-<p><code>@Pointcut(&quot;@annotation(com.crossoverJie.request.anotation.CheckReqNo)&quot;)</code><br>定义了一个切入点，这样所有使用<code>@CheckReqNo</code>的注解都会被拦截。</p>
+<p>最关键的一点是用<br><code>@Pointcut(&quot;@annotation(com.crossoverJie.request.anotation.CheckReqNo)&quot;)</code><br>定义了一个切入点，这样所有使用<code>@CheckReqNo</code>的注解都会被拦截。</p>
 <p>接下来的逻辑就比较简单了，在每次请求之前进行拦截。</p>
 <p>先去<code>Redis</code>中查看这个请求号(<code>ps:反射获取</code>)是否存在，如果不存在则通过并将本次的请求号缓存起来。如果存在则抛出异常。</p>
 <h1 id="使用注解"><a href="#使用注解" class="headerlink" title="使用注解"></a>使用注解</h1><p>可以在<code>jdbc.properties</code>配置文件中自定义前缀和缓存时间</p>
@@ -462,13 +461,17 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/05/07/https/" rel="next" title="科普-为自己的博客免费加上小绿锁">
-                <i class="fa fa-chevron-left"></i> 科普-为自己的博客免费加上小绿锁
+              <a href="/2017/05/07/SSM13/" rel="next" title="SSM(十三) 将dubbo暴露出HTTP服务">
+                <i class="fa fa-chevron-left"></i> SSM(十三) 将dubbo暴露出HTTP服务
               </a>
             
           </div>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/06/15/sbc1/" rel="prev" title="sbc(一)SpringBoot+SpringCloud初探">
+                sbc(一)SpringBoot+SpringCloud初探 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -569,7 +572,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">28</span>
+              <span class="site-state-item-count">29</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -577,7 +580,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -586,7 +589,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">40</span>
+                <span class="site-state-item-count">42</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
