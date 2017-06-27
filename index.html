@@ -344,84 +344,21 @@
 
       
         
-          
-            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p><img src="https://ooo.0o0.ooo/2017/06/15/59417275b1746.jpg" alt="sb1.jpg"></p>
-<p>有看过我之前的<a href="https://github.com/crossoverJie/SSM" target="_blank" rel="external">SSM</a>系列的朋友应该有一点印象是非常深刻的。</p>
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p><img src="https://ooo.0o0.ooo/2017/06/15/59417275b1746.jpg" alt="sb1.jpg"></p>
+<p>有看过我之前的<a href="https://github.com/crossoverJie/SSM">SSM</a>系列的朋友应该有一点印象是非常深刻的。</p>
 <blockquote>
 <p>那就是需要配置的配置文件非常多，什么<code>Spring</code>、<code>mybatis</code>、<code>redis</code>、<code>mq</code>之类的配置文件非常多，并且还存在各种版本，甚至有些版本还互不兼容。其中有很多可能就是刚开始整合的时候需要配置，之后压根就不会再动了。</p>
 </blockquote>
-<p>鉴于此，<code>Spring</code>又推出了又一神器<a href="https://projects.spring.io/spring-boot/" target="_blank" rel="external">SpringBoot</a>.</p>
+<p>鉴于此，<code>Spring</code>又推出了又一神器<a href="https://projects.spring.io/spring-boot/">SpringBoot</a>.</p>
 <p>它可以让我们更加快速的开发<code>Spring</code>应用，甚至做到了开箱即用。<br>由于在实际开发中我们使用<code>SpringBoot</code>+<code>SpringCloud</code>进行了一段时间的持续交付，并在生产环境得到了验证，其中也有不少踩坑的地方，借此机会和大家分享交流一下。</p>
 <p>本篇我们首先会用利用<code>SpringBoot</code>构建出一个简单的<code>REST API</code>.<br>接着会创建另一个<code>SpringBoot</code>项目，基于<code>SpringCloud</code>部署，并在两个应用之间进行调用。</p>
-<h1 id="使用SpringBoot构建REST-API"><a href="#使用SpringBoot构建REST-API" class="headerlink" title="使用SpringBoot构建REST API"></a>使用<code>SpringBoot</code>构建<code>REST API</code></h1><p>我们可以使用<code>Spring</code>官方提供的初始化工具帮我们生成一个基础项目：<a href="http://start.spring.io/" target="_blank" rel="external">http://start.spring.io/</a>,如下图所示：<br><img src="https://ooo.0o0.ooo/2017/06/16/5942bbbb8797e.jpg" alt="sb2.jpg"></p>
+<h1 id="使用SpringBoot构建REST-API"><a href="#使用SpringBoot构建REST-API" class="headerlink" title="使用SpringBoot构建REST API"></a>使用<code>SpringBoot</code>构建<code>REST API</code></h1><p>我们可以使用<code>Spring</code>官方提供的初始化工具帮我们生成一个基础项目：<a href="http://start.spring.io/">http://start.spring.io/</a>,如下图所示：<br><img src="https://ooo.0o0.ooo/2017/06/16/5942bbbb8797e.jpg" alt="sb2.jpg"></p>
 <p>填入相应信息即可。由于只是要实现<code>REST API</code>所以这里只需要引用<code>web</code>依赖即可。</p>
-<p>将生成好的项目导入<code>IDE</code>(我使用的是<code>idea</code>)中,目录结构如下;<br><img src="https://ooo.0o0.ooo/2017/06/16/5942bde60ac4c.jpg" alt="sb3.jpg"></p>
-<ul>
-<li>其中的<code>SbcUserApplication</code>是整个应用的入口。</li>
-<li><code>resource/application.properties</code>这里是存放整个应用的配置文件。</li>
-<li>其中的<code>static</code>和<code>templates</code>是存放静态资源以及前端模板的地方，由于我们采用了前后端分离，所以这些目录基本上用不上了。</li>
-</ul>
-<p>通过运行<code>SbcUserApplication</code>类的<code>main</code>方法可以启动<code>SpringBoot</code>项目。</p>
-<p>接着在<code>PostMan</code>中进行调用，看到以下结果表明启动成功了：</p>
-<p><img src="https://ooo.0o0.ooo/2017/06/26/5950a607afe13.jpg" alt="springBoot01.jpg"></p>
-<p>这样一看是不是要比之前用<code>Spring+SpringMVC</code>来整合要方便快捷很多。</p>
-<h1 id="创建另一个SpringBoot项目"><a href="#创建另一个SpringBoot项目" class="headerlink" title="创建另一个SpringBoot项目"></a>创建另一个<code>SpringBoot</code>项目</h1><p>当我们的项目采用微服务构建之后自然就会被拆分成N多个独立的应用。比如上文中的<code>sbc-user</code>用于用户管理。这里再创建一个<code>sbc-order</code>用户生成订单。</p>
-<blockquote>
-<p>为了方便之后的代码复用，我将<code>common</code>包中的一些枚举值、工具类单独提到<code>sbc-common</code>应用中了，这样有其他应用要使用这些基础类直接引入这个依赖即可。</p>
-</blockquote>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.crossoverJie<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>sbc-common<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.0-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure>
-<p>创建步骤和上文差不多，这里就不再赘述了。<br>其中有一个<code>order/getOrderNo</code>的服务，调用结果如下：</p>
-<p><img src="https://ooo.0o0.ooo/2017/06/26/5950de9914c91.jpg" alt="springBoot02.jpg"></p>
-<p>之后会利用<code>SpringCloud</code>来将两个服务关联起来，并可以互相调用。</p>
-<h1 id="使用SpringCloud进行分布式调用"><a href="#使用SpringCloud进行分布式调用" class="headerlink" title="使用SpringCloud进行分布式调用"></a>使用<code>SpringCloud</code>进行分布式调用</h1><h2 id="搭建eureka注册中心"><a href="#搭建eureka注册中心" class="headerlink" title="搭建eureka注册中心"></a>搭建<code>eureka</code>注册中心</h2><p>既然是要搭建微服务那自然少不了注册中心了，之前讲的<code>dubbo</code>采用的是<code>zookeeper</code>作为注册中心，<code>SpringCloud</code>则采用的是<code>Netflix Eureka</code>来做服务的注册与发现。</p>
-<p>新建一个项目<code>sbc-service</code>,目录结构如下：</p>
-<p><img src="https://ooo.0o0.ooo/2017/06/26/59511b85974be.jpg" alt="springBoot03.jpg"></p>
-<p>核心的<code>pom.xml</code></p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-eureka-server<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">	<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>ch.qos.logback<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>logback-classic<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="name">version</span>&gt;</span>1.2.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">	<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;<span class="name">dependencyManagement</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></div><div class="line">		<span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">			<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">			<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">			<span class="tag">&lt;<span class="name">version</span>&gt;</span>Brixton.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">			<span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></div><div class="line">			<span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></div><div class="line">		<span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line">	<span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependencyManagement</span>&gt;</span></div></pre></td></tr></table></figure>
-<p>非常easy，只需要引入<code>eureka</code>的依赖即可。<br>然后在入口类加入一个注解<code>@EnableEurekaServer</code>，即可将该项目作为服务注册中心：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> com.crossoverJie.service;</div><div class="line"></div><div class="line"><span class="keyword">import</span> org.slf4j.Logger;</div><div class="line"><span class="keyword">import</span> org.slf4j.LoggerFactory;</div><div class="line"><span class="keyword">import</span> org.springframework.boot.SpringApplication;</div><div class="line"><span class="keyword">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;</div><div class="line"><span class="keyword">import</span> org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;</div><div class="line"></div><div class="line"><span class="meta">@EnableEurekaServer</span></div><div class="line"><span class="meta">@SpringBootApplication</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EurekaApplication</span> </span>&#123;</div><div class="line">	<span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> Logger logger = LoggerFactory.getLogger(EurekaApplication.class);</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line"></div><div class="line">		SpringApplication.run(EurekaApplication.class, args);</div><div class="line">		logger.info(<span class="string">"SpringBoot Start Success"</span>);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>接着修改配置文件<code>application.properties</code>:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">server.port=8888</div><div class="line"></div><div class="line"># 不向注册中心注册自己</div><div class="line">eureka.client.register-with-eureka=false</div><div class="line"></div><div class="line"># 不需要检索服务</div><div class="line">eureka.client.fetch-registry=false</div><div class="line"></div><div class="line">eureka.client.serviceUrl.defaultZone=http://localhost:$&#123;server.port&#125;/eureka/</div></pre></td></tr></table></figure>
-<p>配置一下端口以及注册中心的地址即可。<br>然后按照正常启动<code>springBoot</code>项目一样启动即可。</p>
-<p>在地址栏输入<a href="http://localhost:8888/" target="_blank" rel="external">http://localhost:8888</a>看到一下界面：</p>
-<p><img src="https://ooo.0o0.ooo/2017/06/26/59511cef59d46.jpg" alt="springBoot04.jpg"></p>
-<p>当然现在在注册中心还看不到任何一个应用，下面需要将上文的<code>sbc-user,sbc-order</code>注册进来。</p>
-<h2 id="向注册中心注册服务提供者"><a href="#向注册中心注册服务提供者" class="headerlink" title="向注册中心注册服务提供者"></a>向注册中心注册服务提供者</h2><p>只需要在<code>application.properties</code>配置文件中加上注册中心的配置：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">eureka.client.serviceUrl.defaultZone=http://localhost:8888/eureka/</div></pre></td></tr></table></figure>
-<p>并在<code>sbc-order</code>的主类中加入<code>@EnableDiscoveryClient</code>注解即可完成注册服务。</p>
-<p>启动注册中心以及应用，在注册中心看到一下界面则成功注册:</p>
-<p><img src="https://ooo.0o0.ooo/2017/06/26/595129f117276.jpg" alt="springBoot05.jpg"></p>
-<h2 id="消费注册中心的服务"><a href="#消费注册中心的服务" class="headerlink" title="消费注册中心的服务"></a>消费注册中心的服务</h2><p>服务是注册上去了，自然是需要消费了，这里就简单模拟了在调用<code>http://localhost:8080/user/getUser</code>这个接口的时候<code>getUser</code>接口会去调用<code>order</code>的<code>getOrder</code>服务。</p>
-<p>这里会用到另一个依赖:</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-ribbon<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure>
-<p>他可以帮我们做到客户端负载，具体使用如下：</p>
-<ul>
-<li>加入ribbon依赖。</li>
-<li>在主类中开启<code>@LoadBalanced</code>客户端负载。</li>
-<li>创建<code>restTemplate</code>类的实例</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Bean</span></div><div class="line">	<span class="meta">@LoadBalanced</span></div><div class="line">	<span class="function"><span class="keyword">public</span> RestTemplate <span class="title">restTemplate</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="keyword">return</span> <span class="keyword">new</span> RestTemplate();</div><div class="line">	&#125;</div></pre></td></tr></table></figure>
-<ul>
-<li>使用<code>restTemplate</code>调用远程服务:</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="meta">@Autowired</span></div><div class="line">  <span class="keyword">private</span> RestTemplate restTemplate;</div><div class="line">  </div><div class="line"><span class="meta">@RequestMapping</span>(value = <span class="string">"/getUser"</span>,method = RequestMethod.POST)</div><div class="line">  <span class="function"><span class="keyword">public</span> UserRes <span class="title">getUser</span><span class="params">(@RequestBody UserReq userReq)</span></span>&#123;</div><div class="line">      OrderNoReq req = <span class="keyword">new</span> OrderNoReq() ;</div><div class="line">      req.setReqNo(<span class="string">"1213"</span>);</div><div class="line">      <span class="comment">//调用远程服务</span></div><div class="line">      ResponseEntity&lt;Object&gt; res = restTemplate.postForEntity(<span class="string">"http://sbc-order/order/getOrderNo"</span>, req, Object.class);</div><div class="line">      logger.info(<span class="string">"res="</span>+JSON.toJSONString(res));</div><div class="line"></div><div class="line">      logger.debug(<span class="string">"入参="</span>+ JSON.toJSONString(userReq));</div><div class="line">      UserRes userRes = <span class="keyword">new</span> UserRes() ;</div><div class="line">      userRes.setUserId(<span class="number">123</span>);</div><div class="line">      userRes.setUserName(<span class="string">"张三"</span>);</div><div class="line"></div><div class="line">      userRes.setReqNo(userReq.getReqNo());</div><div class="line">      userRes.setCode(StatusEnum.SUCCESS.getCode());</div><div class="line">      userRes.setMessage(<span class="string">"成功"</span>);</div><div class="line"></div><div class="line">      <span class="keyword">return</span> userRes ;</div><div class="line"></div><div class="line">  &#125;</div></pre></td></tr></table></figure>
-<p>由于我的远程接口是<code>post</code>,所以使用了<code>postForEntity()</code>方法，如果是<code>get</code>就换成<code>getForEntity()</code>即可。</p>
-<blockquote>
-<p>注意这里是使用应用名<code>sbc-order(配置于sbc-order的application.properties中)</code>来进行调用的，并不是一个IP地址。</p>
-</blockquote>
-<p>启动注册中心、两个应用。<br>用<code>PostMan</code>调用<code>getUser</code>接口时控制台打印:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">2017-06-27 00:18:04.534  INFO 63252 --- [nio-8080-exec-3] c.c.sbcuser.controller.UserController    : res=&#123;&quot;body&quot;:&#123;&quot;code&quot;:&quot;4000&quot;,&quot;message&quot;:&quot;appID不能为空&quot;,&quot;reqNo&quot;:&quot;1213&quot;&#125;,&quot;headers&quot;:&#123;&quot;X-Application-Context&quot;:[&quot;sbc-order:8181&quot;],&quot;Content-Type&quot;:[&quot;application/xml;charset=UTF-8&quot;],&quot;Transfer-Encoding&quot;:[&quot;chunked&quot;],&quot;Date&quot;:[&quot;Mon, 26 Jun 2017 16:18:04 GMT&quot;]&#125;,&quot;statusCode&quot;:&quot;OK&quot;,&quot;statusCodeValue&quot;:200&#125;</div></pre></td></tr></table></figure>
-<p>由于并没有传递<code>appId</code>所以<code>order</code>服务返回了一个错误，也正说明是远程调用到了该服务。</p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><blockquote>
-<p>ps:这里只是简单使用了<code>ribbon</code>来进行服务调用，但在实际的开发中还是比较少的使用这种方式来调用远程服务，而是使用<code>Feign</code>进行声明式调用，可以简化客户端代码，具体使用方式请持续关注。</p>
-</blockquote>
-<p>本次算是<code>springBoot+springCloud</code>的入门，还有很多东西没有讲到，之后我将会根据实际使用的一些经验继续分享<code>SpringCloud</code>这个新兴框架。</p>
-<blockquote>
-<p>项目地址：<a href="https://github.com/crossoverJie/springboot-cloud" target="_blank" rel="external">https://github.com/crossoverJie/springboot-cloud</a></p>
-<p>个人博客地址：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
-</blockquote>
-
-          
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/06/15/sbc1/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
         
       
     </div>
@@ -606,6 +543,141 @@
             
               
                 
+                <a class="post-title-link" href="/2017/05/07/SSM13/" itemprop="url">
+                  SSM(十三) 将dubbo暴露出HTTP服务
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-05-07T01:01:54+08:00" content="2017-05-07">
+              2017-05-07
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/SSM/" itemprop="url" rel="index">
+                    <span itemprop="name">SSM</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/05/07/SSM13/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/05/07/SSM13/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/05/07/SSM13/" class="leancloud_visitors" data-flag-title="SSM(十三) 将dubbo暴露出HTTP服务">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p><img src="https://ooo.0o0.ooo/2017/05/20/591fd69dab028.jpg" alt="dubbo暴露为http服务.jpg"></p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>通常来说一个<code>dubbo</code>服务都是对内给内部调用的，但也有可能一个服务就是需要提供给外部使用，并且还不能有使用语言的局限性。</p>
+<p>比较标准的做法是对外的服务我们统一提供一个<code>openAPI</code>，这样的调用方需要按照标准提供相应的<code>appID</code>以及密钥来进行验签才能使用。这样固然是比较规范和安全，但复杂度也不亚于开发一个单独的系统了。</p>
+<p>这里所讲到的没有那么复杂，就只是把一个不需要各种权限检验的<code>dubbo</code>服务对外提供为<code>HTTP</code>服务。</p>
+<p>调用示例:<br><img src="https://ooo.0o0.ooo/2017/05/20/591fd6d022182.jpg" alt="dubbo-http封面.jpg"></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/05/07/SSM13/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/05/07/https/" itemprop="url">
                   科普-为自己的博客免费加上小绿锁
                 </a>
@@ -698,141 +770,6 @@
 </ul>
           <div class="post-more-link text-center">
             <a class="btn" href="/2017/05/07/https/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/05/07/SSM13/" itemprop="url">
-                  SSM(十三) 将dubbo暴露出HTTP服务
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-05-07T01:01:54+08:00" content="2017-05-07">
-              2017-05-07
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/SSM/" itemprop="url" rel="index">
-                    <span itemprop="name">SSM</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/05/07/SSM13/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/05/07/SSM13/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/05/07/SSM13/" class="leancloud_visitors" data-flag-title="SSM(十三) 将dubbo暴露出HTTP服务">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p><img src="https://ooo.0o0.ooo/2017/05/20/591fd69dab028.jpg" alt="dubbo暴露为http服务.jpg"></p>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>通常来说一个<code>dubbo</code>服务都是对内给内部调用的，但也有可能一个服务就是需要提供给外部使用，并且还不能有使用语言的局限性。</p>
-<p>比较标准的做法是对外的服务我们统一提供一个<code>openAPI</code>，这样的调用方需要按照标准提供相应的<code>appID</code>以及密钥来进行验签才能使用。这样固然是比较规范和安全，但复杂度也不亚于开发一个单独的系统了。</p>
-<p>这里所讲到的没有那么复杂，就只是把一个不需要各种权限检验的<code>dubbo</code>服务对外提供为<code>HTTP</code>服务。</p>
-<p>调用示例:<br><img src="https://ooo.0o0.ooo/2017/05/20/591fd6d022182.jpg" alt="dubbo-http封面.jpg"></p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/05/07/SSM13/#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
