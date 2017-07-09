@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://crossoverJie.github.io/"/>
-  <updated>2017-06-26T17:31:34.000Z</updated>
+  <updated>2017-07-09T18:22:27.000Z</updated>
   <id>http://crossoverJie.github.io/</id>
   
   <author>
@@ -14,6 +14,85 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>SSM(十五) 乐观锁与悲观锁的实际应用</title>
+    <link href="http://crossoverJie.github.io/2017/07/09/SSM15/"/>
+    <id>http://crossoverJie.github.io/2017/07/09/SSM15/</id>
+    <published>2017-07-09T03:01:54.000Z</published>
+    <updated>2017-07-09T18:22:27.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><img src="https://ooo.0o0.ooo/2017/07/09/5961d7fb41cf0.jpeg" alt="00.jpeg"></p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>随着互联网的兴起，现在三高(<code>高可用、高性能、高并发</code>)项目是越来越流行。</p>
+<p>本次来谈谈高并发。首先假设一个业务场景：数据库中有一条数据，需要获取到当前的值，在当前值的基础上<code>+10</code>，然后再更新回去。<br>如果此时有两个线程同时并发处理，第一个线程拿到数据是10，+10=20更新回去。第二个线程原本是要在第一个线程的基础上再<code>+20=40</code>,结果由于并发访问取到更新前的数据为10，<code>+20=30</code>。</p>
+<p>这就是典型的存在中间状态，导致数据不正确。来看以下的例子：</p>
+<h1 id="并发所带来的问题"><a href="#并发所带来的问题" class="headerlink" title="并发所带来的问题"></a>并发所带来的问题</h1><p>和上文提到的类似，这里有一张<code>price</code>表，表结构如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">CREATE TABLE `price` (</div><div class="line">  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT &apos;主键&apos;,</div><div class="line">  `total` decimal(12,2) DEFAULT &apos;0.00&apos; COMMENT &apos;总值&apos;,</div><div class="line">  `front` decimal(12,2) DEFAULT &apos;0.00&apos; COMMENT &apos;消费前&apos;,</div><div class="line">  `end` decimal(12,2) DEFAULT &apos;0.00&apos; COMMENT &apos;消费后&apos;,</div><div class="line">  PRIMARY KEY (`id`)</div><div class="line">) ENGINE=InnoDB AUTO_INCREMENT=1268 DEFAULT CHARSET=utf8</div></pre></td></tr></table></figure>
+<a id="more"></a>
+<p>我这里写了一个单测：就一个主线程，循环100次，每次把<code>front</code>的值减去10，再写入一次流水记录，正常情况是写入的每条记录都会每次减去10。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * 单线程消费</div><div class="line"> */</div><div class="line"><span class="meta">@Test</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">singleCounsumerTest1</span><span class="params">()</span></span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i=<span class="number">0</span> ;i&lt;<span class="number">100</span> ;i++)&#123;</div><div class="line">        Price price = priceMapper.selectByPrimaryKey(<span class="number">1</span>);</div><div class="line">        <span class="keyword">int</span> ron = <span class="number">10</span> ;</div><div class="line">        price.setFront(price.getFront().subtract(<span class="keyword">new</span> BigDecimal(ron)));</div><div class="line">        price.setEnd(price.getEnd().add(<span class="keyword">new</span> BigDecimal(ron)));</div><div class="line">        price.setTotal(price.getFront().add(price.getEnd()));</div><div class="line"></div><div class="line">        priceMapper.updateByPrimaryKey(price) ;</div><div class="line"></div><div class="line">        price.setId(<span class="keyword">null</span>);</div><div class="line">        priceMapper.insertSelective(price) ;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>执行结果如下：</p>
+<p><img src="https://ooo.0o0.ooo/2017/07/10/59626281d53ef.png" alt="01.png"><br>可以看到确实是每次都递减10。</p>
+<p>但是如果是多线程的情况下会是如何呢：</p>
+<blockquote>
+<p>我这里新建了一个<code>PriceController</code></p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div></pre></td><td class="code"><pre><div class="line"> <span class="comment">/**</span></div><div class="line"> * 线程池 无锁</div><div class="line"> * <span class="doctag">@param</span> redisContentReq</div><div class="line"> * <span class="doctag">@return</span></div><div class="line"> */</div><div class="line"><span class="meta">@RequestMapping</span>(value = <span class="string">"/threadPrice"</span>,method = RequestMethod.POST)</div><div class="line"><span class="meta">@ResponseBody</span></div><div class="line"><span class="function"><span class="keyword">public</span> BaseResponse&lt;NULLBody&gt; <span class="title">threadPrice</span><span class="params">(@RequestBody RedisContentReq redisContentReq)</span></span>&#123;</div><div class="line">    BaseResponse&lt;NULLBody&gt; response = <span class="keyword">new</span> BaseResponse&lt;NULLBody&gt;() ;</div><div class="line"></div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line"></div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i=<span class="number">0</span> ;i&lt;<span class="number">10</span> ;i++)&#123;</div><div class="line">            Thread t = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">                <span class="meta">@Override</span></div><div class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">                    Price price = priceMapper.selectByPrimaryKey(<span class="number">1</span>);</div><div class="line">                    <span class="keyword">int</span> ron = <span class="number">10</span> ;</div><div class="line">                    price.setFront(price.getFront().subtract(<span class="keyword">new</span> BigDecimal(ron)));</div><div class="line">                    price.setEnd(price.getEnd().add(<span class="keyword">new</span> BigDecimal(ron)));</div><div class="line">                    priceMapper.updateByPrimaryKey(price) ;</div><div class="line"></div><div class="line">                    price.setId(<span class="keyword">null</span>);</div><div class="line">                    priceMapper.insertSelective(price) ;</div><div class="line">                &#125;</div><div class="line">            &#125;);</div><div class="line"></div><div class="line">            config.submit(t);</div><div class="line"></div><div class="line">        &#125;</div><div class="line"></div><div class="line">        response.setReqNo(redisContentReq.getReqNo());</div><div class="line">        response.setCode(StatusEnum.SUCCESS.getCode());</div><div class="line">        response.setMessage(StatusEnum.SUCCESS.getMessage());</div><div class="line">    &#125;<span class="keyword">catch</span> (Exception e)&#123;</div><div class="line">        logger.error(<span class="string">"system error"</span>,e);</div><div class="line">        response.setReqNo(response.getReqNo());</div><div class="line">        response.setCode(StatusEnum.FAIL.getCode());</div><div class="line">        response.setMessage(StatusEnum.FAIL.getMessage());</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> response ;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>其中为了节省资源使用了一个线程池:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Component</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadPoolConfig</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MAX_SIZE = <span class="number">10</span> ;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> CORE_SIZE = <span class="number">5</span>;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> SECOND = <span class="number">1000</span>;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> ThreadPoolExecutor executor ;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">ThreadPoolConfig</span><span class="params">()</span></span>&#123;</div><div class="line">        executor = <span class="keyword">new</span> ThreadPoolExecutor(CORE_SIZE,MAX_SIZE,SECOND, TimeUnit.MICROSECONDS,<span class="keyword">new</span> LinkedBlockingQueue&lt;Runnable&gt;()) ;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">submit</span><span class="params">(Thread thread)</span></span>&#123;</div><div class="line">        executor.submit(thread) ;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>关于线程池的使用今后会仔细探讨。这里就简单理解为有10个线程并发去处理上面单线程的逻辑，来看看结果怎么样：</p>
+<p><img src="https://ooo.0o0.ooo/2017/07/10/596262815c9d6.png" alt="02.png"></p>
+<p>会看到明显的数据错误，导致错误的原因自然就是有线程读取到了中间状态进行了错误的更新。</p>
+<p>进而有了以下两种解决方案：悲观锁和乐观锁。</p>
+<h1 id="悲观锁"><a href="#悲观锁" class="headerlink" title="悲观锁"></a>悲观锁</h1><p>简单理解下悲观锁：当一个事务锁定了一些数据之后，只有当当前锁提交了事务，释放了锁，其他事务才能获得锁并执行操作。</p>
+<p>使用方式如下：<br>首先要关闭MySQL的自动提交：<code>set autocommit = 0;</code></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">bigen <span class="comment">--开启事务</span></div><div class="line"><span class="keyword">select</span> <span class="keyword">id</span>, total, front, <span class="keyword">end</span> <span class="keyword">from</span> price <span class="keyword">where</span> <span class="keyword">id</span>=<span class="number">1</span> <span class="keyword">for</span> <span class="keyword">update</span> </div><div class="line"></div><div class="line"><span class="keyword">insert</span> <span class="keyword">into</span> price <span class="keyword">values</span>(?,?,?,?,?)</div><div class="line"></div><div class="line"><span class="keyword">commit</span> <span class="comment">--提交事务</span></div></pre></td></tr></table></figure>
+<p>这里使用<code>select for update</code>的方式利用数据库开启了悲观锁，锁定了id=1的这条数据(<code>注意:这里除非是使用了索引会启用行级锁，不然是会使用表锁，将整张表都锁住。</code>)。之后使用<code>commit</code>提交事务并释放锁，这样下一个线程过来拿到的就是正确的数据。</p>
+<p>悲观锁一般是用于并发不是很高，并且不允许脏读等情况。但是对数据库资源消耗较大。</p>
+<h1 id="乐观锁"><a href="#乐观锁" class="headerlink" title="乐观锁"></a>乐观锁</h1><p>那么有没有性能好，支持的并发也更多的方式呢？</p>
+<p>那就是乐观锁。</p>
+<p>乐观锁是首先假设数据冲突很少，只有在数据提交修改的时候才进行校验，如果冲突了则不会进行更新。</p>
+<p>通常的实现方式增加一个<code>version</code>字段，为每一条数据加上版本。每次更新的时候<code>version+1</code>，并且更新时候带上版本号。实现方式如下：</p>
+<p>新建了一张<code>price_version</code>表：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">CREATE TABLE `price_version` (</div><div class="line">  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT &apos;主键&apos;,</div><div class="line">  `total` decimal(12,2) DEFAULT &apos;0.00&apos; COMMENT &apos;总值&apos;,</div><div class="line">  `front` decimal(12,2) DEFAULT &apos;0.00&apos; COMMENT &apos;消费前&apos;,</div><div class="line">  `end` decimal(12,2) DEFAULT &apos;0.00&apos; COMMENT &apos;消费后&apos;,</div><div class="line">  `version` int(11) DEFAULT &apos;0&apos; COMMENT &apos;并发版本控制&apos;,</div><div class="line">  PRIMARY KEY (`id`)</div><div class="line">) ENGINE=InnoDB AUTO_INCREMENT=1268 DEFAULT CHARSET=utf8</div></pre></td></tr></table></figure>
+<p>更新数据的SQL：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">update</span> <span class="attr">id</span>=<span class="string">"updateByVersion"</span> <span class="attr">parameterType</span>=<span class="string">"com.crossoverJie.pojo.PriceVersion"</span>&gt;</span></div><div class="line">    UPDATE price_version</div><div class="line">    SET front = #&#123;front,jdbcType=DECIMAL&#125;,</div><div class="line">        version= version + 1</div><div class="line">    WHERE id = #&#123;id,jdbcType=INTEGER&#125;</div><div class="line">    AND version = #&#123;version,jdbcType=INTEGER&#125;</div><div class="line">  <span class="tag">&lt;/<span class="name">update</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>调用方式：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * 线程池，乐观锁</div><div class="line"> * <span class="doctag">@param</span> redisContentReq</div><div class="line"> * <span class="doctag">@return</span></div><div class="line"> */</div><div class="line"><span class="meta">@RequestMapping</span>(value = <span class="string">"/threadPriceVersion"</span>,method = RequestMethod.POST)</div><div class="line"><span class="meta">@ResponseBody</span></div><div class="line"><span class="function"><span class="keyword">public</span> BaseResponse&lt;NULLBody&gt; <span class="title">threadPriceVersion</span><span class="params">(@RequestBody RedisContentReq redisContentReq)</span></span>&#123;</div><div class="line">    BaseResponse&lt;NULLBody&gt; response = <span class="keyword">new</span> BaseResponse&lt;NULLBody&gt;() ;</div><div class="line"></div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line"></div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i=<span class="number">0</span> ;i&lt;<span class="number">3</span> ;i++)&#123;</div><div class="line">            Thread t = <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">                <span class="meta">@Override</span></div><div class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">                    PriceVersion priceVersion = priceVersionMapper.selectByPrimaryKey(<span class="number">1</span>);</div><div class="line">                    <span class="keyword">int</span> ron = <span class="keyword">new</span> Random().nextInt(<span class="number">20</span>);</div><div class="line">                    logger.info(<span class="string">"本次消费="</span>+ron);</div><div class="line">                    priceVersion.setFront(<span class="keyword">new</span> BigDecimal(ron));</div><div class="line">                    <span class="keyword">int</span> count = priceVersionMapper.updateByVersion(priceVersion);</div><div class="line">                    <span class="keyword">if</span> (count == <span class="number">0</span>)&#123;</div><div class="line">                        logger.error(<span class="string">"更新失败"</span>);</div><div class="line">                    &#125;<span class="keyword">else</span> &#123;</div><div class="line">                        logger.info(<span class="string">"更新成功"</span>);</div><div class="line">                    &#125;</div><div class="line"></div><div class="line">                &#125;</div><div class="line">            &#125;);</div><div class="line"></div><div class="line">            config.submit(t);</div><div class="line"></div><div class="line">        &#125;</div><div class="line"></div><div class="line">        response.setReqNo(redisContentReq.getReqNo());</div><div class="line">        response.setCode(StatusEnum.SUCCESS.getCode());</div><div class="line">        response.setMessage(StatusEnum.SUCCESS.getMessage());</div><div class="line">    &#125;<span class="keyword">catch</span> (Exception e)&#123;</div><div class="line">        logger.error(<span class="string">"system error"</span>,e);</div><div class="line">        response.setReqNo(response.getReqNo());</div><div class="line">        response.setCode(StatusEnum.FAIL.getCode());</div><div class="line">        response.setMessage(StatusEnum.FAIL.getMessage());</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> response ;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>处理逻辑：开了三个线程生成了20以内的随机数更新到<code>front</code>字段。</p>
+<p>当调用该接口时日志如下：</p>
+<p><img src="https://ooo.0o0.ooo/2017/07/10/59626fb3a3814.jpg" alt="03.jpg"></p>
+<p>可以看到线程1、4、5分别生成了15，2，11三个随机数。最后线程4、5都更新失败了，只有线程1更新成功了。</p>
+<p>查看数据库：</p>
+<p><img src="https://ooo.0o0.ooo/2017/07/10/596270520bd6b.jpg" alt="04.jpg"></p>
+<p>发现也确实是更新的15。</p>
+<p>乐观锁在实际应用相对较多，它可以提供更好的并发访问，并且数据库开销较少，但是有可能存在脏读的情况。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>以上两种各有优劣，大家可以根据具体的业务场景来判断具体使用哪种方式来保证数据的一致性。</p>
+<blockquote>
+<p>项目地址：<a href="https://github.com/crossoverJie/SSM.git" target="_blank" rel="external">https://github.com/crossoverJie/SSM.git</a></p>
+<p>个人博客地址：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/07/09/5961d7fb41cf0.jpeg&quot; alt=&quot;00.jpeg&quot;&gt;&lt;/p&gt;
+&lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;p&gt;随着互联网的兴起，现在三高(&lt;code&gt;高可用、高性能、高并发&lt;/code&gt;)项目是越来越流行。&lt;/p&gt;
+&lt;p&gt;本次来谈谈高并发。首先假设一个业务场景：数据库中有一条数据，需要获取到当前的值，在当前值的基础上&lt;code&gt;+10&lt;/code&gt;，然后再更新回去。&lt;br&gt;如果此时有两个线程同时并发处理，第一个线程拿到数据是10，+10=20更新回去。第二个线程原本是要在第一个线程的基础上再&lt;code&gt;+20=40&lt;/code&gt;,结果由于并发访问取到更新前的数据为10，&lt;code&gt;+20=30&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;这就是典型的存在中间状态，导致数据不正确。来看以下的例子：&lt;/p&gt;
+&lt;h1 id=&quot;并发所带来的问题&quot;&gt;&lt;a href=&quot;#并发所带来的问题&quot; class=&quot;headerlink&quot; title=&quot;并发所带来的问题&quot;&gt;&lt;/a&gt;并发所带来的问题&lt;/h1&gt;&lt;p&gt;和上文提到的类似，这里有一张&lt;code&gt;price&lt;/code&gt;表，表结构如下：&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;7&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;CREATE TABLE `price` (&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT &amp;apos;主键&amp;apos;,&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;  `total` decimal(12,2) DEFAULT &amp;apos;0.00&amp;apos; COMMENT &amp;apos;总值&amp;apos;,&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;  `front` decimal(12,2) DEFAULT &amp;apos;0.00&amp;apos; COMMENT &amp;apos;消费前&amp;apos;,&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;  `end` decimal(12,2) DEFAULT &amp;apos;0.00&amp;apos; COMMENT &amp;apos;消费后&amp;apos;,&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;  PRIMARY KEY (`id`)&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;) ENGINE=InnoDB AUTO_INCREMENT=1268 DEFAULT CHARSET=utf8&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+    
+    </summary>
+    
+      <category term="SSM" scheme="http://crossoverJie.github.io/categories/SSM/"/>
+    
+    
+      <category term="lock" scheme="http://crossoverJie.github.io/tags/lock/"/>
+    
+      <category term="mysql" scheme="http://crossoverJie.github.io/tags/mysql/"/>
+    
+  </entry>
   
   <entry>
     <title>sbc(一)SpringBoot+SpringCloud初探</title>
@@ -131,7 +210,7 @@
     <link href="http://crossoverJie.github.io/2017/05/24/SSM14/"/>
     <id>http://crossoverJie.github.io/2017/05/24/SSM14/</id>
     <published>2017-05-23T17:01:54.000Z</published>
-    <updated>2017-05-24T09:10:26.000Z</updated>
+    <updated>2017-07-09T18:16:50.000Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://ooo.0o0.ooo/2017/05/24/5924effab7d36.jpg" alt="防重插件封面.jpg"></p>
 <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>针对于我们现在常用的<code>RESTful API</code>通常我们需要对请求进行唯一标识，也就是每次都要带上一个请求号,如<code>reqNO</code>。</p>
@@ -198,6 +277,61 @@
       <category term="annotation" scheme="http://crossoverJie.github.io/tags/annotation/"/>
     
       <category term="AOP" scheme="http://crossoverJie.github.io/tags/AOP/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>科普-为自己的博客免费加上小绿锁</title>
+    <link href="http://crossoverJie.github.io/2017/05/07/https/"/>
+    <id>http://crossoverJie.github.io/2017/05/07/https/</id>
+    <published>2017-05-06T17:01:54.000Z</published>
+    <updated>2017-05-07T08:40:47.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><img src="https://ooo.0o0.ooo/2017/05/07/590edced5545e.jpg" alt="https.jpg"></p>
+<p>在如今的<code>HTTPS</code>大当其道的情况下自己的博客要是还没有用上。作为互联网的螺丝钉(<code>码农</code>)岂不是很没面子。</p>
+<h1 id="使用CLOUDFLARE"><a href="#使用CLOUDFLARE" class="headerlink" title="使用CLOUDFLARE"></a>使用CLOUDFLARE</h1><p>这里使用<a href="http://www.CLOUDFLARE.com" target="_blank" rel="external">CLOUDFLARE</a>来提供<code>HTTPS</code>服务。</p>
+<ul>
+<li>在其官网进行注册，按照提示添加好自己的域名即可。</li>
+<li>之后需要在自己域名的提供商处修改<code>DNS服务器</code>，我是在万网购买的修改后如下图：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd1a4cfd0.jpg" alt="1.jpg"><br>其中的<code>DNS服务器地址</code>由<code>CLOUDFLARE</code>是提供的。<br>修改完成之后通常需要等待一段时间才能生效。</li>
+<li>接着在<code>CLOUDFLARE</code>配置<code>DNS</code>解析：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd4913c2b.jpg" alt="DNS解析.jpg"><br>点击<code>CLOUDFLARE</code>顶部的<code>DNS</code>进行如我上图中的配置，和之前的配置没有什么区别。</li>
+</ul>
+<p>等待一段时间之后发现使用<code>HTTP</code>,<code>HTTPS</code>都能访问，但是最好还是能在访问<code>HTTP</code>的时候能强制跳转到<code>HTTPS</code>.</p>
+<ul>
+<li>在<code>CLOUDFLARE</code>菜单栏点击<code>page-rules</code>之后新建一个<code>page rule</code>：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd73a9f9d.jpg" alt="强制https.jpg"><br>这样整个网站的请求都会强制到请求到<code>HTTPS</code>.</li>
+</ul>
+<a id="more"></a>
+<h1 id="主题配置"><a href="#主题配置" class="headerlink" title="主题配置"></a>主题配置</h1><p>由于我才用的是<code>Hexo</code>中的<code>Next</code>主题，其中配置了<code>CNZZ</code>站长统计。其中配置的<code>CNZZ</code>统计JS是才用的<code>HTTP</code>。导致在首页的时候<code>chrome</code>一直提示感叹号。<br>修改站点<code>themes/next/layout/_scripts/third-party/analytics</code>目录下的<code>cnzz-analytics.swig</code>文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&#123;% if theme.cnzz_siteid %&#125;</div><div class="line"></div><div class="line">  &lt;div style=&quot;display: none;&quot;&gt;</div><div class="line">    &lt;script src=&quot;https://s6.cnzz.com/stat.php?id=&#123;&#123; theme.cnzz_siteid &#125;&#125;&amp;web_id=&#123;&#123; theme.cnzz_siteid &#125;&#125;&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;</div><div class="line">  &lt;/div&gt;</div><div class="line"></div><div class="line">&#123;% endif %&#125;</div></pre></td></tr></table></figure></p>
+<p>之后再进行构建的时候就会使用<code>HTTPS</code>.</p>
+<blockquote>
+<p>值得注意一点的是之后文章中所使用的图片都要用<code>HTTPS</code>的地址了，不然<code>chrome</code>会提示感叹号。</p>
+<p>个人博客地址：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+<p>GitHub地址：<a href="https://github.com/crossoverJie" target="_blank" rel="external">https://github.com/crossoverJie</a>。</p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edced5545e.jpg&quot; alt=&quot;https.jpg&quot;&gt;&lt;/p&gt;
+&lt;p&gt;在如今的&lt;code&gt;HTTPS&lt;/code&gt;大当其道的情况下自己的博客要是还没有用上。作为互联网的螺丝钉(&lt;code&gt;码农&lt;/code&gt;)岂不是很没面子。&lt;/p&gt;
+&lt;h1 id=&quot;使用CLOUDFLARE&quot;&gt;&lt;a href=&quot;#使用CLOUDFLARE&quot; class=&quot;headerlink&quot; title=&quot;使用CLOUDFLARE&quot;&gt;&lt;/a&gt;使用CLOUDFLARE&lt;/h1&gt;&lt;p&gt;这里使用&lt;a href=&quot;http://www.CLOUDFLARE.com&quot;&gt;CLOUDFLARE&lt;/a&gt;来提供&lt;code&gt;HTTPS&lt;/code&gt;服务。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;在其官网进行注册，按照提示添加好自己的域名即可。&lt;/li&gt;
+&lt;li&gt;之后需要在自己域名的提供商处修改&lt;code&gt;DNS服务器&lt;/code&gt;，我是在万网购买的修改后如下图：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd1a4cfd0.jpg&quot; alt=&quot;1.jpg&quot;&gt;&lt;br&gt;其中的&lt;code&gt;DNS服务器地址&lt;/code&gt;由&lt;code&gt;CLOUDFLARE&lt;/code&gt;是提供的。&lt;br&gt;修改完成之后通常需要等待一段时间才能生效。&lt;/li&gt;
+&lt;li&gt;接着在&lt;code&gt;CLOUDFLARE&lt;/code&gt;配置&lt;code&gt;DNS&lt;/code&gt;解析：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd4913c2b.jpg&quot; alt=&quot;DNS解析.jpg&quot;&gt;&lt;br&gt;点击&lt;code&gt;CLOUDFLARE&lt;/code&gt;顶部的&lt;code&gt;DNS&lt;/code&gt;进行如我上图中的配置，和之前的配置没有什么区别。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;等待一段时间之后发现使用&lt;code&gt;HTTP&lt;/code&gt;,&lt;code&gt;HTTPS&lt;/code&gt;都能访问，但是最好还是能在访问&lt;code&gt;HTTP&lt;/code&gt;的时候能强制跳转到&lt;code&gt;HTTPS&lt;/code&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;在&lt;code&gt;CLOUDFLARE&lt;/code&gt;菜单栏点击&lt;code&gt;page-rules&lt;/code&gt;之后新建一个&lt;code&gt;page rule&lt;/code&gt;：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd73a9f9d.jpg&quot; alt=&quot;强制https.jpg&quot;&gt;&lt;br&gt;这样整个网站的请求都会强制到请求到&lt;code&gt;HTTPS&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+      <category term="科普" scheme="http://crossoverJie.github.io/categories/%E7%A7%91%E6%99%AE/"/>
+    
+    
+      <category term="HTTP" scheme="http://crossoverJie.github.io/tags/HTTP/"/>
+    
+      <category term="HTTPS" scheme="http://crossoverJie.github.io/tags/HTTPS/"/>
     
   </entry>
   
@@ -284,66 +418,11 @@
       <category term="SSM" scheme="http://crossoverJie.github.io/categories/SSM/"/>
     
     
-      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
-    
       <category term="HTTP" scheme="http://crossoverJie.github.io/tags/HTTP/"/>
     
       <category term="dubbo" scheme="http://crossoverJie.github.io/tags/dubbo/"/>
     
-  </entry>
-  
-  <entry>
-    <title>科普-为自己的博客免费加上小绿锁</title>
-    <link href="http://crossoverJie.github.io/2017/05/07/https/"/>
-    <id>http://crossoverJie.github.io/2017/05/07/https/</id>
-    <published>2017-05-06T17:01:54.000Z</published>
-    <updated>2017-05-07T08:40:47.000Z</updated>
-    
-    <content type="html"><![CDATA[<p><img src="https://ooo.0o0.ooo/2017/05/07/590edced5545e.jpg" alt="https.jpg"></p>
-<p>在如今的<code>HTTPS</code>大当其道的情况下自己的博客要是还没有用上。作为互联网的螺丝钉(<code>码农</code>)岂不是很没面子。</p>
-<h1 id="使用CLOUDFLARE"><a href="#使用CLOUDFLARE" class="headerlink" title="使用CLOUDFLARE"></a>使用CLOUDFLARE</h1><p>这里使用<a href="http://www.CLOUDFLARE.com" target="_blank" rel="external">CLOUDFLARE</a>来提供<code>HTTPS</code>服务。</p>
-<ul>
-<li>在其官网进行注册，按照提示添加好自己的域名即可。</li>
-<li>之后需要在自己域名的提供商处修改<code>DNS服务器</code>，我是在万网购买的修改后如下图：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd1a4cfd0.jpg" alt="1.jpg"><br>其中的<code>DNS服务器地址</code>由<code>CLOUDFLARE</code>是提供的。<br>修改完成之后通常需要等待一段时间才能生效。</li>
-<li>接着在<code>CLOUDFLARE</code>配置<code>DNS</code>解析：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd4913c2b.jpg" alt="DNS解析.jpg"><br>点击<code>CLOUDFLARE</code>顶部的<code>DNS</code>进行如我上图中的配置，和之前的配置没有什么区别。</li>
-</ul>
-<p>等待一段时间之后发现使用<code>HTTP</code>,<code>HTTPS</code>都能访问，但是最好还是能在访问<code>HTTP</code>的时候能强制跳转到<code>HTTPS</code>.</p>
-<ul>
-<li>在<code>CLOUDFLARE</code>菜单栏点击<code>page-rules</code>之后新建一个<code>page rule</code>：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd73a9f9d.jpg" alt="强制https.jpg"><br>这样整个网站的请求都会强制到请求到<code>HTTPS</code>.</li>
-</ul>
-<a id="more"></a>
-<h1 id="主题配置"><a href="#主题配置" class="headerlink" title="主题配置"></a>主题配置</h1><p>由于我才用的是<code>Hexo</code>中的<code>Next</code>主题，其中配置了<code>CNZZ</code>站长统计。其中配置的<code>CNZZ</code>统计JS是才用的<code>HTTP</code>。导致在首页的时候<code>chrome</code>一直提示感叹号。<br>修改站点<code>themes/next/layout/_scripts/third-party/analytics</code>目录下的<code>cnzz-analytics.swig</code>文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&#123;% if theme.cnzz_siteid %&#125;</div><div class="line"></div><div class="line">  &lt;div style=&quot;display: none;&quot;&gt;</div><div class="line">    &lt;script src=&quot;https://s6.cnzz.com/stat.php?id=&#123;&#123; theme.cnzz_siteid &#125;&#125;&amp;web_id=&#123;&#123; theme.cnzz_siteid &#125;&#125;&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;</div><div class="line">  &lt;/div&gt;</div><div class="line"></div><div class="line">&#123;% endif %&#125;</div></pre></td></tr></table></figure></p>
-<p>之后再进行构建的时候就会使用<code>HTTPS</code>.</p>
-<blockquote>
-<p>值得注意一点的是之后文章中所使用的图片都要用<code>HTTPS</code>的地址了，不然<code>chrome</code>会提示感叹号。</p>
-<p>个人博客地址：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
-<p>GitHub地址：<a href="https://github.com/crossoverJie" target="_blank" rel="external">https://github.com/crossoverJie</a>。</p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edced5545e.jpg&quot; alt=&quot;https.jpg&quot;&gt;&lt;/p&gt;
-&lt;p&gt;在如今的&lt;code&gt;HTTPS&lt;/code&gt;大当其道的情况下自己的博客要是还没有用上。作为互联网的螺丝钉(&lt;code&gt;码农&lt;/code&gt;)岂不是很没面子。&lt;/p&gt;
-&lt;h1 id=&quot;使用CLOUDFLARE&quot;&gt;&lt;a href=&quot;#使用CLOUDFLARE&quot; class=&quot;headerlink&quot; title=&quot;使用CLOUDFLARE&quot;&gt;&lt;/a&gt;使用CLOUDFLARE&lt;/h1&gt;&lt;p&gt;这里使用&lt;a href=&quot;http://www.CLOUDFLARE.com&quot;&gt;CLOUDFLARE&lt;/a&gt;来提供&lt;code&gt;HTTPS&lt;/code&gt;服务。&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;在其官网进行注册，按照提示添加好自己的域名即可。&lt;/li&gt;
-&lt;li&gt;之后需要在自己域名的提供商处修改&lt;code&gt;DNS服务器&lt;/code&gt;，我是在万网购买的修改后如下图：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd1a4cfd0.jpg&quot; alt=&quot;1.jpg&quot;&gt;&lt;br&gt;其中的&lt;code&gt;DNS服务器地址&lt;/code&gt;由&lt;code&gt;CLOUDFLARE&lt;/code&gt;是提供的。&lt;br&gt;修改完成之后通常需要等待一段时间才能生效。&lt;/li&gt;
-&lt;li&gt;接着在&lt;code&gt;CLOUDFLARE&lt;/code&gt;配置&lt;code&gt;DNS&lt;/code&gt;解析：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd4913c2b.jpg&quot; alt=&quot;DNS解析.jpg&quot;&gt;&lt;br&gt;点击&lt;code&gt;CLOUDFLARE&lt;/code&gt;顶部的&lt;code&gt;DNS&lt;/code&gt;进行如我上图中的配置，和之前的配置没有什么区别。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;等待一段时间之后发现使用&lt;code&gt;HTTP&lt;/code&gt;,&lt;code&gt;HTTPS&lt;/code&gt;都能访问，但是最好还是能在访问&lt;code&gt;HTTP&lt;/code&gt;的时候能强制跳转到&lt;code&gt;HTTPS&lt;/code&gt;.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;在&lt;code&gt;CLOUDFLARE&lt;/code&gt;菜单栏点击&lt;code&gt;page-rules&lt;/code&gt;之后新建一个&lt;code&gt;page rule&lt;/code&gt;：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd73a9f9d.jpg&quot; alt=&quot;强制https.jpg&quot;&gt;&lt;br&gt;这样整个网站的请求都会强制到请求到&lt;code&gt;HTTPS&lt;/code&gt;.&lt;/li&gt;
-&lt;/ul&gt;
-    
-    </summary>
-    
-      <category term="科普" scheme="http://crossoverJie.github.io/categories/%E7%A7%91%E6%99%AE/"/>
-    
-    
-      <category term="HTTP" scheme="http://crossoverJie.github.io/tags/HTTP/"/>
-    
-      <category term="HTTPS" scheme="http://crossoverJie.github.io/tags/HTTPS/"/>
+      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
     
   </entry>
   
@@ -912,7 +991,7 @@
 <p>其实现在<code>JSON</code>已经是相当流行了，只要涉及到前后端的数据交互大都都是采用的JSON(不管是web还是android和IOS)，所以我这里就举一个例子，就算是没有用过的同学也能很快明白其中的意思。</p>
 </blockquote>
 <h2 id="PostMan"><a href="#PostMan" class="headerlink" title="PostMan"></a>PostMan</h2><p>首先给大家安利一款后端开发的利器<code>PostMan</code>,可以用于模拟几乎所有的<code>HTTP</code>请求，在开发阶段调试后端接口非常有用。<br>这是一个Chrome插件，可以直接在google商店搜索直接下载(当然前提你懂得)。<br>之后界面就如下：<br><img src="http://img.blog.csdn.net/20161018003136470" alt="2">。<br>界面非常简洁，有点开发经验的童鞋应该都会使用，不太会用的直接google下就可以了比较简单。<br>接着我们就可以利用<code>PostMan</code>来发起一次请求获取<code>JSON</code>了。这里以我<code>SSM</code>项目为例,也正好有暴露一个JSON的接口。地址如下:<br><a href="http://www.crossoverjie.top/SSM/content_load" target="_blank" rel="external">http://www.crossoverjie.top/SSM/content_load</a>。<br>直接在<code>POSTMAN</code>中的地址栏输入该地址，采用<code>GET</code>的方式请求，之后所返回的就是JSON格式的字符串。<br>由于<code>Javascript</code>原生的就支持JSON，所以解析起来非常方便。</p>
-<h1 id="JSONP"><a href="#JSONP" class="headerlink" title="JSONP"></a>JSONP</h1><p>好了，终于可以谈谈<code>JSONP</code>了。之前说道<code>JSONP</code>是用来解决跨域问题的，那么他是如何解决的呢。<br>经过我们开发界的前辈们发现，HTML中拥有<code>SRC</code>属性的标签都不受跨域的影响，比如：<code>&lt;script&gt;、&lt;img&gt;、&lt;iframe&gt;</code>标签。<br>由于JS原生支持JSON的解析，于是我们采用<code>&lt;script&gt;</code>的方式来处理跨域解析，代码如下一看就明白。<br>web端:<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"zh"</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span>&gt;</span><span class="undefined"></span></div><div class="line">        $(document).ready(function()&#123;</div><div class="line">            $.ajax(&#123;</div><div class="line">                type: "get",</div><div class="line">                async: false,</div><div class="line">                url: "http://www.crossoverjie.top/SSM/jsonpInfo?callback=getUser&amp;userId=3",</div><div class="line">                dataType: "jsonp",</div><div class="line">                jsonp: "callback",//一般默认为:callback</div><div class="line">                jsonpCallback:"getUser",//自定义的jsonp回调函数名称，默认为jQuery自动生成的随机函数名，也可以写"?"，jQuery会自动为你处理数据</div><div class="line">                success: function(json)&#123;</div><div class="line">                    /**</div><div class="line">                     * 获得服务器返回的信息。</div><div class="line">                     * 可以做具体的业务处理。</div><div class="line">                     */</div><div class="line">                    alert('用户信息：ID： ' + json.userId + ' ，姓名： ' + json.username + '。');</div><div class="line">                &#125;,</div><div class="line">                error: function()&#123;</div><div class="line">                    alert('fail');</div><div class="line">                &#125;</div><div class="line">            &#125;);</div><div class="line">        &#125;);</div><div class="line">    <span class="tag">&lt;/<span class="name">script</span>&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;<span class="name">body</span> <span class="attr">oncontextmenu</span>=<span class="string">"return false"</span>&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<h1 id="JSONP"><a href="#JSONP" class="headerlink" title="JSONP"></a>JSONP</h1><p>好了，终于可以谈谈<code>JSONP</code>了。之前说道<code>JSONP</code>是用来解决跨域问题的，那么他是如何解决的呢。<br>经过我们开发界的前辈们发现，HTML中拥有<code>SRC</code>属性的标签都不受跨域的影响，比如：<code>&lt;script&gt;、&lt;img&gt;、&lt;iframe&gt;</code>标签。<br>由于JS原生支持JSON的解析，于是我们采用<code>&lt;script&gt;</code>的方式来处理跨域解析，代码如下一看就明白。<br>web端:<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"zh"</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span>&gt;</span><span class="javascript"></span></div><div class="line">        $(<span class="built_in">document</span>).ready(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">            $.ajax(&#123;</div><div class="line">                <span class="attr">type</span>: <span class="string">"get"</span>,</div><div class="line">                <span class="attr">async</span>: <span class="literal">false</span>,</div><div class="line">                <span class="attr">url</span>: <span class="string">"http://www.crossoverjie.top/SSM/jsonpInfo?callback=getUser&amp;userId=3"</span>,</div><div class="line">                <span class="attr">dataType</span>: <span class="string">"jsonp"</span>,</div><div class="line">                <span class="attr">jsonp</span>: <span class="string">"callback"</span>,<span class="comment">//一般默认为:callback</span></div><div class="line">                jsonpCallback:<span class="string">"getUser"</span>,<span class="comment">//自定义的jsonp回调函数名称，默认为jQuery自动生成的随机函数名，也可以写"?"，jQuery会自动为你处理数据</span></div><div class="line">                success: <span class="function"><span class="keyword">function</span>(<span class="params">json</span>)</span>&#123;</div><div class="line">                    <span class="comment">/**</span></div><div class="line">                     * 获得服务器返回的信息。</div><div class="line">                     * 可以做具体的业务处理。</div><div class="line">                     */</div><div class="line">                    alert(<span class="string">'用户信息：ID： '</span> + json.userId + <span class="string">' ，姓名： '</span> + json.username + <span class="string">'。'</span>);</div><div class="line">                &#125;,</div><div class="line">                <span class="attr">error</span>: <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">                    alert(<span class="string">'fail'</span>);</div><div class="line">                &#125;</div><div class="line">            &#125;);</div><div class="line">        &#125;);</div><div class="line">    <span class="tag">&lt;/<span class="name">script</span>&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;<span class="name">body</span> <span class="attr">oncontextmenu</span>=<span class="string">"return false"</span>&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></div></pre></td></tr></table></figure></p>
 <p>其中我们采用了JQuery给我封装好的函数，这样就可以自动帮我们解析了。<br>首先我们来看下代码中的<a href="http://www.crossoverjie.top/SSM/jsonpInfo?callback=getUser&amp;userId=3" target="_blank" rel="external">http://www.crossoverjie.top/SSM/jsonpInfo?callback=getUser&amp;userId=3</a>这个地址返回的是什么内容，还是放到<code>POSTMAN</code>中执行如下：<br><img src="http://img.blog.csdn.net/20161018005211291" alt="3">。<br>可以看到我们所传递的<code>callback</code>参数带着查询的数据又原封不动的返回给我们了，这样的话即使我们不使用<code>JQuery</code>给我封装好的函数，我们自定义一个和<code>callback</code>名称一样的函数一样是可以解析其中的数据的，只是<code>Jquery</code>帮我们做了而已。</p>
 <p>前端没问题了，那么后端又是如何实现的呢？也很简单，如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@RequestMapping</span>(value = <span class="string">"/jsonpInfo"</span>,method = &#123; RequestMethod.GET &#125;)</div><div class="line"><span class="meta">@ResponseBody</span></div><div class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">jsonpInfo</span><span class="params">(String callback,Integer userId)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">    User user = userService.getUserById(userId);</div><div class="line">    JSONPObject jsonpObject = <span class="keyword">new</span> JSONPObject(callback,user) ;</div><div class="line">    <span class="keyword">return</span> jsonpObject ;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <p>后端采用了<code>jackson</code>中的<code>JSONPObject</code>这个类的一个构造方法，只需要将<code>callback</code>字段和需要转成<code>JSON</code>字符串的对象放进去即可。<br>需要主要的是需要使用<code>@ResponseBody</code>注解才能成功返回。</p>
@@ -1374,47 +1453,6 @@
     
     
       <category term="Hexo" scheme="http://crossoverJie.github.io/tags/Hexo/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>日常记录（二）SpringMvc导出Excel</title>
-    <link href="http://crossoverJie.github.io/2016/06/14/normal-skill2/"/>
-    <id>http://crossoverJie.github.io/2016/06/14/normal-skill2/</id>
-    <published>2016-06-14T12:38:06.000Z</published>
-    <updated>2016-06-15T17:53:34.000Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><blockquote>
-<p>相信很多朋友在实际工作中都会要将数据导出成Excel的需求，通常这样的做法有两种。<br>一是采用JXL来生成Excel，之后保存到服务器，然后在生成页面之后下载该文件。<br>二是使用POI来生成Excel，之后使用Stream的方式输出到前台直接下载<code>(ps:当然也可以生成到服务器中再下载。)</code>。这里我们讨论第二种。<br><em>至于两种方式的优缺点请自行<a href="http://www.baidu.com" target="_blank" rel="external">百度</a></em>。</p>
-</blockquote>
-<hr>
-<h1 id="Struts2的方式"><a href="#Struts2的方式" class="headerlink" title="Struts2的方式"></a>Struts2的方式</h1><p>通常我会将已经生成好的<code>HSSFWorkbook</code>放到一个<code>InputStream</code>中，然后再到xml配置文件中将返回结果更改为<code>stream</code>的方式。如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">responseData</span><span class="params">(HSSFWorkbook wb)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">	ByteArrayOutputStream baos = <span class="keyword">new</span> ByteArrayOutputStream();</div><div class="line">	wb.write(baos);</div><div class="line">	baos.flush();</div><div class="line">	<span class="keyword">byte</span>[] aa = baos.toByteArray();</div><div class="line">	excelStream = <span class="keyword">new</span> ByteArrayInputStream(aa, <span class="number">0</span>, aa.length);</div><div class="line">	baos.close();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<a id="more"></a>
-<p>配置文件：<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&lt;action name="exportXxx" class="xxxAction" method="exportXxx"&gt;</div><div class="line">	&lt;result name="exportSuccess" type="stream"&gt;</div><div class="line">		&lt;param name="inputName"&gt;excelStream&lt;/param&gt;</div><div class="line">    	&lt;param name="contentType"&gt;application/vnd.ms-excel&lt;/param&gt;</div><div class="line">    	&lt;param name="contentDisposition"&gt;attachment;filename="Undefined.xls"&lt;/param&gt;</div><div class="line">	&lt;/result&gt;</div><div class="line">&lt;/action&gt;</div></pre></td></tr></table></figure></p>
-<p>这样即可达到点击链接即可直接下载文件的目的。</p>
-<hr>
-<h1 id="SpringMVC的方式"><a href="#SpringMVC的方式" class="headerlink" title="SpringMVC的方式"></a>SpringMVC的方式</h1><p>先贴代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@RequestMapping</span>(<span class="string">"/exportXxx.action"</span>)</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">exportXxx</span><span class="params">(HttpServletRequest request, HttpServletResponse response,</span></span></div><div class="line">		@RequestParam(value=<span class="string">"scheduleId"</span>, defaultValue=<span class="string">"0"</span>)<span class="keyword">int</span> scheduleId)&#123;</div><div class="line">	HSSFWorkbook wb = createExcel(scheduleId) ;</div><div class="line">	<span class="keyword">try</span> &#123;</div><div class="line">		response.setHeader(<span class="string">"Content-Disposition"</span>, <span class="string">"attachment; filename=appointmentUser.xls"</span>);</div><div class="line">		response.setContentType(<span class="string">"application/vnd.ms-excel; charset=utf-8"</span>) ;</div><div class="line">		OutputStream out = response.getOutputStream() ;</div><div class="line">		wb.write(out) ;</div><div class="line">		out.flush();</div><div class="line">		out.close();</div><div class="line">	&#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">		e.printStackTrace();</div><div class="line">	&#125; </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>其实springMVC和Struts2的原理上是一样的，只是Struts2是才去配置文件的方式。首先是使用<code>createExcel()</code>这个方法来生成Excel并返回，最后利用r<code>response</code>即可向前台输出Excel，这种方法是通用的，也可以试用与<code>Servlet、Struts2等</code>。我们只需要在<code>response</code>的头信息中设置相应的输出信息即可。</p>
-<hr>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>不管是使用<code>Struts2</code>，还是使用<code>SpringMVC</code>究其根本都是使用的<code>response</code>，所以只要我们把<code>response</code>理解透了不管是下载图片、world、Excel还是其他什么文件都是一样的。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;blockquote&gt;
-&lt;p&gt;相信很多朋友在实际工作中都会要将数据导出成Excel的需求，通常这样的做法有两种。&lt;br&gt;一是采用JXL来生成Excel，之后保存到服务器，然后在生成页面之后下载该文件。&lt;br&gt;二是使用POI来生成Excel，之后使用Stream的方式输出到前台直接下载&lt;code&gt;(ps:当然也可以生成到服务器中再下载。)&lt;/code&gt;。这里我们讨论第二种。&lt;br&gt;&lt;em&gt;至于两种方式的优缺点请自行&lt;a href=&quot;http://www.baidu.com&quot;&gt;百度&lt;/a&gt;&lt;/em&gt;。&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;hr&gt;
-&lt;h1 id=&quot;Struts2的方式&quot;&gt;&lt;a href=&quot;#Struts2的方式&quot; class=&quot;headerlink&quot; title=&quot;Struts2的方式&quot;&gt;&lt;/a&gt;Struts2的方式&lt;/h1&gt;&lt;p&gt;通常我会将已经生成好的&lt;code&gt;HSSFWorkbook&lt;/code&gt;放到一个&lt;code&gt;InputStream&lt;/code&gt;中，然后再到xml配置文件中将返回结果更改为&lt;code&gt;stream&lt;/code&gt;的方式。如下：&lt;br&gt;&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;7&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;8&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;responseData&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;(HSSFWorkbook wb)&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;throws&lt;/span&gt; IOException &lt;/span&gt;&amp;#123;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;	ByteArrayOutputStream baos = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; ByteArrayOutputStream();&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;	wb.write(baos);&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;	baos.flush();&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;	&lt;span class=&quot;keyword&quot;&gt;byte&lt;/span&gt;[] aa = baos.toByteArray();&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;	excelStream = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; ByteArrayInputStream(aa, &lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;, aa.length);&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;	baos.close();&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&amp;#125;&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="日常记录" scheme="http://crossoverJie.github.io/categories/%E6%97%A5%E5%B8%B8%E8%AE%B0%E5%BD%95/"/>
-    
-    
-      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
-    
-      <category term="poi" scheme="http://crossoverJie.github.io/tags/poi/"/>
     
   </entry>
   
