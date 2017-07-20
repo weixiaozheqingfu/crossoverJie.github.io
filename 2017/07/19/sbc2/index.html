@@ -1,0 +1,1045 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Java,SpringBoot,SpringCloud,swagger,Eureka," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="crossoverJie's Blog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="前言
+上一篇简单入门了SpringBoot+SpringCloud构建微服务。但只能算是一个demo级别的应用。这次会按照实际生产要求来搭建这套服务。
+
+Swagger应用在上一篇中我们调用自己的http接口的时候采用的是PostMan来模拟请求，这个在平时调试时自然没有什么问题，但当我们需要和前端联调开发的时候效率就比较低了。
+首先通常来说现在前后端分离的项目一般都是后端接口先行。
+后端大大们">
+<meta property="og:type" content="article">
+<meta property="og:title" content="sbc(一)SpringBoot+SpringCloud初探">
+<meta property="og:url" content="http://crossoverJie.github.io/2017/07/19/sbc2/index.html">
+<meta property="og:site_name" content="crossoverJie's Blog">
+<meta property="og:description" content="前言
+上一篇简单入门了SpringBoot+SpringCloud构建微服务。但只能算是一个demo级别的应用。这次会按照实际生产要求来搭建这套服务。
+
+Swagger应用在上一篇中我们调用自己的http接口的时候采用的是PostMan来模拟请求，这个在平时调试时自然没有什么问题，但当我们需要和前端联调开发的时候效率就比较低了。
+首先通常来说现在前后端分离的项目一般都是后端接口先行。
+后端大大们">
+<meta property="og:image" content="https://i.loli.net/2017/07/20/596f9bc03c484.jpeg">
+<meta property="og:image" content="https://i.loli.net/2017/07/20/596fa125406dd.png">
+<meta property="og:image" content="https://ooo.0o0.ooo/2017/07/21/5970d89b629d4.jpg">
+<meta property="og:image" content="https://ooo.0o0.ooo/2017/07/21/5970dcda3315c.jpg">
+<meta property="og:image" content="https://ooo.0o0.ooo/2017/07/21/5970dcda3c724.jpg">
+<meta property="og:image" content="https://i.loli.net/2017/07/21/5970ea9544a8c.jpg">
+<meta property="og:image" content="https://i.loli.net/2017/07/21/5970f0629211c.jpg">
+<meta property="og:image" content="https://i.loli.net/2017/07/21/5970f0ae20e1f.jpg">
+<meta property="og:updated_time" content="2017-07-20T18:14:33.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="sbc(一)SpringBoot+SpringCloud初探">
+<meta name="twitter:description" content="前言
+上一篇简单入门了SpringBoot+SpringCloud构建微服务。但只能算是一个demo级别的应用。这次会按照实际生产要求来搭建这套服务。
+
+Swagger应用在上一篇中我们调用自己的http接口的时候采用的是PostMan来模拟请求，这个在平时调试时自然没有什么问题，但当我们需要和前端联调开发的时候效率就比较低了。
+首先通常来说现在前后端分离的项目一般都是后端接口先行。
+后端大大们">
+<meta name="twitter:image" content="https://i.loli.net/2017/07/20/596f9bc03c484.jpeg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 555390,
+      author: '博主大大'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://crossoverJie.github.io/2017/07/19/sbc2/"/>
+
+  <title> sbc(一)SpringBoot+SpringCloud初探 | crossoverJie's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s6.cnzz.com/stat.php?id=1259025147&web_id=1259025147" type="text/javascript"></script>
+  </div>
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">crossoverJie's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">会crossover的程序猿</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                sbc(一)SpringBoot+SpringCloud初探
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-07-19T22:10:05+08:00" content="2017-07-19">
+              2017-07-19
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/sbc/" itemprop="url" rel="index">
+                    <span itemprop="name">sbc</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/07/19/sbc2/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/07/19/sbc2/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/07/19/sbc2/" class="leancloud_visitors" data-flag-title="sbc(一)SpringBoot+SpringCloud初探">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+              &nbsp; | &nbsp;
+              <span class="page-pv">本文总阅读量
+              <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+              </span>
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://i.loli.net/2017/07/20/596f9bc03c484.jpeg" alt="pexels-photo-516961.jpeg"></p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><blockquote>
+<p>上一篇简单入门了<code>SpringBoot+SpringCloud</code>构建微服务。但只能算是一个<code>demo</code>级别的应用。<br>这次会按照实际生产要求来搭建这套服务。</p>
+</blockquote>
+<h1 id="Swagger应用"><a href="#Swagger应用" class="headerlink" title="Swagger应用"></a>Swagger应用</h1><p>在上一篇中我们调用自己的<code>http</code>接口的时候采用的是<code>PostMan</code>来模拟请求，这个在平时调试时自然没有什么问题，<br>但当我们需要和前端联调开发的时候效率就比较低了。</p>
+<p>首先通常来说现在前后端分离的项目一般都是后端接口先行。</p>
+<p>后端大大们先把接口定义好(入参和出参),前端大大们来确定是否满足要求，可以了之后后端才开始着手写实现，这样整体效率要高上许多。</p>
+<p>但也会带来一个问题:在接口定义阶段频繁变更接口定义而没有一个文档或类似的东西来记录，那么双方的沟通加上前端的调试都是比较困难的。</p>
+<p>基于这个需求网上有各种解决方案，比如阿里的<a href="http://rapapi.org/" target="_blank" rel="external">rap</a>就是一个不错的例子。</p>
+<p>但是<code>springCould</code>为我们在提供了一种在开发<code>springCloud</code>项目下更方便的工具<code>swagger</code>。</p>
+<p>实际效果如下:</p>
+<p><img src="https://i.loli.net/2017/07/20/596fa125406dd.png" alt="01.png"></p>
+<a id="more"></a>
+<p>使用<code>swagger</code>可以在自测和联调阶段方便调试。</p>
+<h2 id="配置swagger"><a href="#配置swagger" class="headerlink" title="配置swagger"></a>配置swagger</h2><p>以<code>sbc-order</code>为例我将项目分为了三个模块:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">├── order                                    // Order服务实现  </div><div class="line">│   ├── src/main</div><div class="line">├── order-api                                // 对内API</div><div class="line">│   ├── src/main</div><div class="line">├── order-client                             // 对外的clientAPI</div><div class="line">│   ├── src/main</div><div class="line">├── .gitignore                               </div><div class="line">├── LICENSE                </div><div class="line">├── README.md</div></pre></td></tr></table></figure>
+<p>因为实现都写在<code>order</code>模块中，所以只需要在该模块中配置即可。</p>
+<p>首先需要加入依赖，由于我在<code>order</code>模块中依赖了:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.crossoverJie<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>order-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;target.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure>
+<p><code>order-api</code>又依赖了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">&lt;dependency&gt;</div><div class="line">    &lt;groupId&gt;io.springfox&lt;/groupId&gt;</div><div class="line">    &lt;artifactId&gt;springfox-swagger2&lt;/artifactId&gt;</div><div class="line">    &lt;scope&gt;compile&lt;/scope&gt;</div><div class="line">&lt;/dependency&gt;</div><div class="line">&lt;dependency&gt;</div><div class="line">    &lt;groupId&gt;io.springfox&lt;/groupId&gt;</div><div class="line">    &lt;artifactId&gt;springfox-swagger-ui&lt;/artifactId&gt;</div><div class="line">    &lt;scope&gt;compile&lt;/scope&gt;</div><div class="line">&lt;/dependency&gt;</div></pre></td></tr></table></figure>
+<p>接着需要配置一个<code>SwaggerConfig</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">@Configuration</div><div class="line">@EnableSwagger2</div><div class="line">/** 是否打开swagger **/</div><div class="line">@ConditionalOnExpression(&quot;&apos;$&#123;swagger.enable&#125;&apos; == &apos;true&apos;&quot;)</div><div class="line">public class SwaggerConfig &#123;</div><div class="line">	</div><div class="line">    </div><div class="line">	@Bean</div><div class="line">    public Docket createRestApi() &#123;</div><div class="line">        return new Docket(DocumentationType.SWAGGER_2)</div><div class="line">                .apiInfo(apiInfo())</div><div class="line">                .select()</div><div class="line">                .apis(RequestHandlerSelectors.basePackage(&quot;com.crossoverJie.sbcorder.controller&quot;))</div><div class="line">                .paths(PathSelectors.any())</div><div class="line">                .build();</div><div class="line">    &#125;</div><div class="line">	</div><div class="line">    private ApiInfo apiInfo() &#123;</div><div class="line">        return new ApiInfoBuilder()</div><div class="line">                .title(&quot;sbc order api&quot;)</div><div class="line">                .description(&quot;sbc order api&quot;)</div><div class="line">                .termsOfServiceUrl(&quot;http://crossoverJie.top&quot;)</div><div class="line">                .contact(&quot;crossoverJie&quot;)</div><div class="line">                .version(&quot;1.0.0&quot;)</div><div class="line">                .build();</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>其实就是swagger是一些基本信息。<br>之后主需要启动项目，在地址栏输入<code>http://ip:port/swagger-ui.html#/</code>即可进入。<br>然后就可以看到如上图所示的接口列表,点击如下图所示的参数例子即可进行接口调用。</p>
+<p><img src="https://ooo.0o0.ooo/2017/07/21/5970d89b629d4.jpg" alt="02.jpg"></p>
+<h2 id="自定义开关Swagger"><a href="#自定义开关Swagger" class="headerlink" title="自定义开关Swagger"></a>自定义开关Swagger</h2><blockquote>
+<p><code>swagger</code>的便利能给我们带来很多好处，但稍有不慎也可能出现问题。</p>
+</blockquote>
+<p>比如如果在生产环境还能通过IP访问<code>swagger</code>的话那后果可是不堪设想的。<br>所以我们需要灵活控制<code>swagger</code>的显示。</p>
+<p>可以利用<code>spring的条件化配置(条件化配置可以配置存在于应用中,一旦满足一些特定的条件时就取消这些配置)</code>来实现这一功能:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@ConditionalOnExpression</span>(<span class="string">"'$&#123;swagger.enable&#125;' == 'true'"</span>)</div></pre></td></tr></table></figure>
+<p>该注解的意思是<code>给定的SpEL表达式计算结果为true</code>时才会创建<code>swagger</code>的<code>bean</code>。</p>
+<p><code>swagger.enable</code>这个配置则是配置在<code>application.properties</code>中:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># 是否打开swagger</div><div class="line">swagger.enable = true</div></pre></td></tr></table></figure>
+<p>这样当我们在生产环境时只需要将该配置改为<code>false</code>即可。</p>
+<p>ps:更多<code>spring条件化配置</code>:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">@ConditionalOnBean                 //配置了某个特定Bean</div><div class="line">@ConditionalOnMissingBean          //没有配置特定的Bean</div><div class="line">@ConditionalOnClass                //Classpath里有指定的类</div><div class="line">@ConditionalOnMissingClass         //Classpath里缺少指定的类</div><div class="line">@ConditionalOnExpression           //给定的Spring Expression Language(SpEL)表达式计算结果为true</div><div class="line">@ConditionalOnJava                 //Java的版本匹配特定值或者一个范围值</div><div class="line">@ConditionalOnJndi                 //参数中给定的JNDI位置必须存在一个，如果没有给参数，则要有JNDI InitialContext</div><div class="line">@ConditionalOnProperty             //指定的配置属性要有一个明确的值</div><div class="line">@ConditionalOnResource             //Classpath里有指定的资源</div><div class="line">@ConditionalOnWebApplication       //这是一个Web应用程序</div><div class="line">@ConditionalOnNotWebApplication    //这不是一个Web应用程序</div><div class="line">(参考SpringBoot实战)</div></pre></td></tr></table></figure>
+<h1 id="高可用Eureka"><a href="#高可用Eureka" class="headerlink" title="高可用Eureka"></a>高可用Eureka</h1><p>在上一篇中是用<code>Eureka</code>来做了服务注册中心，所有的生产者都往它注册服务，消费者又通过它来获取服务。</p>
+<p>但是之前讲到的都是单节点，这在生产环境风险巨大，我们必须做到注册中心的高可用，搭建<code>Eureka</code>。</p>
+<p>这里简单起见就搭建两个<code>Eureka</code>,思路则是这两个Eureka都把自己当成应用向对方注册，这样就可以构成一个高可用的服务注册中心。</p>
+<p>在实际生产环节中会是每个注册中心一台服务器，为了演示起见，我就在本地启动两个注册中心，但是端口不一样。</p>
+<p>首先需要在本地配置一个host:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">127.0.0.1 node1 node2</div></pre></td></tr></table></figure>
+<p>这样不论是访问<code>node1</code>还是<code>node2</code>都可以在本机调用的到(<code>当然不配置host也可以，只是需要通过IP来访问，这样看起来不是那么明显</code>)。</p>
+<p>并给<code>sbc-service</code>新增了两个配置文件:</p>
+<p>application-node1.properties:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">spring.application.name=sbc-service</div><div class="line">server.port=8888</div><div class="line">eureka.instance.hostname=node1</div><div class="line"></div><div class="line">## 不向注册中心注册自己</div><div class="line">#eureka.client.register-with-eureka=false</div><div class="line">#</div><div class="line">## 不需要检索服务</div><div class="line">#eureka.client.fetch-registry=false</div><div class="line">eureka.client.serviceUrl.defaultZone=http://node2:9999/eureka/</div></pre></td></tr></table></figure>
+<p>application-node2.properties:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">spring.application.name=sbc-service</div><div class="line">server.port=9999</div><div class="line">eureka.instance.hostname=node2</div><div class="line"></div><div class="line">## 不向注册中心注册自己</div><div class="line">#eureka.client.register-with-eureka=false</div><div class="line">#</div><div class="line">## 不需要检索服务</div><div class="line">#eureka.client.fetch-registry=false</div><div class="line">eureka.client.serviceUrl.defaultZone=http://node1:8888/eureka/</div></pre></td></tr></table></figure>
+<p>其中最重要的就是:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">eureka.client.serviceUrl.defaultZone=http://node2:9999/eureka/</div><div class="line">eureka.client.serviceUrl.defaultZone=http://node1:8888/eureka/</div></pre></td></tr></table></figure>
+<p>两个应用互相注册。</p>
+<p>启动的时候我们就可以利用只要我们按照<br><code>java -jar sbc-service-1.0.0-SNAPSHOT.jar --spring.profiles.active=node1</code>启动，就会按照传入的node1或者是node2去读取<code>application-node1.properties,application-node2.properties</code>这两个配置文件(<code>配置文件必须按照application-{name}.properties的方式命名</code>)。</p>
+<p>分别启动两个注册中心可以看到以下:<br><img src="https://ooo.0o0.ooo/2017/07/21/5970dcda3315c.jpg" alt="03.jpg"></p>
+<hr>
+<p><img src="https://ooo.0o0.ooo/2017/07/21/5970dcda3c724.jpg" alt="04.jpg"></p>
+<p>可以看到两个注册中心以及互相注册了。<br>在服务注册的时候只需要将两个地址都加上即可:<br><code>eureka.client.serviceUrl.defaultZone=http://localhost:8888/eureka/,http://localhost:9999/eureka/</code></p>
+<p>在服务调用的时候可以尝试关闭其中一个，正常情况下依然是可以调用到服务的。</p>
+<h1 id="Feign声明式调用"><a href="#Feign声明式调用" class="headerlink" title="Feign声明式调用"></a>Feign声明式调用</h1><p>接下来谈谈服务调用，上次提到可以用<code>ribbon</code>来进行服务调用，但是明显很不方便，不如像之前<code>rpc</code>调用那样简单直接。</p>
+<p>为此这次使用<code>Feign</code>来进行声明式调用，就像调用一个普通方法那样简单。</p>
+<h2 id="order-client"><a href="#order-client" class="headerlink" title="order-client"></a>order-client</h2><p>片头说到我将应用分成了三个模块<code>order、order-api、order-client</code>，其中的<code>client</code>模块就是关键。</p>
+<p>来看看其中的内容,只有一个接口:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@RequestMapping</span>(value=<span class="string">"/orderService"</span>)</div><div class="line"><span class="meta">@FeignClient</span>(name=<span class="string">"sbc-order"</span>)</div><div class="line"><span class="meta">@RibbonClient</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">OrderServiceClient</span> <span class="keyword">extends</span> <span class="title">OrderService</span></span>&#123;</div><div class="line"></div><div class="line"></div><div class="line">    <span class="meta">@ApiOperation</span>(<span class="string">"获取订单号"</span>)</div><div class="line">    <span class="meta">@RequestMapping</span>(value = <span class="string">"/getOrderNo"</span>, method = RequestMethod.POST)</div><div class="line">    <span class="function">BaseResponse&lt;OrderNoResVO&gt; <span class="title">getOrderNo</span><span class="params">(@RequestBody OrderNoReqVO orderNoReq)</span> </span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>@FeignClient</code>这个注解要注意下，其中的name的是自己应用的应用名称，在<br><code>application.properties中的spring.application.name配置</code>。</p>
+<p>其中继承了一个<code>OrderService</code>在<code>order-api</code>模块中，来看看<code>order-api</code>中的内容。</p>
+<h2 id="order-api"><a href="#order-api" class="headerlink" title="order-api"></a>order-api</h2><p>其中也只有一个接口:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@RestController</span></div><div class="line"><span class="meta">@Api</span>(<span class="string">"订单服务API"</span>)</div><div class="line"><span class="meta">@RequestMapping</span>(value = <span class="string">"/orderService"</span>)</div><div class="line"><span class="meta">@Validated</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">OrderService</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@ApiOperation</span>(<span class="string">"获取订单号"</span>)</div><div class="line">    <span class="meta">@RequestMapping</span>(value = <span class="string">"/getOrderNo"</span>, method = RequestMethod.POST)</div><div class="line">    <span class="function">BaseResponse&lt;OrderNoResVO&gt; <span class="title">getOrderNo</span><span class="params">(@RequestBody OrderNoReqVO orderNoReq)</span> </span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这个接口有两个目的。</p>
+<ol>
+<li>给正在的<code>controller</code>来进行实现。</li>
+<li>给<code>client</code>接口进行继承。</li>
+</ol>
+<p>类关系如下:</p>
+<p><img src="https://i.loli.net/2017/07/21/5970ea9544a8c.jpg" alt="05.jpg"></p>
+<p>注解这些都没什么好说的，一看就懂。</p>
+<h2 id="order"><a href="#order" class="headerlink" title="order"></a>order</h2><p><code>order</code>则是具体接口实现的模块，就和平时写<code>controller</code></p>
+<p>来看看如何使用<code>client</code>进行声明式调用:</p>
+<p>这次看看<code>sbc-user</code>这个项目，在里边调用了<code>sbc-order</code>的服务。</p>
+<p>其中的<code>user模块</code>依赖了<code>order-client</code>:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.crossoverJie<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>order-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>具体调用:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Autowired</span></div><div class="line"><span class="keyword">private</span> OrderServiceClient orderServiceClient ;</div><div class="line"></div><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> BaseResponse&lt;UserResVO&gt; <span class="title">getUserByFeign</span><span class="params">(@RequestBody UserReqVO userReq)</span> </span>&#123;</div><div class="line">    <span class="comment">//调用远程服务</span></div><div class="line">    OrderNoReqVO vo = <span class="keyword">new</span> OrderNoReqVO() ;</div><div class="line">    vo.setReqNo(userReq.getReqNo());</div><div class="line">    BaseResponse&lt;OrderNoResVO&gt; orderNo = orderServiceClient.getOrderNo(vo);</div><div class="line"></div><div class="line">    logger.info(<span class="string">"远程返回:"</span>+JSON.toJSONString(orderNo));</div><div class="line"></div><div class="line">    UserRes userRes = <span class="keyword">new</span> UserRes() ;</div><div class="line">    userRes.setUserId(<span class="number">123</span>);</div><div class="line">    userRes.setUserName(<span class="string">"张三"</span>);</div><div class="line"></div><div class="line">    userRes.setReqNo(userReq.getReqNo());</div><div class="line">    userRes.setCode(StatusEnum.SUCCESS.getCode());</div><div class="line">    userRes.setMessage(<span class="string">"成功"</span>);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> userRes ;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到只需要将<code>order-client</code>包中的Order服务注入进来即可进行调用。</p>
+<p>在<code>sbc-client</code>的<code>swagger</code>中进行调用:</p>
+<p><img src="https://i.loli.net/2017/07/21/5970f0629211c.jpg" alt="06.jpg"></p>
+<hr>
+<p><img src="https://i.loli.net/2017/07/21/5970f0ae20e1f.jpg" alt="07.jpg"></p>
+<p>由于我并没传<code>appId</code>所以<code>order</code>服务返回的错误。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>其实应用本身也是需要做高可用的，和<code>Eureka</code>高可用一样，再不同的服务器上再启一个或多个服务并注册到<code>Eureka</code>集群中即可。</p>
+<p>后续还会继续谈到<code>zuul网关，容错，断路器</code>等内容，欢迎拍砖讨论。</p>
+<blockquote>
+<p>项目：<a href="https://github.com/crossoverJie/springboot-cloud" target="_blank" rel="external">https://github.com/crossoverJie/springboot-cloud</a></p>
+<p>博客：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+<div id="wechat_subscriber" style="display: block； padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/uploads/weixinchat.jpg" alt="crossoverJie wechat" style="width: 200px; max-width: 100%;"/>
+    <div>我很有眼光！</div>
+</div>
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>就是有钱。。</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/weixin-reward-image.jpg" alt="crossoverJie WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/alipay-reward-image.jpg" alt="crossoverJie Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag">#Java</a>
+          
+            <a href="/tags/SpringBoot/" rel="tag">#SpringBoot</a>
+          
+            <a href="/tags/SpringCloud/" rel="tag">#SpringCloud</a>
+          
+            <a href="/tags/swagger/" rel="tag">#swagger</a>
+          
+            <a href="/tags/Eureka/" rel="tag">#Eureka</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/07/09/SSM15/" rel="next" title="SSM(十五) 乐观锁与悲观锁的实际应用">
+                <i class="fa fa-chevron-left"></i> SSM(十五) 乐观锁与悲观锁的实际应用
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <a class="jiathis_button_tsina"></a>
+  <a class="jiathis_button_tqq"></a>
+  <a class="jiathis_button_weixin"></a>
+  <a class="jiathis_button_cqq"></a>
+  <a class="jiathis_button_douban"></a>
+  <a class="jiathis_button_renren"></a>
+  <a class="jiathis_button_qzone"></a>
+  <a class="jiathis_button_kaixin001"></a>
+  <a class="jiathis_button_copy"></a>
+  <a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank"></a>
+  <a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+  var jiathis_config={
+    hideMore:false
+  }
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  <p>热评文章</p>
+  <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/crossoverjie.jpg"
+               alt="crossoverJie" />
+          <p class="site-author-name" itemprop="name">crossoverJie</p>
+          <p class="site-description motion-element" itemprop="description">You never know what you can do till you try.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">31</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">46</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/crossoverJie" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/crossoverJie" target="_blank" title="微博">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  微博
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.jianshu.com/users/e2d07947c112/latest_articles" target="_blank" title="简书">
+                  
+                    <i class="fa fa-fw fa-edit"></i>
+                  
+                  简书
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://wuchong.me" title="Jark's Blog" target="_blank">Jark's Blog</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://tengj.top" title="嘟嘟独立博客" target="_blank">嘟嘟独立博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://notes.iissnan.com" title="IIssNan" target="_blank">IIssNan</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://notes.wanghao.work" title="doublemine" target="_blank">doublemine</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://code.youmeek.com" title="Judas.n" target="_blank">Judas.n</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://www.cppba.com" title="大黄蜂" target="_blank">大黄蜂</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://yemengying.com/" title="程序媛妹纸" target="_blank">程序媛妹纸</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.yiyeti.cc/" title="独立博客资源导航" target="_blank">独立博客资源导航</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://qifuguang.me/" title="qifuguang.me" target="_blank">qifuguang.me</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Swagger应用"><span class="nav-number">2.</span> <span class="nav-text">Swagger应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#配置swagger"><span class="nav-number">2.1.</span> <span class="nav-text">配置swagger</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自定义开关Swagger"><span class="nav-number">2.2.</span> <span class="nav-text">自定义开关Swagger</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#高可用Eureka"><span class="nav-number">3.</span> <span class="nav-text">高可用Eureka</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Feign声明式调用"><span class="nav-number">4.</span> <span class="nav-text">Feign声明式调用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#order-client"><span class="nav-number">4.1.</span> <span class="nav-text">order-client</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#order-api"><span class="nav-number">4.2.</span> <span class="nav-text">order-api</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#order"><span class="nav-number">4.3.</span> <span class="nav-text">order</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">crossoverJie</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv"><i class="fa fa-user"></i><span class="busuanzi-value" id="busuanzi_value_site_uv"></span>人数</span>
+  
+
+  
+    <span class="site-pv">您是第<span class="busuanzi-value" id="busuanzi_value_site_pv"></span>位童鞋</span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'crossoverjie';
+      var disqus_identifier = '2017/07/19/sbc2/';
+      var disqus_title = "sbc(一)SpringBoot+SpringCloud初探";
+      var disqus_url = 'http://crossoverJie.github.io/2017/07/19/sbc2/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+
+  
+  
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("Qv6ckEtL1pe3PJD10qoOLKtg-gzGzoHsz", "NXiHFodQfmI8oxkK6IThhjrF");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+<script type="text/javascript" src="/js/src/particle.js" count="50" zindex="-2" opacity="1" color="0,104,183"></script>
+</body>
+</html>
