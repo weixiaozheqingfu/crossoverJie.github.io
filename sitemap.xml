@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://crossoverJie.github.io/about/index.html</loc>
+    
+    <lastmod>2017-07-24T03:23:37.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://crossoverJie.github.io/2017/07/19/sbc2/</loc>
     
     <lastmod>2017-07-20T18:47:44.000Z</lastmod>
@@ -40,13 +47,6 @@
     <loc>http://crossoverJie.github.io/product/index.html</loc>
     
     <lastmod>2017-05-07T09:05:33.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://crossoverJie.github.io/about/index.html</loc>
-    
-    <lastmod>2017-05-07T08:51:56.000Z</lastmod>
     
   </url>
   
