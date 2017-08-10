@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://crossoverJie.github.io/"/>
-  <updated>2017-08-10T17:43:15.000Z</updated>
+  <updated>2017-08-10T17:51:46.000Z</updated>
   <id>http://crossoverJie.github.io/</id>
   
   <author>
@@ -20,16 +20,16 @@
     <link href="http://crossoverJie.github.io/2017/08/11/sbc4/"/>
     <id>http://crossoverJie.github.io/2017/08/11/sbc4/</id>
     <published>2017-08-11T10:13:22.000Z</published>
-    <updated>2017-08-10T17:43:15.000Z</updated>
+    <updated>2017-08-10T17:51:46.000Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://i.loli.net/2017/08/11/598c8c87529b1.jpeg" alt="pexels-photo-306198.jpeg"></p>
 <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><blockquote>
-<p>在一个高并发系统中对流量的把控是非常重要的，当巨大的流量直接请求到我们的服务器上时没多久就可能造成接口不可用，不处理的话甚至会造成整个应用不可用。</p>
+<p>在一个高并发系统中对流量的把控是非常重要的，当巨大的流量直接请求到我们的服务器上没多久就可能造成接口不可用，不处理的话甚至会造成整个应用不可用。</p>
 </blockquote>
-<p>比如最近就有个这样的需求，我作为客户端要像<code>kafka</code>生产数据，而<code>kafka</code>的消费者则源源不断的消费数据，并将消费的数据全部请求到<code>web服务器</code>，虽说做了负载(有4台<code>web服务器</code>)但业务数据的量也是巨大的，每秒钟可能有上万条数据产生。如果生产者直接生产数据的话极有可能把<code>web服务器</code>拖垮。</p>
-<p>对此就必须要做限流处理，每秒钟生产一定限额的数据到<code>kafka</code>，这样就能保证<code>web</code>的正常运转。</p>
+<p>比如最近就有个这样的需求，我作为客户端要向<code>kafka</code>生产数据，而<code>kafka</code>的消费者则再源源不断的消费数据，并将消费的数据全部请求到<code>web服务器</code>，虽说做了负载(有4台<code>web服务器</code>)但业务数据的量也是巨大的，每秒钟可能有上万条数据产生。如果生产者直接生产数据的话极有可能把<code>web服务器</code>拖垮。</p>
+<p>对此就必须要做限流处理，每秒钟生产一定限额的数据到<code>kafka</code>，这样就能极大程度的保证<code>web</code>的正常运转。</p>
 <p><strong>其实不管处理何种场景，本质都是降低流量保证应用的高可用。</strong></p>
-<h1 id="常见算法"><a href="#常见算法" class="headerlink" title="常见算法"></a>常见算法</h1><p>对于限流常见的有两种算法:</p>
+<h1 id="常见算法"><a href="#常见算法" class="headerlink" title="常见算法"></a>常见算法</h1><p>对于限流常见有两种算法:</p>
 <ul>
 <li>漏桶算法</li>
 <li>令牌桶算法</li>
@@ -37,6 +37,7 @@
 <p>漏桶算法比较简单，就是将流量放入桶中，漏桶同时也按照一定的速率流出，如果流量过快的话就会溢出(<code>漏桶并不会提高流出速率</code>)。溢出的流量则直接丢弃。</p>
 <p>如下图所示:</p>
 <p><img src="https://i.loli.net/2017/08/11/598c905caa8cb.png" alt="漏桶算法，来自网络.png"></p>
+<a id="more"></a>
 <p>这种做法简单粗暴。</p>
 <p><code>漏桶算法</code>虽说简单，但却不能应对实际场景，比如突然暴增的流量。</p>
 <p>这时就需要用到<code>令牌桶算法</code>:</p>
@@ -52,7 +53,7 @@
 <p><img src="https://i.loli.net/2017/08/11/598c960f8983f.jpg" alt="1.jpg"></p>
 <p>代码可以看出以每秒向桶中放入两个令牌，请求一次消耗一个令牌。所以每秒钟只能发送两个请求。按照图中的时间来看也确实如此(返回值是获取此令牌所消耗的时间，差不多也是每500ms一个)。</p>
 <p>使用<code>RateLimiter</code>有几个值得注意的地方:</p>
-<p>它可以允许<code>先消费，后付款</code>，意思就是它可以来一个请求的时候一次性取走几个或者是剩下所有的令牌甚至多取，但是后面的请求就得为上一次请求买单了，它需要等待桶中的令牌补齐之后才能继续消耗。</p>
+<p>允许<code>先消费，后付款</code>，意思就是它可以来一个请求的时候一次性取走几个或者是剩下所有的令牌甚至多取，但是后面的请求就得为上一次请求买单，它需要等待桶中的令牌补齐之后才能继续获取令牌。</p>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>针对于单个应用的限流<code>RateLimiter</code>够用了，如果是分布式环境可以借助<code>redis</code>来完成。具体实现在接下来讨论。</p>
 <blockquote>
 <p>项目：<a href="https://github.com/crossoverJie/springboot-cloud" target="_blank" rel="external">https://github.com/crossoverJie/springboot-cloud</a></p>
@@ -63,7 +64,20 @@
     <summary type="html">
     
       &lt;p&gt;&lt;img src=&quot;https://i.loli.net/2017/08/11/598c8c87529b1.jpeg&quot; alt=&quot;pexels-photo-306198.jpeg&quot;&gt;&lt;/p&gt;
-&lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerli
+&lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;blockquote&gt;
+&lt;p&gt;在一个高并发系统中对流量的把控是非常重要的，当巨大的流量直接请求到我们的服务器上没多久就可能造成接口不可用，不处理的话甚至会造成整个应用不可用。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;比如最近就有个这样的需求，我作为客户端要向&lt;code&gt;kafka&lt;/code&gt;生产数据，而&lt;code&gt;kafka&lt;/code&gt;的消费者则再源源不断的消费数据，并将消费的数据全部请求到&lt;code&gt;web服务器&lt;/code&gt;，虽说做了负载(有4台&lt;code&gt;web服务器&lt;/code&gt;)但业务数据的量也是巨大的，每秒钟可能有上万条数据产生。如果生产者直接生产数据的话极有可能把&lt;code&gt;web服务器&lt;/code&gt;拖垮。&lt;/p&gt;
+&lt;p&gt;对此就必须要做限流处理，每秒钟生产一定限额的数据到&lt;code&gt;kafka&lt;/code&gt;，这样就能极大程度的保证&lt;code&gt;web&lt;/code&gt;的正常运转。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;其实不管处理何种场景，本质都是降低流量保证应用的高可用。&lt;/strong&gt;&lt;/p&gt;
+&lt;h1 id=&quot;常见算法&quot;&gt;&lt;a href=&quot;#常见算法&quot; class=&quot;headerlink&quot; title=&quot;常见算法&quot;&gt;&lt;/a&gt;常见算法&lt;/h1&gt;&lt;p&gt;对于限流常见有两种算法:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;漏桶算法&lt;/li&gt;
+&lt;li&gt;令牌桶算法&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;漏桶算法比较简单，就是将流量放入桶中，漏桶同时也按照一定的速率流出，如果流量过快的话就会溢出(&lt;code&gt;漏桶并不会提高流出速率&lt;/code&gt;)。溢出的流量则直接丢弃。&lt;/p&gt;
+&lt;p&gt;如下图所示:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://i.loli.net/2017/08/11/598c905caa8cb.png&quot; alt=&quot;漏桶算法，来自网络.png&quot;&gt;&lt;/p&gt;
     
     </summary>
     
@@ -168,9 +182,9 @@
     
       <category term="重构" scheme="http://crossoverJie.github.io/tags/%E9%87%8D%E6%9E%84/"/>
     
-      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
-    
       <category term="AOP" scheme="http://crossoverJie.github.io/tags/AOP/"/>
+    
+      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
     
       <category term="SpringBoot" scheme="http://crossoverJie.github.io/tags/SpringBoot/"/>
     
@@ -579,61 +593,6 @@
   </entry>
   
   <entry>
-    <title>科普-为自己的博客免费加上小绿锁</title>
-    <link href="http://crossoverJie.github.io/2017/05/07/https/"/>
-    <id>http://crossoverJie.github.io/2017/05/07/https/</id>
-    <published>2017-05-06T17:01:54.000Z</published>
-    <updated>2017-05-07T08:40:47.000Z</updated>
-    
-    <content type="html"><![CDATA[<p><img src="https://ooo.0o0.ooo/2017/05/07/590edced5545e.jpg" alt="https.jpg"></p>
-<p>在如今的<code>HTTPS</code>大当其道的情况下自己的博客要是还没有用上。作为互联网的螺丝钉(<code>码农</code>)岂不是很没面子。</p>
-<h1 id="使用CLOUDFLARE"><a href="#使用CLOUDFLARE" class="headerlink" title="使用CLOUDFLARE"></a>使用CLOUDFLARE</h1><p>这里使用<a href="http://www.CLOUDFLARE.com" target="_blank" rel="external">CLOUDFLARE</a>来提供<code>HTTPS</code>服务。</p>
-<ul>
-<li>在其官网进行注册，按照提示添加好自己的域名即可。</li>
-<li>之后需要在自己域名的提供商处修改<code>DNS服务器</code>，我是在万网购买的修改后如下图：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd1a4cfd0.jpg" alt="1.jpg"><br>其中的<code>DNS服务器地址</code>由<code>CLOUDFLARE</code>是提供的。<br>修改完成之后通常需要等待一段时间才能生效。</li>
-<li>接着在<code>CLOUDFLARE</code>配置<code>DNS</code>解析：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd4913c2b.jpg" alt="DNS解析.jpg"><br>点击<code>CLOUDFLARE</code>顶部的<code>DNS</code>进行如我上图中的配置，和之前的配置没有什么区别。</li>
-</ul>
-<p>等待一段时间之后发现使用<code>HTTP</code>,<code>HTTPS</code>都能访问，但是最好还是能在访问<code>HTTP</code>的时候能强制跳转到<code>HTTPS</code>.</p>
-<ul>
-<li>在<code>CLOUDFLARE</code>菜单栏点击<code>page-rules</code>之后新建一个<code>page rule</code>：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd73a9f9d.jpg" alt="强制https.jpg"><br>这样整个网站的请求都会强制到请求到<code>HTTPS</code>.</li>
-</ul>
-<a id="more"></a>
-<h1 id="主题配置"><a href="#主题配置" class="headerlink" title="主题配置"></a>主题配置</h1><p>由于我才用的是<code>Hexo</code>中的<code>Next</code>主题，其中配置了<code>CNZZ</code>站长统计。其中配置的<code>CNZZ</code>统计JS是才用的<code>HTTP</code>。导致在首页的时候<code>chrome</code>一直提示感叹号。<br>修改站点<code>themes/next/layout/_scripts/third-party/analytics</code>目录下的<code>cnzz-analytics.swig</code>文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&#123;% if theme.cnzz_siteid %&#125;</div><div class="line"></div><div class="line">  &lt;div style=&quot;display: none;&quot;&gt;</div><div class="line">    &lt;script src=&quot;https://s6.cnzz.com/stat.php?id=&#123;&#123; theme.cnzz_siteid &#125;&#125;&amp;web_id=&#123;&#123; theme.cnzz_siteid &#125;&#125;&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;</div><div class="line">  &lt;/div&gt;</div><div class="line"></div><div class="line">&#123;% endif %&#125;</div></pre></td></tr></table></figure></p>
-<p>之后再进行构建的时候就会使用<code>HTTPS</code>.</p>
-<blockquote>
-<p>值得注意一点的是之后文章中所使用的图片都要用<code>HTTPS</code>的地址了，不然<code>chrome</code>会提示感叹号。</p>
-<p>个人博客地址：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
-<p>GitHub地址：<a href="https://github.com/crossoverJie" target="_blank" rel="external">https://github.com/crossoverJie</a>。</p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edced5545e.jpg&quot; alt=&quot;https.jpg&quot;&gt;&lt;/p&gt;
-&lt;p&gt;在如今的&lt;code&gt;HTTPS&lt;/code&gt;大当其道的情况下自己的博客要是还没有用上。作为互联网的螺丝钉(&lt;code&gt;码农&lt;/code&gt;)岂不是很没面子。&lt;/p&gt;
-&lt;h1 id=&quot;使用CLOUDFLARE&quot;&gt;&lt;a href=&quot;#使用CLOUDFLARE&quot; class=&quot;headerlink&quot; title=&quot;使用CLOUDFLARE&quot;&gt;&lt;/a&gt;使用CLOUDFLARE&lt;/h1&gt;&lt;p&gt;这里使用&lt;a href=&quot;http://www.CLOUDFLARE.com&quot;&gt;CLOUDFLARE&lt;/a&gt;来提供&lt;code&gt;HTTPS&lt;/code&gt;服务。&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;在其官网进行注册，按照提示添加好自己的域名即可。&lt;/li&gt;
-&lt;li&gt;之后需要在自己域名的提供商处修改&lt;code&gt;DNS服务器&lt;/code&gt;，我是在万网购买的修改后如下图：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd1a4cfd0.jpg&quot; alt=&quot;1.jpg&quot;&gt;&lt;br&gt;其中的&lt;code&gt;DNS服务器地址&lt;/code&gt;由&lt;code&gt;CLOUDFLARE&lt;/code&gt;是提供的。&lt;br&gt;修改完成之后通常需要等待一段时间才能生效。&lt;/li&gt;
-&lt;li&gt;接着在&lt;code&gt;CLOUDFLARE&lt;/code&gt;配置&lt;code&gt;DNS&lt;/code&gt;解析：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd4913c2b.jpg&quot; alt=&quot;DNS解析.jpg&quot;&gt;&lt;br&gt;点击&lt;code&gt;CLOUDFLARE&lt;/code&gt;顶部的&lt;code&gt;DNS&lt;/code&gt;进行如我上图中的配置，和之前的配置没有什么区别。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;等待一段时间之后发现使用&lt;code&gt;HTTP&lt;/code&gt;,&lt;code&gt;HTTPS&lt;/code&gt;都能访问，但是最好还是能在访问&lt;code&gt;HTTP&lt;/code&gt;的时候能强制跳转到&lt;code&gt;HTTPS&lt;/code&gt;.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;在&lt;code&gt;CLOUDFLARE&lt;/code&gt;菜单栏点击&lt;code&gt;page-rules&lt;/code&gt;之后新建一个&lt;code&gt;page rule&lt;/code&gt;：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd73a9f9d.jpg&quot; alt=&quot;强制https.jpg&quot;&gt;&lt;br&gt;这样整个网站的请求都会强制到请求到&lt;code&gt;HTTPS&lt;/code&gt;.&lt;/li&gt;
-&lt;/ul&gt;
-    
-    </summary>
-    
-      <category term="科普" scheme="http://crossoverJie.github.io/categories/%E7%A7%91%E6%99%AE/"/>
-    
-    
-      <category term="HTTP" scheme="http://crossoverJie.github.io/tags/HTTP/"/>
-    
-      <category term="HTTPS" scheme="http://crossoverJie.github.io/tags/HTTPS/"/>
-    
-  </entry>
-  
-  <entry>
     <title>SSM(十三) 将dubbo暴露出HTTP服务</title>
     <link href="http://crossoverJie.github.io/2017/05/07/SSM13/"/>
     <id>http://crossoverJie.github.io/2017/05/07/SSM13/</id>
@@ -718,9 +677,64 @@
     
       <category term="dubbo" scheme="http://crossoverJie.github.io/tags/dubbo/"/>
     
+      <category term="HTTP" scheme="http://crossoverJie.github.io/tags/HTTP/"/>
+    
       <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
     
+  </entry>
+  
+  <entry>
+    <title>科普-为自己的博客免费加上小绿锁</title>
+    <link href="http://crossoverJie.github.io/2017/05/07/https/"/>
+    <id>http://crossoverJie.github.io/2017/05/07/https/</id>
+    <published>2017-05-06T17:01:54.000Z</published>
+    <updated>2017-05-07T08:40:47.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><img src="https://ooo.0o0.ooo/2017/05/07/590edced5545e.jpg" alt="https.jpg"></p>
+<p>在如今的<code>HTTPS</code>大当其道的情况下自己的博客要是还没有用上。作为互联网的螺丝钉(<code>码农</code>)岂不是很没面子。</p>
+<h1 id="使用CLOUDFLARE"><a href="#使用CLOUDFLARE" class="headerlink" title="使用CLOUDFLARE"></a>使用CLOUDFLARE</h1><p>这里使用<a href="http://www.CLOUDFLARE.com" target="_blank" rel="external">CLOUDFLARE</a>来提供<code>HTTPS</code>服务。</p>
+<ul>
+<li>在其官网进行注册，按照提示添加好自己的域名即可。</li>
+<li>之后需要在自己域名的提供商处修改<code>DNS服务器</code>，我是在万网购买的修改后如下图：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd1a4cfd0.jpg" alt="1.jpg"><br>其中的<code>DNS服务器地址</code>由<code>CLOUDFLARE</code>是提供的。<br>修改完成之后通常需要等待一段时间才能生效。</li>
+<li>接着在<code>CLOUDFLARE</code>配置<code>DNS</code>解析：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd4913c2b.jpg" alt="DNS解析.jpg"><br>点击<code>CLOUDFLARE</code>顶部的<code>DNS</code>进行如我上图中的配置，和之前的配置没有什么区别。</li>
+</ul>
+<p>等待一段时间之后发现使用<code>HTTP</code>,<code>HTTPS</code>都能访问，但是最好还是能在访问<code>HTTP</code>的时候能强制跳转到<code>HTTPS</code>.</p>
+<ul>
+<li>在<code>CLOUDFLARE</code>菜单栏点击<code>page-rules</code>之后新建一个<code>page rule</code>：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd73a9f9d.jpg" alt="强制https.jpg"><br>这样整个网站的请求都会强制到请求到<code>HTTPS</code>.</li>
+</ul>
+<a id="more"></a>
+<h1 id="主题配置"><a href="#主题配置" class="headerlink" title="主题配置"></a>主题配置</h1><p>由于我才用的是<code>Hexo</code>中的<code>Next</code>主题，其中配置了<code>CNZZ</code>站长统计。其中配置的<code>CNZZ</code>统计JS是才用的<code>HTTP</code>。导致在首页的时候<code>chrome</code>一直提示感叹号。<br>修改站点<code>themes/next/layout/_scripts/third-party/analytics</code>目录下的<code>cnzz-analytics.swig</code>文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&#123;% if theme.cnzz_siteid %&#125;</div><div class="line"></div><div class="line">  &lt;div style=&quot;display: none;&quot;&gt;</div><div class="line">    &lt;script src=&quot;https://s6.cnzz.com/stat.php?id=&#123;&#123; theme.cnzz_siteid &#125;&#125;&amp;web_id=&#123;&#123; theme.cnzz_siteid &#125;&#125;&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;</div><div class="line">  &lt;/div&gt;</div><div class="line"></div><div class="line">&#123;% endif %&#125;</div></pre></td></tr></table></figure></p>
+<p>之后再进行构建的时候就会使用<code>HTTPS</code>.</p>
+<blockquote>
+<p>值得注意一点的是之后文章中所使用的图片都要用<code>HTTPS</code>的地址了，不然<code>chrome</code>会提示感叹号。</p>
+<p>个人博客地址：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+<p>GitHub地址：<a href="https://github.com/crossoverJie" target="_blank" rel="external">https://github.com/crossoverJie</a>。</p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edced5545e.jpg&quot; alt=&quot;https.jpg&quot;&gt;&lt;/p&gt;
+&lt;p&gt;在如今的&lt;code&gt;HTTPS&lt;/code&gt;大当其道的情况下自己的博客要是还没有用上。作为互联网的螺丝钉(&lt;code&gt;码农&lt;/code&gt;)岂不是很没面子。&lt;/p&gt;
+&lt;h1 id=&quot;使用CLOUDFLARE&quot;&gt;&lt;a href=&quot;#使用CLOUDFLARE&quot; class=&quot;headerlink&quot; title=&quot;使用CLOUDFLARE&quot;&gt;&lt;/a&gt;使用CLOUDFLARE&lt;/h1&gt;&lt;p&gt;这里使用&lt;a href=&quot;http://www.CLOUDFLARE.com&quot;&gt;CLOUDFLARE&lt;/a&gt;来提供&lt;code&gt;HTTPS&lt;/code&gt;服务。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;在其官网进行注册，按照提示添加好自己的域名即可。&lt;/li&gt;
+&lt;li&gt;之后需要在自己域名的提供商处修改&lt;code&gt;DNS服务器&lt;/code&gt;，我是在万网购买的修改后如下图：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd1a4cfd0.jpg&quot; alt=&quot;1.jpg&quot;&gt;&lt;br&gt;其中的&lt;code&gt;DNS服务器地址&lt;/code&gt;由&lt;code&gt;CLOUDFLARE&lt;/code&gt;是提供的。&lt;br&gt;修改完成之后通常需要等待一段时间才能生效。&lt;/li&gt;
+&lt;li&gt;接着在&lt;code&gt;CLOUDFLARE&lt;/code&gt;配置&lt;code&gt;DNS&lt;/code&gt;解析：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd4913c2b.jpg&quot; alt=&quot;DNS解析.jpg&quot;&gt;&lt;br&gt;点击&lt;code&gt;CLOUDFLARE&lt;/code&gt;顶部的&lt;code&gt;DNS&lt;/code&gt;进行如我上图中的配置，和之前的配置没有什么区别。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;等待一段时间之后发现使用&lt;code&gt;HTTP&lt;/code&gt;,&lt;code&gt;HTTPS&lt;/code&gt;都能访问，但是最好还是能在访问&lt;code&gt;HTTP&lt;/code&gt;的时候能强制跳转到&lt;code&gt;HTTPS&lt;/code&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;在&lt;code&gt;CLOUDFLARE&lt;/code&gt;菜单栏点击&lt;code&gt;page-rules&lt;/code&gt;之后新建一个&lt;code&gt;page rule&lt;/code&gt;：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd73a9f9d.jpg&quot; alt=&quot;强制https.jpg&quot;&gt;&lt;br&gt;这样整个网站的请求都会强制到请求到&lt;code&gt;HTTPS&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+      <category term="科普" scheme="http://crossoverJie.github.io/categories/%E7%A7%91%E6%99%AE/"/>
+    
+    
       <category term="HTTP" scheme="http://crossoverJie.github.io/tags/HTTP/"/>
+    
+      <category term="HTTPS" scheme="http://crossoverJie.github.io/tags/HTTPS/"/>
     
   </entry>
   
@@ -1103,9 +1117,9 @@
       <category term="SSM" scheme="http://crossoverJie.github.io/categories/SSM/"/>
     
     
-      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
-    
       <category term="AOP" scheme="http://crossoverJie.github.io/tags/AOP/"/>
+    
+      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
     
   </entry>
   
