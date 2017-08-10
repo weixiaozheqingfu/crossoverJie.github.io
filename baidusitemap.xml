@@ -3,6 +3,32 @@
 
 
     
+  <url>
+    <loc>http://crossoverJie.github.io/2017/08/11/sbc4/</loc>
+    <lastmod>2017-08-10T17:43:15.000Z</lastmod>
+    <data>
+        <display>
+        <title>sbc(四)应用限流</title>
+        <pubTime>2017-08-11T10:13:22.000Z</pubTime>
+        
+        <tag>Java</tag>
+         
+        <tag>SpringBoot</tag>
+         
+        <tag>SpringCloud</tag>
+         
+        <tag>RateLimiter</tag>
+         
+         
+           
+             
+              <breadCrumb title="sbc" url="http://crossoverJie.github.io/categories/sbc/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
     
   <url>
     <loc>http://crossoverJie.github.io/2016/07/15/SSM3/</loc>
