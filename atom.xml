@@ -180,11 +180,11 @@
       <category term="sbc" scheme="http://crossoverJie.github.io/categories/sbc/"/>
     
     
+      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
+    
       <category term="重构" scheme="http://crossoverJie.github.io/tags/%E9%87%8D%E6%9E%84/"/>
     
       <category term="AOP" scheme="http://crossoverJie.github.io/tags/AOP/"/>
-    
-      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
     
       <category term="SpringBoot" scheme="http://crossoverJie.github.io/tags/SpringBoot/"/>
     
@@ -675,11 +675,11 @@
       <category term="SSM" scheme="http://crossoverJie.github.io/categories/SSM/"/>
     
     
+      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
+    
       <category term="dubbo" scheme="http://crossoverJie.github.io/tags/dubbo/"/>
     
       <category term="HTTP" scheme="http://crossoverJie.github.io/tags/HTTP/"/>
-    
-      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
     
   </entry>
   
@@ -1117,9 +1117,9 @@
       <category term="SSM" scheme="http://crossoverJie.github.io/categories/SSM/"/>
     
     
-      <category term="AOP" scheme="http://crossoverJie.github.io/tags/AOP/"/>
-    
       <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
+    
+      <category term="AOP" scheme="http://crossoverJie.github.io/tags/AOP/"/>
     
   </entry>
   

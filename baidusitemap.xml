@@ -3,6 +3,7 @@
 
 
     
+    
   <url>
     <loc>http://crossoverJie.github.io/2017/08/11/sbc4/</loc>
     <lastmod>2017-08-10T17:51:46.000Z</lastmod>
@@ -28,7 +29,6 @@
     </data>
     </url>
 
-    
     
   <url>
     <loc>http://crossoverJie.github.io/2016/07/15/SSM3/</loc>
@@ -62,11 +62,11 @@
         <title>sbc(三)自定义Starter-SpringBoot重构去重插件</title>
         <pubTime>2017-08-01T12:10:19.000Z</pubTime>
         
+        <tag>Java</tag>
+         
         <tag>重构</tag>
          
         <tag>AOP</tag>
-         
-        <tag>Java</tag>
          
         <tag>SpringBoot</tag>
          
@@ -241,11 +241,11 @@
         <title>SSM(十三) 将dubbo暴露出HTTP服务</title>
         <pubTime>2017-05-06T17:01:54.000Z</pubTime>
         
+        <tag>Java</tag>
+         
         <tag>dubbo</tag>
          
         <tag>HTTP</tag>
-         
-        <tag>Java</tag>
          
          
            
@@ -288,9 +288,9 @@
         <title>SSM(八)动态切换数据源</title>
         <pubTime>2017-01-04T19:44:54.000Z</pubTime>
         
-        <tag>AOP</tag>
-         
         <tag>Java</tag>
+         
+        <tag>AOP</tag>
          
          
            
