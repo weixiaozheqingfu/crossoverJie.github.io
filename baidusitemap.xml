@@ -4,6 +4,32 @@
 
     
   <url>
+    <loc>http://crossoverJie.github.io/2017/09/20/sbc5/</loc>
+    <lastmod>2017-09-21T07:28:03.000Z</lastmod>
+    <data>
+        <display>
+        <title>sbc(五)Hystrix-服务容错与保护</title>
+        <pubTime>2017-09-19T17:13:22.000Z</pubTime>
+        
+        <tag>Java</tag>
+         
+        <tag>SpringBoot</tag>
+         
+        <tag>SpringCloud</tag>
+         
+        <tag>Hystrix</tag>
+         
+         
+           
+             
+              <breadCrumb title="sbc" url="http://crossoverJie.github.io/categories/sbc/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://crossoverJie.github.io/2017/09/05/SSM16/</loc>
     <lastmod>2017-09-05T15:18:42.000Z</lastmod>
     <data>
