@@ -4,6 +4,26 @@
 
     
   <url>
+    <loc>http://crossoverJie.github.io/1994/08/08/myresume/</loc>
+    <lastmod>2017-09-28T04:59:57.000Z</lastmod>
+    <data>
+        <display>
+        <title>个人简历</title>
+        <pubTime>1994-08-07T17:08:27.000Z</pubTime>
+        
+        <tag>总结</tag>
+         
+         
+           
+             
+              <breadCrumb title="resume" url="http://crossoverJie.github.io/categories/resume/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://crossoverJie.github.io/2017/09/20/sbc5/</loc>
     <lastmod>2017-09-21T07:28:03.000Z</lastmod>
     <data>
@@ -134,9 +154,9 @@
         <title>sbc(三)自定义Starter-SpringBoot重构去重插件</title>
         <pubTime>2017-08-01T12:10:19.000Z</pubTime>
         
-        <tag>重构</tag>
-         
         <tag>Java</tag>
+         
+        <tag>重构</tag>
          
         <tag>AOP</tag>
          
@@ -291,9 +311,9 @@
         <title>SSM(十三) 将dubbo暴露出HTTP服务</title>
         <pubTime>2017-05-06T17:01:54.000Z</pubTime>
         
-        <tag>dubbo</tag>
-         
         <tag>Java</tag>
+         
+        <tag>dubbo</tag>
          
         <tag>HTTP</tag>
          
@@ -546,26 +566,6 @@
            
              
               <breadCrumb title="Java笔记" url="http://crossoverJie.github.io/categories/Java%E7%AC%94%E8%AE%B0/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://crossoverJie.github.io/1994/08/08/myresume/</loc>
-    <lastmod>2017-01-07T14:43:34.000Z</lastmod>
-    <data>
-        <display>
-        <title>个人简历</title>
-        <pubTime>1994-08-07T17:08:27.000Z</pubTime>
-        
-        <tag>总结</tag>
-         
-         
-           
-             
-              <breadCrumb title="resume" url="http://crossoverJie.github.io/categories/resume/"/>
           
         </display>
     </data>
