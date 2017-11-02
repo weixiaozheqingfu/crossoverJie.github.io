@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://crossoverJie.github.io/"/>
-  <updated>2017-11-01T17:25:37.000Z</updated>
+  <updated>2017-11-02T18:21:58.000Z</updated>
   <id>http://crossoverJie.github.io/</id>
   
   <author>
@@ -16,11 +16,33 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>【译】你可以用GitHub做的12件Cool事情</title>
+    <link href="http://crossoverJie.github.io/2017/11/05/translation1-12%20cool%20things%20you%20can%20do%20with%20GitHub/"/>
+    <id>http://crossoverJie.github.io/2017/11/05/translation1-12 cool things you can do with GitHub/</id>
+    <published>2017-11-04T17:01:54.000Z</published>
+    <updated>2017-11-02T18:21:58.000Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="原文链接"><a href="#原文链接" class="headerlink" title="原文链接"></a><a href="https://hackernoon.com/12-cool-things-you-can-do-with-github-f3e0424cf2f0" target="_blank" rel="external">原文链接</a></h3><h2 id="1-在GitHub-com编辑代码"><a href="#1-在GitHub-com编辑代码" class="headerlink" title="1 在GitHub.com编辑代码"></a>1 在GitHub.com编辑代码</h2><h2 id="2-粘贴图片"><a href="#2-粘贴图片" class="headerlink" title="2 粘贴图片"></a>2 粘贴图片</h2><h2 id="3-格式化代码"><a href="#3-格式化代码" class="headerlink" title="3 格式化代码"></a>3 格式化代码</h2><h2 id="4-在PR中用特殊词关闭Issues"><a href="#4-在PR中用特殊词关闭Issues" class="headerlink" title="4 在PR中用特殊词关闭Issues"></a>4 在PR中用特殊词关闭Issues</h2><h2 id="5-链接到评论"><a href="#5-链接到评论" class="headerlink" title="5 链接到评论"></a>5 链接到评论</h2><h2 id="6-链接到代码"><a href="#6-链接到代码" class="headerlink" title="6 链接到代码"></a>6 链接到代码</h2><h2 id="7-像命令行一样使用GitHub链接"><a href="#7-像命令行一样使用GitHub链接" class="headerlink" title="7 像命令行一样使用GitHub链接"></a>7 像命令行一样使用GitHub链接</h2><h2 id="8-在Issues创建列表"><a href="#8-在Issues创建列表" class="headerlink" title="8 在Issues创建列表"></a>8 在Issues创建列表</h2><h2 id="10-GitHub-wiki"><a href="#10-GitHub-wiki" class="headerlink" title="10 GitHub wiki"></a>10 GitHub wiki</h2><h2 id="11-GitHub-Pages"><a href="#11-GitHub-Pages" class="headerlink" title="11 GitHub Pages"></a>11 GitHub Pages</h2><h2 id="12-把GitHub当做CRM"><a href="#12-把GitHub当做CRM" class="headerlink" title="12 把GitHub当做CRM"></a>12 把GitHub当做CRM</h2>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h3 id=&quot;原文链接&quot;&gt;&lt;a href=&quot;#原文链接&quot; class=&quot;headerlink&quot; title=&quot;原文链接&quot;&gt;&lt;/a&gt;&lt;a href=&quot;https://hackernoon.com/12-cool-things-you-can-do-with-github-f3e0
+    
+    </summary>
+    
+      <category term="翻译" scheme="http://crossoverJie.github.io/categories/%E7%BF%BB%E8%AF%91/"/>
+    
+    
+      <category term="GitHub" scheme="http://crossoverJie.github.io/tags/GitHub/"/>
+    
+  </entry>
+  
+  <entry>
     <title>SSM(十七) MQ应用</title>
     <link href="http://crossoverJie.github.io/2017/10/20/SSM17/"/>
     <id>http://crossoverJie.github.io/2017/10/20/SSM17/</id>
     <published>2017-10-19T17:01:54.000Z</published>
-    <updated>2017-11-01T17:25:37.000Z</updated>
+    <updated>2017-11-01T18:18:10.000Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://ws3.sinaimg.cn/large/006tKfTcly1fkpzk7hcz4j31kw11xhbz.jpg" alt=""></p>
 <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>写这篇文章的起因是由于之前的一篇关于<code>Kafka</code><a href="http://crossoverjie.top/2017/09/05/SSM16/" target="_blank" rel="external">异常消费</a>，当时为了解决问题不得不使用临时的方案。</p>
@@ -1648,90 +1670,6 @@
       <category term="JSONP" scheme="http://crossoverJie.github.io/tags/JSONP/"/>
     
       <category term="JSON" scheme="http://crossoverJie.github.io/tags/JSON/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Linux（二）服务器运行环境配置</title>
-    <link href="http://crossoverJie.github.io/2016/09/20/Linux-normal2/"/>
-    <id>http://crossoverJie.github.io/2016/09/20/Linux-normal2/</id>
-    <published>2016-09-20T11:45:17.000Z</published>
-    <updated>2017-05-07T04:54:33.000Z</updated>
-    
-    <content type="html"><![CDATA[<p><img src="https://ooo.0o0.ooo/2017/05/07/590ea8312b227.jpg" alt="linux2.jpg"></p>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>Linux相信对大多数程序员来说都不陌生，毕竟在服务器端依然还是霸主地位而且丝毫没有退居二线的意思，以至于现在几乎每一个软件开发的相关人员都得或多或少的知道一些Linux的相关内容，本文将介绍如何在刚拿到一台云服务器(采用<code>centos</code>)来进行运行环境的搭建，包括<code>JDK</code>、<code>Mysql</code>、<code>Tomcat</code>以及<code>nginx</code>。相信对于小白来说很有必要的，也是我个人的一个记录。</p>
-<blockquote>
-<p>该服务器的用途是用于部署JavaEE项目。<br>部署之后的效果图如下:<br><img src="https://ooo.0o0.ooo/2017/05/07/590ea878f1a8b.jpg" alt="mac背景.jpg"><br><a id="more"></a></p>
-</blockquote>
-<h1 id="JDK安装"><a href="#JDK安装" class="headerlink" title="JDK安装"></a>JDK安装</h1><p>由于我们之后需要部署的是<code>JavaEE</code>项目，所以首先第一步就是安装JDK了。</p>
-<h2 id="卸载自带的openJDK"><a href="#卸载自带的openJDK" class="headerlink" title="卸载自带的openJDK"></a>卸载自带的openJDK</h2><p>现在的服务器拿来之后一般都是默认给我们安装一个<code>openJDK</code>，首先我们需要卸载掉。</p>
-<ol>
-<li>使用<code>rpm -qa | grep java</code>命令查看系统中是否存在有Java。</li>
-<li>使用<code>rpm -e --nodeps 相关应用名称</code>来进行卸载。(相关应用名称就是上一个命令中显示出来的名称复制到这里卸载即可)。</li>
-</ol>
-<h2 id="下载并安装JDK"><a href="#下载并安装JDK" class="headerlink" title="下载并安装JDK"></a>下载并安装JDK</h2><ol>
-<li>之后是下载<code>ORACLE</code>所提供的JDK，<a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html" target="_blank" rel="external">传送门</a>根据自己系统的情况下载对应版本即可。笔者使用的是<code>jdk-8u101-linux-x64.rpm</code>版本。</li>
-<li>然后使用FTP工具上传到<code>/usr/java</code>目录下即可，没有<code>java</code>目录新建一个即可。</li>
-<li>然后使用<code>rpm -ivh jdk-8u101-linux-x64.rpm</code>命令进行解压安装。</li>
-</ol>
-<h2 id="profile文件配置"><a href="#profile文件配置" class="headerlink" title="profile文件配置"></a>profile文件配置</h2><p>安装完成之后使用<code>vi /etc/profile</code>命令编辑<code>profile</code>文件(注意该文件路径是指根目录下的etc文件夹不要找错了)。<br>在该文件中加入以下内容：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">export JAVA_HOME=/usr/java/jdk-8u101-linux-x64</div><div class="line">export CLASSPATH=.:$JAVA_HOME/jre/lib/rt.jar:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar</div><div class="line">export PATH=$PATH:$JAVA_HOME/bin</div></pre></td></tr></table></figure></p>
-<p>保存之后运行<code>source /etc/profile</code>使配置生效。</p>
-<h2 id="验证是否安装成功"><a href="#验证是否安装成功" class="headerlink" title="验证是否安装成功"></a>验证是否安装成功</h2><p>之后我们使用在<code>windows</code>平台也有的命令<code>java -version</code>，如果输出如图：<br><img src="http://img.blog.csdn.net/20160920000008974" alt="2"><br>表示安装成功。</p>
-<h1 id="MySQL安装"><a href="#MySQL安装" class="headerlink" title="MySQL安装"></a>MySQL安装</h1><h2 id="卸载自带的Mysql"><a href="#卸载自带的Mysql" class="headerlink" title="卸载自带的Mysql"></a>卸载自带的Mysql</h2><p>首先第一步还是要卸载掉自带的mysql。<br><code>rpm -e --nodeps mysql</code>命令和之前一样只是把应用名称换成mysql了而已。</p>
-<h2 id="使用yum来安装mysql"><a href="#使用yum来安装mysql" class="headerlink" title="使用yum来安装mysql"></a>使用<code>yum</code>来安装mysql</h2><p>之后我们采用<code>yum</code>来安装mysql。这样的方式最简单便捷。<br><code>yum install -y mysql-server mysql mysql-deve</code>执行该命令直到出现<code>Complete!</code>提示之后表示安装成功。<br><code>rpm -qi mysql-server</code>之后使用该命令可以查看我们安装的mysql信息。</p>
-<h2 id="mysql相关配置"><a href="#mysql相关配置" class="headerlink" title="mysql相关配置"></a>mysql相关配置</h2><p>使用<code>service mysqld start</code>来启动mysql服务(第一次会输出很多信息)，之后就不会了。<br>然后我们可以使用<code>chkconfig mysqld on</code>命令将mysql设置为开机启动。<br>输入<code>chkconfig --list | grep mysql</code>命令显示如下图：<br><img src="http://img.blog.csdn.net/20160920120817031" alt="3"><br>表示设置成功。<br>使用<code>mysqladmin -u root password &#39;root&#39;</code>为<code>root</code>账户设置密码。</p>
-<h2 id="设置远程使用"><a href="#设置远程使用" class="headerlink" title="设置远程使用"></a>设置远程使用</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">grant all privileges on *.* to &apos;root&apos;@&apos;%&apos; identified by &apos;123456&apos; with grant option;</div><div class="line"># root是用户名，%代表任意主机，&apos;123456&apos;指定的登录密码（这个和本地的root密码可以设置不同的，互不影响）</div><div class="line">flush privileges; # 重载系统权限</div><div class="line">exit;</div></pre></td></tr></table></figure>
-<h2 id="验证使用"><a href="#验证使用" class="headerlink" title="验证使用"></a>验证使用</h2><p>使用<code>mysql -u root -proot</code>来登录mysql。如果出现以下界面表示设置成功。<br><img src="http://img.blog.csdn.net/20160920121542492" alt="4"></p>
-<h1 id="Tomcat安装"><a href="#Tomcat安装" class="headerlink" title="Tomcat安装"></a>Tomcat安装</h1><p><code>Tomcat</code>也是我们运行<code>JavaEE</code>项目必备的一个中间件。</p>
-<ol>
-<li>第一步需要下载linux的Tomcat，<a href="http://tomcat.apache.org/download-80.cgi" target="_blank" rel="external">传送门</a>。根据自己系统版本进行下载即可。之后将<code>apache-tomcat-8.5.5.tar.gz</code>上传到<code>/usr/local</code>目录中。</li>
-<li>解压该压缩包<code>tar -zxv -f apache-tomcat-8.5.5.tar.gz</code>,再使用<code>mv apache-tomcat-8.5.5  tomcat</code>将解压的Tomcat移动到外层的<code>Tomcat</code>目录中。</li>
-<li>进入<code>/usr/local/tomcat/apache-tomcat-8.5.5/bin</code>目录使用<code>./startup.bat</code>命令启动tomcat。</li>
-<li>因为tomcat使用的默认端口是<code>8080</code>，linux防火墙默认是不能访问的，需要手动将其打开。使用<code>vi + /etc/sysconfig/iptables</code>编辑<code>iptables</code>(注意etc目录是根目录下的)，加入以下代码:<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">-A RH-Firewall-1-INPUT -m state --state NEW -m tcp -p tcp --dport 8080 -j ACCEPT</div><div class="line">-A RH-Firewall-1-INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT</div></pre></td></tr></table></figure>
-</li>
-</ol>
-<p>这里我们开放了8080和80端口，之后安装nginx就不用在开放了。</p>
-<blockquote>
-<p>ps:这里用到了简单的vim命令。按<code>i</code>进入插入模式，输入上面两段代码。之后按<code>esc</code>退出插入模式。再按<code>:wq</code>保存关闭即可。<br>之后使用<code>service iptables restart</code>命令重启防火墙即可。在浏览器输入服务器的<code>ip+8080</code>如果出现Tomcat的欢迎页即表明<code>Tomcat</code>安装成功。</p>
-</blockquote>
-<h1 id="nginx安装"><a href="#nginx安装" class="headerlink" title="nginx安装"></a>nginx安装</h1><p>最后是安装<code>nginx</code>，这里我们还是使用最简单的<code>yum</code>的方式来进行安装。</p>
-<ul>
-<li><p>首先使用以下几个命令安装必备的几个库：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">yum -y install pcre*</div><div class="line">yum -y install openssl*</div><div class="line">yum -y install gcc</div></pre></td></tr></table></figure>
-</li>
-<li><p>之后安装nginx。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">cd /usr/local/</div><div class="line">wget http://nginx.org/download/nginx-1.4.2.tar.gz</div><div class="line">tar -zxvf nginx-1.4.2.tar.gz</div><div class="line">cd nginx-1.4.2  </div><div class="line">./configure --prefix=/usr/local/nginx --with-http_stub_status_module</div><div class="line">make</div><div class="line">make install</div></pre></td></tr></table></figure>
-</li>
-</ul>
-<ul>
-<li>之后就可以使用<code>/usr/local/nginx/sbin/nginx</code>命令来启动nginx了。输入服务器的IP地址，如果出现nginx的欢迎界面表示安装成功了。</li>
-</ul>
-<h2 id="nginx配置"><a href="#nginx配置" class="headerlink" title="nginx配置"></a>nginx配置</h2><p>这里我就简单贴以下我的配置，主要就是配置一个<code>upstream,</code>之后在<code>server</code>中引用配置的那个<code>upstream</code>即可。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">#user  nobody;</div><div class="line">worker_processes  1;</div><div class="line"></div><div class="line">#error_log  logs/error.log;</div><div class="line">#error_log  logs/error.log  notice;</div><div class="line">#error_log  logs/error.log  info;</div><div class="line"></div><div class="line">#pid        logs/nginx.pid;</div><div class="line"></div><div class="line"></div><div class="line">events &#123;</div><div class="line">    worker_connections  1024;</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line">http &#123;</div><div class="line">    include       mime.types;</div><div class="line">    default_type  application/octet-stream;</div><div class="line"></div><div class="line">    #log_format  main  &apos;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &apos;</div><div class="line">    #                  &apos;$status $body_bytes_sent &quot;$http_referer&quot; &apos;</div><div class="line">    #                  &apos;&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;&apos;;</div><div class="line"></div><div class="line">    #access_log  logs/access.log  main;</div><div class="line"></div><div class="line">    sendfile        on;</div><div class="line">    #tcp_nopush     on;</div><div class="line"></div><div class="line">    #keepalive_timeout  0;</div><div class="line">    keepalive_timeout  65;</div><div class="line"></div><div class="line">    #gzip  on;</div><div class="line"></div><div class="line">    upstream crossover_main &#123;</div><div class="line">        server 127.0.0.1:8080;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    server &#123;</div><div class="line">        listen       80;</div><div class="line">        server_name  www.crossoverjie.top;</div><div class="line"></div><div class="line">        #charset koi8-r;</div><div class="line"></div><div class="line">        #access_log  logs/host.access.log  main;</div><div class="line"></div><div class="line">        location  / &#123;</div><div class="line">             proxy_pass http://crossover_main/examples/;</div><div class="line">             proxy_set_header Host $http_host;</div><div class="line">             proxy_set_header X-Forwarded-For $remote_addr;</div><div class="line">             index  index.jsp;</div><div class="line">        &#125;</div><div class="line"></div><div class="line"></div><div class="line">        #error_page  404              /404.html;</div><div class="line"></div><div class="line">        # redirect server error pages to the static page /50x.html</div><div class="line">        #</div><div class="line">        error_page   500 502 503 504  /50x.html;</div><div class="line">        location = /50x.html &#123;</div><div class="line">            root   html;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        # proxy the PHP scripts to Apache listening on 127.0.0.1:80</div><div class="line">        #</div><div class="line">        #location ~ \.php$ &#123;</div><div class="line">        #    proxy_pass   http://127.0.0.1;</div><div class="line">        #&#125;</div><div class="line"></div><div class="line">        # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000</div><div class="line">        #</div><div class="line">        #location ~ \.php$ &#123;</div><div class="line">        #    root           html;</div><div class="line">        #    fastcgi_pass   127.0.0.1:9000;</div><div class="line">        #    fastcgi_index  index.php;</div><div class="line">        #    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;</div><div class="line">        #    include        fastcgi_params;</div><div class="line">        #&#125;</div><div class="line"></div><div class="line">        # deny access to .htaccess files, if Apache&apos;s document root</div><div class="line">        # concurs with nginx&apos;s one</div><div class="line">        #</div><div class="line">        #location ~ /\.ht &#123;</div><div class="line">        #    deny  all;</div><div class="line">        #&#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line"></div><div class="line">    # another virtual host using mix of IP-, name-, and port-based configuration</div><div class="line">    #</div><div class="line">    #server &#123;</div><div class="line">    #    listen       8000;</div><div class="line">    #    listen       somename:8080;</div><div class="line">    #    server_name  somename  alias  another.alias;</div><div class="line"></div><div class="line">    #    location / &#123;</div><div class="line">    #        root   html;</div><div class="line">    #        index  index.html index.htm;</div><div class="line">    #    &#125;</div><div class="line">    #&#125;</div><div class="line"></div><div class="line"></div><div class="line">    # HTTPS server</div><div class="line">    #</div><div class="line">    #server &#123;</div><div class="line">    #    listen       443;</div><div class="line">    #    server_name  localhost;</div><div class="line"></div><div class="line">    #    ssl                  on;</div><div class="line">    #    ssl_certificate      cert.pem;</div><div class="line">    #    ssl_certificate_key  cert.key;</div><div class="line"></div><div class="line">    #    ssl_session_timeout  5m;</div><div class="line"></div><div class="line">    #    ssl_protocols  SSLv2 SSLv3 TLSv1;</div><div class="line">    #    ssl_ciphers  HIGH:!aNULL:!MD5;</div><div class="line">    #    ssl_prefer_server_ciphers   on;</div><div class="line"></div><div class="line">    #    location / &#123;</div><div class="line">    #        root   html;</div><div class="line">    #        index  index.html index.htm;</div><div class="line">    #    &#125;</div><div class="line">    #&#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>之后我们在地址栏输入服务器的IP地址(如果有域名解析了服务器的IP可以直接输入域名)就会进入我们在<code>upstream</code>中配置的地址加上在<code>server</code>中的地址。根据我这里的配置最后解析地址就是<code>http://127.0.0.1:8080/examples</code>应该是很好理解的。最终的结果是我在片头放的那张截图一样。</p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>这是一个简单的基于centOS的运行环境配置，对于小白练手应该是够了，有不清楚和错误的地方欢迎指出反正我也不会回复。<br><img src="http://i.imgur.com/wQmHabT.gif" alt="4"></p>
-<blockquote>
-<p>个人博客地址：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
-<p>GitHub地址：<a href="https://github.com/crossoverJie" target="_blank" rel="external">https://github.com/crossoverJie</a>。</p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590ea8312b227.jpg&quot; alt=&quot;linux2.jpg&quot;&gt;&lt;/p&gt;
-&lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;p&gt;Linux相信对大多数程序员来说都不陌生，毕竟在服务器端依然还是霸主地位而且丝毫没有退居二线的意思，以至于现在几乎每一个软件开发的相关人员都得或多或少的知道一些Linux的相关内容，本文将介绍如何在刚拿到一台云服务器(采用&lt;code&gt;centos&lt;/code&gt;)来进行运行环境的搭建，包括&lt;code&gt;JDK&lt;/code&gt;、&lt;code&gt;Mysql&lt;/code&gt;、&lt;code&gt;Tomcat&lt;/code&gt;以及&lt;code&gt;nginx&lt;/code&gt;。相信对于小白来说很有必要的，也是我个人的一个记录。&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;该服务器的用途是用于部署JavaEE项目。&lt;br&gt;部署之后的效果图如下:&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590ea878f1a8b.jpg&quot; alt=&quot;mac背景.jpg&quot;&gt;&lt;br&gt;
-    
-    </summary>
-    
-      <category term="Linux笔记" scheme="http://crossoverJie.github.io/categories/Linux%E7%AC%94%E8%AE%B0/"/>
-    
-    
-      <category term="Linux" scheme="http://crossoverJie.github.io/tags/Linux/"/>
-    
-      <category term="centos" scheme="http://crossoverJie.github.io/tags/centos/"/>
-    
-      <category term="nginx" scheme="http://crossoverJie.github.io/tags/nginx/"/>
     
   </entry>
   
