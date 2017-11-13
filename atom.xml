@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://crossoverJie.github.io/"/>
-  <updated>2017-11-01T18:18:10.000Z</updated>
+  <updated>2017-11-13T12:46:41.000Z</updated>
   <id>http://crossoverJie.github.io/</id>
   
   <author>
@@ -14,6 +14,105 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>【译】你可以用GitHub做的12件 Cool 事情</title>
+    <link href="http://crossoverJie.github.io/2017/11/05/translation1-12%20cool%20things%20you%20can%20do%20with%20GitHub/"/>
+    <id>http://crossoverJie.github.io/2017/11/05/translation1-12 cool things you can do with GitHub/</id>
+    <published>2017-11-04T17:01:54.000Z</published>
+    <updated>2017-11-13T12:46:41.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><img src="https://ws3.sinaimg.cn/large/006tNc79ly1flef224anmj31kw0ebgnt.jpg" alt=""></p>
+<h3 id="原文链接"><a href="#原文链接" class="headerlink" title="原文链接"></a><a href="https://hackernoon.com/12-cool-things-you-can-do-with-github-f3e0424cf2f0" target="_blank" rel="external">原文链接</a></h3><h2 id="1-在-GitHub-com-编辑代码"><a href="#1-在-GitHub-com-编辑代码" class="headerlink" title="1 在 GitHub.com 编辑代码"></a>1 在 GitHub.com 编辑代码</h2><p>我将从我认为大家都知道的一件事情开始(尽管我是直到一周前才知道)。</p>
+<p>当你在 GitHub 查看文件时(任何文本文件，任何仓库中)，右上角会有一个小铅笔图标，点击它就可以编辑文件了。完成之后点击 <strong>Propose file change</strong> 按钮 GitHub 将会自动帮你 fork 该项目并且创建一个 <code>pull request</code> 。</p>
+<p>很厉害吧！他自动帮你 <code>fork</code> 了该 repo。</p>
+<p>不再需要 <code>fork</code> , <code>pull</code> ,本地编辑再 <code>push</code> 以及创建一个 <code>PR</code> 这样的流程了。<br><img src="https://ws3.sinaimg.cn/large/006tKfTcgy1fl5eo3789hj30m80mjwhy.jpg" alt=""></p>
+<p>这非常适合修复编写代码中出现的拼写错误和修正一个不太理想的想法。</p>
+<a id="more"></a>
+<h2 id="2-粘贴图片"><a href="#2-粘贴图片" class="headerlink" title="2 粘贴图片"></a>2 粘贴图片</h2><p>你不仅仅受限于输入文本和描述问题，你知道你可以直接从粘贴板中粘贴图片吗？当你粘贴时，你会看到图片已经被上传了(毫无疑问被上传到云端)之后会变成 <code>Markdown</code> 语法来显示图片。</p>
+<h2 id="3-格式化代码"><a href="#3-格式化代码" class="headerlink" title="3 格式化代码"></a>3 格式化代码</h2><p>如果你想写一段代码，你可以三个反引号开始 —— 就像你在<a href="https://guides.github.com/features/mastering-markdown/" target="_blank" rel="external">研究<code>MarkDown</code></a>时所学到的 —— 之后 GitHub 会试着猜测你写的语言。</p>
+<p>但如果你写了一些类似于 Vue, Typescript, JSX 这样的语言，你可以明确指定得到正确的高亮。</p>
+<p>注意第一行中的<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">```jsx</div></pre></td></tr></table></figure></p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1fl5fe2vu3rj30b607kq39.jpg" alt=""></p>
+<p>这意味着代码段将会呈现出:</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tKfTcgy1fl5ffl8q7sj30bz06gq36.jpg" alt=""></p>
+<p>(这个扩展于 <code>gists</code> 。顺便说一句，如果你使用 <code>.jsx</code> 后缀，就会得到JSX的语法高亮)</p>
+<p>这是一个所有受支持的<a href="https://github.com/github/linguist/blob/fc1404985abb95d5bc33a0eba518724f1c3c252e/vendor/README.md" target="_blank" rel="external">语法列表</a>。</p>
+<h2 id="4-在-PR-中用关键词关闭-Issues"><a href="#4-在-PR-中用关键词关闭-Issues" class="headerlink" title="4 在 PR 中用关键词关闭 Issues"></a>4 在 PR 中用关键词关闭 Issues</h2><p>假设你创建了一个用于修复 <code>Issues #234</code> 的 PR ,你可以在你 PR 的描述中填写 <code>fixes #234</code> (或是在你 PR 任意评论中填写都是可以的)。<br>之后合并这个 <code>PR</code> 时将会自动关闭填写的 <code>Issues</code>。怎么样,很 cool 吧。</p>
+<p>了解是更多相关的<a href="https://help.github.com/articles/closing-issues-using-keywords/" target="_blank" rel="external">内容</a>。</p>
+<h2 id="5-链接到评论"><a href="#5-链接到评论" class="headerlink" title="5 链接到评论"></a>5 链接到评论</h2><p>你是否有过想要链接到特殊 <code>comment</code> 的想法但却无法实现？那是因为你不知道怎么做。朋友那都是过去式了，现在我就告诉你，点击用户名旁边的日期/时间即可链接到该 <code>comment</code> 。</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tKfTcly1fl69xkm5rtj30d003zq37.jpg" alt=""></p>
+<h2 id="6-链接到代码"><a href="#6-链接到代码" class="headerlink" title="6 链接到代码"></a>6 链接到代码</h2><p>我知道你想链接到具体的代码行上。</p>
+<p>尝试:查看文件时，点击代码旁边的行号。</p>
+<p>看到了吧，浏览器的 <code>URL</code> 已经被更新为行号了。如果你按住 <code>shift</code>,同时点击其他行号，<code>URL</code> 再次被更新，并且你也高亮显示页面中的一段代码。</p>
+<p>分享这个 URL ，访问时将会链接到该文件已经选中的那些代码段。</p>
+<p>但等一下，那指向的是当前的分支，如果文件发生了改变呢？也许一个在当前状态连接到文件的永久连接正是你想要的。</p>
+<p>我很懒，所以用一张截图展示以上的所有操作。</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcly1fl6lw7ji6uj30m80a6mym.jpg" alt=""></p>
+<p>谈到网址。。。</p>
+<h2 id="7-像命令行一样使用-GitHub-链接"><a href="#7-像命令行一样使用-GitHub-链接" class="headerlink" title="7 像命令行一样使用 GitHub 链接"></a>7 像命令行一样使用 GitHub 链接</h2><p>使用 GitHub 自带的 UI 浏览也还不错，但有时直接在 URL 中输入是最快的方法。比如，我想跳转到我正在编辑的分支并和 <code>master</code> 进行对比，就可以在项目名称后面接上 <code>/compare/branch-name</code> 。</p>
+<p>与选中分支的对比页将会显示出来:<br><img src="https://ws2.sinaimg.cn/large/006tKfTcly1fl8rqb8egpj30u50pbaea.jpg" alt=""></p>
+<p>以上就是和 master 分支的差异，如果想要合并分支的话，只需要输入 <code>/compare/integration-branch...my-branch</code> 即可。</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcly1fl8s3yraqrj30u50pbgpx.jpg" alt=""></p>
+<p>你还可以利用快捷键达到同样的效果，使用 <code>ctrl + L</code> 或者 <code>cmd + L</code> 可以将光标移动到 <code>URL</code> 上(至少在 Chrome 中可以)。 加上浏览器的自动补全 —— 你就可以在两个分支之间轻松切换了。</p>
+<h2 id="8-在Issues创建列表"><a href="#8-在Issues创建列表" class="headerlink" title="8 在Issues创建列表"></a>8 在Issues创建列表</h2><p>你想在你的 issue 中看到复选框列表吗?</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcly1fl8snpyb0jj30e708sdgl.jpg" alt=""></p>
+<p>你想在查看 issue 列表是它们以好看的 <code>2 of 5</code> 进度条呈现吗？</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcly1fl8u3bn88hj30dn06jdg9.jpg" alt=""></p>
+<p>太好了！你可以用以下语法来创建一个交互性的复选框:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">- [ ] Screen width (integer)</div><div class="line">- [x] Service worker support</div><div class="line">- [x] Fetch support</div><div class="line">- [ ] CSS flexbox support</div><div class="line">- [ ] Custom elements</div></pre></td></tr></table></figure>
+<p>是由一个空格、中横线、空格、左括号、空格(或者是 X )、右括号、空格以及一些文本组成。</p>
+<p>你甚至可以真正的 选中/取消 这些复选框！基于某些原因，对于我来说你看起来像是技术魔力。是真的能够选中这些复选框！甚至它还更新了底层源码。</p>
+<blockquote>
+<p>ps：以下包括第九点 基于GitHub的项目面板 由于用的不多就没有翻译。</p>
+</blockquote>
+<h2 id="10-GitHub-wiki"><a href="#10-GitHub-wiki" class="headerlink" title="10 GitHub wiki"></a>10 GitHub wiki</h2><p>作为一个像维基百科那样的非结构化的页面集合， <code>GitHub Wiki</code>的供给(我把它称之为 <code>Gwiki</code> ) 是一个非常棒的功能。</p>
+<p>对于结构化的页面来说 —— 例如你的文档：不能说这个页面是其他页面的子页面，或则是有 “下一节”，“上一节” 这样的便捷按钮。并且 <code>Hansel</code> 和 <code>Gretel</code> 也没有，因为结构化页面并没有 <code>breadcrumbs</code> 这样的设计。</p>
+<p>我们继续，让 Gwiki 动起来，我从 <code>NodeJS</code> 的文档中复制了几页来作为 wiki 页面。然后创建了一个自定义侧边栏，帮助我更好地模拟一些实际的目录结构。尽管它不会突出显示你当前的页面位置，但侧边栏会一直存在。</p>
+<p>这些链接需要你手动维护，但总的来说，我认为它可以做得很好。 如果需要的话可以<a href="https://github.com/davidgilbertson/about-github/wiki" target="_blank" rel="external">看看</a>。</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcgy1fl9yl6mhlzj30rw0dqwgn.jpg" alt=""></p>
+<p>虽然它与 <code>GitBook</code> ( <a href="http://redux.js.org/" target="_blank" rel="external">Redux 文档</a>所使用的)或者是定制网站相比仍有差距。但在你的 repo 中它有 80% 完全值得信赖的。</p>
+<p>我的建议是: 如果你已经有多个 <code>README.md</code> 文件，并且想要一些关于用户指南或更详细的文档的不同的页面，那么你应该选择 <code>Gwiki</code>。</p>
+<p>如果缺乏结构化/导航开始让你不爽的话，那就试试其他的吧。</p>
+<h2 id="11-GitHub-Pages"><a href="#11-GitHub-Pages" class="headerlink" title="11 GitHub Pages"></a>11 GitHub Pages</h2><p>你可能已经知道使用 <code>GitHub Pages</code> 来托管一个静态网站。如果你不知道，现在就来学习，这一节是专门用于讨论使用 <code>Jekyll</code> 来构建一个站点的。</p>
+<p>最简单的就是： <code>GitHub Pages + Jekyll</code>会通过一个漂亮的主题来渲染你的 <code>README.md</code> 文件。例如:通过 <a href="https://github.com/davidgilbertson/about-github" target="_blank" rel="external">about-github</a>  来查看的我的 <code>README</code> 页面。</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNc79ly1fle60d5j7hj311l0np78i.jpg" alt=""></p>
+<p>如果我在 GitHub 中点击了 <code>settings</code>选项，切换到 <code>Github Pages</code> 设置，然后选择一个 <code>Jekyll theme</code>。。。</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNc79ly1fle73empc8j30l30bcdh1.jpg" alt=""></p>
+<p>我就可以得到 <a href="https://davidgilbertson.github.io/about-github/" target="_blank" rel="external">Jekyll-themed 页面</a>。</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNc79ly1fle74nogxlj311l0npgos.jpg" alt=""></p>
+<p>从这点上我可以主要依据易编辑的 <code>Markdown</code> 文件来构建一个完整的静态站点。本质上是把 GitHub 变成了 <code>CMS</code>。</p>
+<p>虽然我没有实际使用过，但是 <code>React Bootstrap</code> 的网站都是使用它来构建的。所以它不会糟糕。</p>
+<p>注意:它要求 <code>Ruby</code> 运行本地环境( Windows 自行安装， macOS 自带)。</p>
+<h2 id="12-把-GitHub-当做-CRM-使用"><a href="#12-把-GitHub-当做-CRM-使用" class="headerlink" title="12 把 GitHub 当做 CRM 使用"></a>12 把 GitHub 当做 CRM 使用</h2><p>假设你有一个存有一些文本内容的网站，你不想将文本内容存储于真正的 <code>HTML</code> 源码中。</p>
+<p>相反的，你想要将这些文本块存储于非开发人员能轻松的进行编辑的地方。可能是一个版本控制系统，甚至是一个审核流程。</p>
+<p>我的建议是:使用 GitHub 厂库中的 Markdown 文件来存储这些文本内容，然后使用前端组件来拉取这些文本块并展示在页面上。</p>
+<p>我是搞 <code>React</code> 的，所以这有一个 解析 <code>Markdown</code> 的组件例子，给定一些 <code>Markdown</code> 文件路径，它将会自动拉取并作为 <code>HTML</code> 显示出来。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">class Markdown extends React.Component &#123;</div><div class="line">    constructor(props) &#123;</div><div class="line">      super(props);</div><div class="line">      </div><div class="line">      // replace with your URL, obviously</div><div class="line">      this.baseUrl = &apos;https://raw.githubusercontent.com/davidgilbertson/about-github/master/text-snippets&apos;;</div><div class="line">      </div><div class="line">      this.state = &#123;</div><div class="line">        markdown: &apos;&apos;,</div><div class="line">      &#125;;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    componentDidMount() &#123;</div><div class="line">      fetch(`$&#123;this.baseUrl&#125;/$&#123;this.props.url&#125;`)</div><div class="line">        .then(response =&gt; response.text())</div><div class="line">        .then((markdown) =&gt; &#123;</div><div class="line">          this.setState(&#123;markdown&#125;);</div><div class="line">        &#125;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    render() &#123;</div><div class="line">      return (</div><div class="line">        &lt;div dangerouslySetInnerHTML=&#123;&#123;__html: marked(this.state.markdown)&#125;&#125; /&gt;</div><div class="line">      );</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="奖励环节-——-GitHub-工具"><a href="#奖励环节-——-GitHub-工具" class="headerlink" title="奖励环节 —— GitHub 工具"></a>奖励环节 —— GitHub 工具</h3><p>我已经使用了 <a href="https://chrome.google.com/webstore/detail/octotree/bkhaagjahfmjljalopjnoealnfndnagc?hl=en-US" target="_blank" rel="external">Octotree Chrome extension</a> 有段时间了，现在我向大家推荐它！<br>无论你是在查看哪个 repo 它都会在左侧给你一个树状面板。</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNc79ly1flee4cevv3j30rs0hygnv.jpg" alt=""></p>
+<p>通过这个<a href="https://www.youtube.com/watch?v=NhlzMcSyQek&amp;index=2&amp;list=PLNYkxOF6rcIB3ci6nwNyLYNU6RDOU3YyL" target="_blank" rel="external">视频</a>我了解到了 octobox，它是用于管理你的 <code>GitHub Issues</code> 收件箱，看起来相当不错！<br>以上就是我针对于<code>octobox</code>的全部想法。</p>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>就是这样了！我希望这里至少有三件事是你还不知道的。</p>
+<p>最后: hava a nice day！</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;img src=&quot;https://ws3.sinaimg.cn/large/006tNc79ly1flef224anmj31kw0ebgnt.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;h3 id=&quot;原文链接&quot;&gt;&lt;a href=&quot;#原文链接&quot; class=&quot;headerlink&quot; title=&quot;原文链接&quot;&gt;&lt;/a&gt;&lt;a href=&quot;https://hackernoon.com/12-cool-things-you-can-do-with-github-f3e0424cf2f0&quot;&gt;原文链接&lt;/a&gt;&lt;/h3&gt;&lt;h2 id=&quot;1-在-GitHub-com-编辑代码&quot;&gt;&lt;a href=&quot;#1-在-GitHub-com-编辑代码&quot; class=&quot;headerlink&quot; title=&quot;1 在 GitHub.com 编辑代码&quot;&gt;&lt;/a&gt;1 在 GitHub.com 编辑代码&lt;/h2&gt;&lt;p&gt;我将从我认为大家都知道的一件事情开始(尽管我是直到一周前才知道)。&lt;/p&gt;
+&lt;p&gt;当你在 GitHub 查看文件时(任何文本文件，任何仓库中)，右上角会有一个小铅笔图标，点击它就可以编辑文件了。完成之后点击 &lt;strong&gt;Propose file change&lt;/strong&gt; 按钮 GitHub 将会自动帮你 fork 该项目并且创建一个 &lt;code&gt;pull request&lt;/code&gt; 。&lt;/p&gt;
+&lt;p&gt;很厉害吧！他自动帮你 &lt;code&gt;fork&lt;/code&gt; 了该 repo。&lt;/p&gt;
+&lt;p&gt;不再需要 &lt;code&gt;fork&lt;/code&gt; , &lt;code&gt;pull&lt;/code&gt; ,本地编辑再 &lt;code&gt;push&lt;/code&gt; 以及创建一个 &lt;code&gt;PR&lt;/code&gt; 这样的流程了。&lt;br&gt;&lt;img src=&quot;https://ws3.sinaimg.cn/large/006tKfTcgy1fl5eo3789hj30m80mjwhy.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;这非常适合修复编写代码中出现的拼写错误和修正一个不太理想的想法。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="翻译" scheme="http://crossoverJie.github.io/categories/%E7%BF%BB%E8%AF%91/"/>
+    
+    
+      <category term="GitHub" scheme="http://crossoverJie.github.io/tags/GitHub/"/>
+    
+  </entry>
   
   <entry>
     <title>SSM(十七) MQ应用</title>
@@ -494,9 +593,9 @@
       <category term="sbc" scheme="http://crossoverJie.github.io/categories/sbc/"/>
     
     
-      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
-    
       <category term="重构" scheme="http://crossoverJie.github.io/tags/%E9%87%8D%E6%9E%84/"/>
+    
+      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
     
       <category term="AOP" scheme="http://crossoverJie.github.io/tags/AOP/"/>
     
@@ -1648,90 +1747,6 @@
       <category term="JSONP" scheme="http://crossoverJie.github.io/tags/JSONP/"/>
     
       <category term="JSON" scheme="http://crossoverJie.github.io/tags/JSON/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Linux（二）服务器运行环境配置</title>
-    <link href="http://crossoverJie.github.io/2016/09/20/Linux-normal2/"/>
-    <id>http://crossoverJie.github.io/2016/09/20/Linux-normal2/</id>
-    <published>2016-09-20T11:45:17.000Z</published>
-    <updated>2017-05-07T04:54:33.000Z</updated>
-    
-    <content type="html"><![CDATA[<p><img src="https://ooo.0o0.ooo/2017/05/07/590ea8312b227.jpg" alt="linux2.jpg"></p>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>Linux相信对大多数程序员来说都不陌生，毕竟在服务器端依然还是霸主地位而且丝毫没有退居二线的意思，以至于现在几乎每一个软件开发的相关人员都得或多或少的知道一些Linux的相关内容，本文将介绍如何在刚拿到一台云服务器(采用<code>centos</code>)来进行运行环境的搭建，包括<code>JDK</code>、<code>Mysql</code>、<code>Tomcat</code>以及<code>nginx</code>。相信对于小白来说很有必要的，也是我个人的一个记录。</p>
-<blockquote>
-<p>该服务器的用途是用于部署JavaEE项目。<br>部署之后的效果图如下:<br><img src="https://ooo.0o0.ooo/2017/05/07/590ea878f1a8b.jpg" alt="mac背景.jpg"><br><a id="more"></a></p>
-</blockquote>
-<h1 id="JDK安装"><a href="#JDK安装" class="headerlink" title="JDK安装"></a>JDK安装</h1><p>由于我们之后需要部署的是<code>JavaEE</code>项目，所以首先第一步就是安装JDK了。</p>
-<h2 id="卸载自带的openJDK"><a href="#卸载自带的openJDK" class="headerlink" title="卸载自带的openJDK"></a>卸载自带的openJDK</h2><p>现在的服务器拿来之后一般都是默认给我们安装一个<code>openJDK</code>，首先我们需要卸载掉。</p>
-<ol>
-<li>使用<code>rpm -qa | grep java</code>命令查看系统中是否存在有Java。</li>
-<li>使用<code>rpm -e --nodeps 相关应用名称</code>来进行卸载。(相关应用名称就是上一个命令中显示出来的名称复制到这里卸载即可)。</li>
-</ol>
-<h2 id="下载并安装JDK"><a href="#下载并安装JDK" class="headerlink" title="下载并安装JDK"></a>下载并安装JDK</h2><ol>
-<li>之后是下载<code>ORACLE</code>所提供的JDK，<a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html" target="_blank" rel="external">传送门</a>根据自己系统的情况下载对应版本即可。笔者使用的是<code>jdk-8u101-linux-x64.rpm</code>版本。</li>
-<li>然后使用FTP工具上传到<code>/usr/java</code>目录下即可，没有<code>java</code>目录新建一个即可。</li>
-<li>然后使用<code>rpm -ivh jdk-8u101-linux-x64.rpm</code>命令进行解压安装。</li>
-</ol>
-<h2 id="profile文件配置"><a href="#profile文件配置" class="headerlink" title="profile文件配置"></a>profile文件配置</h2><p>安装完成之后使用<code>vi /etc/profile</code>命令编辑<code>profile</code>文件(注意该文件路径是指根目录下的etc文件夹不要找错了)。<br>在该文件中加入以下内容：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">export JAVA_HOME=/usr/java/jdk-8u101-linux-x64</div><div class="line">export CLASSPATH=.:$JAVA_HOME/jre/lib/rt.jar:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar</div><div class="line">export PATH=$PATH:$JAVA_HOME/bin</div></pre></td></tr></table></figure></p>
-<p>保存之后运行<code>source /etc/profile</code>使配置生效。</p>
-<h2 id="验证是否安装成功"><a href="#验证是否安装成功" class="headerlink" title="验证是否安装成功"></a>验证是否安装成功</h2><p>之后我们使用在<code>windows</code>平台也有的命令<code>java -version</code>，如果输出如图：<br><img src="http://img.blog.csdn.net/20160920000008974" alt="2"><br>表示安装成功。</p>
-<h1 id="MySQL安装"><a href="#MySQL安装" class="headerlink" title="MySQL安装"></a>MySQL安装</h1><h2 id="卸载自带的Mysql"><a href="#卸载自带的Mysql" class="headerlink" title="卸载自带的Mysql"></a>卸载自带的Mysql</h2><p>首先第一步还是要卸载掉自带的mysql。<br><code>rpm -e --nodeps mysql</code>命令和之前一样只是把应用名称换成mysql了而已。</p>
-<h2 id="使用yum来安装mysql"><a href="#使用yum来安装mysql" class="headerlink" title="使用yum来安装mysql"></a>使用<code>yum</code>来安装mysql</h2><p>之后我们采用<code>yum</code>来安装mysql。这样的方式最简单便捷。<br><code>yum install -y mysql-server mysql mysql-deve</code>执行该命令直到出现<code>Complete!</code>提示之后表示安装成功。<br><code>rpm -qi mysql-server</code>之后使用该命令可以查看我们安装的mysql信息。</p>
-<h2 id="mysql相关配置"><a href="#mysql相关配置" class="headerlink" title="mysql相关配置"></a>mysql相关配置</h2><p>使用<code>service mysqld start</code>来启动mysql服务(第一次会输出很多信息)，之后就不会了。<br>然后我们可以使用<code>chkconfig mysqld on</code>命令将mysql设置为开机启动。<br>输入<code>chkconfig --list | grep mysql</code>命令显示如下图：<br><img src="http://img.blog.csdn.net/20160920120817031" alt="3"><br>表示设置成功。<br>使用<code>mysqladmin -u root password &#39;root&#39;</code>为<code>root</code>账户设置密码。</p>
-<h2 id="设置远程使用"><a href="#设置远程使用" class="headerlink" title="设置远程使用"></a>设置远程使用</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">grant all privileges on *.* to &apos;root&apos;@&apos;%&apos; identified by &apos;123456&apos; with grant option;</div><div class="line"># root是用户名，%代表任意主机，&apos;123456&apos;指定的登录密码（这个和本地的root密码可以设置不同的，互不影响）</div><div class="line">flush privileges; # 重载系统权限</div><div class="line">exit;</div></pre></td></tr></table></figure>
-<h2 id="验证使用"><a href="#验证使用" class="headerlink" title="验证使用"></a>验证使用</h2><p>使用<code>mysql -u root -proot</code>来登录mysql。如果出现以下界面表示设置成功。<br><img src="http://img.blog.csdn.net/20160920121542492" alt="4"></p>
-<h1 id="Tomcat安装"><a href="#Tomcat安装" class="headerlink" title="Tomcat安装"></a>Tomcat安装</h1><p><code>Tomcat</code>也是我们运行<code>JavaEE</code>项目必备的一个中间件。</p>
-<ol>
-<li>第一步需要下载linux的Tomcat，<a href="http://tomcat.apache.org/download-80.cgi" target="_blank" rel="external">传送门</a>。根据自己系统版本进行下载即可。之后将<code>apache-tomcat-8.5.5.tar.gz</code>上传到<code>/usr/local</code>目录中。</li>
-<li>解压该压缩包<code>tar -zxv -f apache-tomcat-8.5.5.tar.gz</code>,再使用<code>mv apache-tomcat-8.5.5  tomcat</code>将解压的Tomcat移动到外层的<code>Tomcat</code>目录中。</li>
-<li>进入<code>/usr/local/tomcat/apache-tomcat-8.5.5/bin</code>目录使用<code>./startup.bat</code>命令启动tomcat。</li>
-<li>因为tomcat使用的默认端口是<code>8080</code>，linux防火墙默认是不能访问的，需要手动将其打开。使用<code>vi + /etc/sysconfig/iptables</code>编辑<code>iptables</code>(注意etc目录是根目录下的)，加入以下代码:<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">-A RH-Firewall-1-INPUT -m state --state NEW -m tcp -p tcp --dport 8080 -j ACCEPT</div><div class="line">-A RH-Firewall-1-INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT</div></pre></td></tr></table></figure>
-</li>
-</ol>
-<p>这里我们开放了8080和80端口，之后安装nginx就不用在开放了。</p>
-<blockquote>
-<p>ps:这里用到了简单的vim命令。按<code>i</code>进入插入模式，输入上面两段代码。之后按<code>esc</code>退出插入模式。再按<code>:wq</code>保存关闭即可。<br>之后使用<code>service iptables restart</code>命令重启防火墙即可。在浏览器输入服务器的<code>ip+8080</code>如果出现Tomcat的欢迎页即表明<code>Tomcat</code>安装成功。</p>
-</blockquote>
-<h1 id="nginx安装"><a href="#nginx安装" class="headerlink" title="nginx安装"></a>nginx安装</h1><p>最后是安装<code>nginx</code>，这里我们还是使用最简单的<code>yum</code>的方式来进行安装。</p>
-<ul>
-<li><p>首先使用以下几个命令安装必备的几个库：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">yum -y install pcre*</div><div class="line">yum -y install openssl*</div><div class="line">yum -y install gcc</div></pre></td></tr></table></figure>
-</li>
-<li><p>之后安装nginx。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">cd /usr/local/</div><div class="line">wget http://nginx.org/download/nginx-1.4.2.tar.gz</div><div class="line">tar -zxvf nginx-1.4.2.tar.gz</div><div class="line">cd nginx-1.4.2  </div><div class="line">./configure --prefix=/usr/local/nginx --with-http_stub_status_module</div><div class="line">make</div><div class="line">make install</div></pre></td></tr></table></figure>
-</li>
-</ul>
-<ul>
-<li>之后就可以使用<code>/usr/local/nginx/sbin/nginx</code>命令来启动nginx了。输入服务器的IP地址，如果出现nginx的欢迎界面表示安装成功了。</li>
-</ul>
-<h2 id="nginx配置"><a href="#nginx配置" class="headerlink" title="nginx配置"></a>nginx配置</h2><p>这里我就简单贴以下我的配置，主要就是配置一个<code>upstream,</code>之后在<code>server</code>中引用配置的那个<code>upstream</code>即可。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">#user  nobody;</div><div class="line">worker_processes  1;</div><div class="line"></div><div class="line">#error_log  logs/error.log;</div><div class="line">#error_log  logs/error.log  notice;</div><div class="line">#error_log  logs/error.log  info;</div><div class="line"></div><div class="line">#pid        logs/nginx.pid;</div><div class="line"></div><div class="line"></div><div class="line">events &#123;</div><div class="line">    worker_connections  1024;</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line">http &#123;</div><div class="line">    include       mime.types;</div><div class="line">    default_type  application/octet-stream;</div><div class="line"></div><div class="line">    #log_format  main  &apos;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &apos;</div><div class="line">    #                  &apos;$status $body_bytes_sent &quot;$http_referer&quot; &apos;</div><div class="line">    #                  &apos;&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;&apos;;</div><div class="line"></div><div class="line">    #access_log  logs/access.log  main;</div><div class="line"></div><div class="line">    sendfile        on;</div><div class="line">    #tcp_nopush     on;</div><div class="line"></div><div class="line">    #keepalive_timeout  0;</div><div class="line">    keepalive_timeout  65;</div><div class="line"></div><div class="line">    #gzip  on;</div><div class="line"></div><div class="line">    upstream crossover_main &#123;</div><div class="line">        server 127.0.0.1:8080;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    server &#123;</div><div class="line">        listen       80;</div><div class="line">        server_name  www.crossoverjie.top;</div><div class="line"></div><div class="line">        #charset koi8-r;</div><div class="line"></div><div class="line">        #access_log  logs/host.access.log  main;</div><div class="line"></div><div class="line">        location  / &#123;</div><div class="line">             proxy_pass http://crossover_main/examples/;</div><div class="line">             proxy_set_header Host $http_host;</div><div class="line">             proxy_set_header X-Forwarded-For $remote_addr;</div><div class="line">             index  index.jsp;</div><div class="line">        &#125;</div><div class="line"></div><div class="line"></div><div class="line">        #error_page  404              /404.html;</div><div class="line"></div><div class="line">        # redirect server error pages to the static page /50x.html</div><div class="line">        #</div><div class="line">        error_page   500 502 503 504  /50x.html;</div><div class="line">        location = /50x.html &#123;</div><div class="line">            root   html;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        # proxy the PHP scripts to Apache listening on 127.0.0.1:80</div><div class="line">        #</div><div class="line">        #location ~ \.php$ &#123;</div><div class="line">        #    proxy_pass   http://127.0.0.1;</div><div class="line">        #&#125;</div><div class="line"></div><div class="line">        # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000</div><div class="line">        #</div><div class="line">        #location ~ \.php$ &#123;</div><div class="line">        #    root           html;</div><div class="line">        #    fastcgi_pass   127.0.0.1:9000;</div><div class="line">        #    fastcgi_index  index.php;</div><div class="line">        #    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;</div><div class="line">        #    include        fastcgi_params;</div><div class="line">        #&#125;</div><div class="line"></div><div class="line">        # deny access to .htaccess files, if Apache&apos;s document root</div><div class="line">        # concurs with nginx&apos;s one</div><div class="line">        #</div><div class="line">        #location ~ /\.ht &#123;</div><div class="line">        #    deny  all;</div><div class="line">        #&#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line"></div><div class="line">    # another virtual host using mix of IP-, name-, and port-based configuration</div><div class="line">    #</div><div class="line">    #server &#123;</div><div class="line">    #    listen       8000;</div><div class="line">    #    listen       somename:8080;</div><div class="line">    #    server_name  somename  alias  another.alias;</div><div class="line"></div><div class="line">    #    location / &#123;</div><div class="line">    #        root   html;</div><div class="line">    #        index  index.html index.htm;</div><div class="line">    #    &#125;</div><div class="line">    #&#125;</div><div class="line"></div><div class="line"></div><div class="line">    # HTTPS server</div><div class="line">    #</div><div class="line">    #server &#123;</div><div class="line">    #    listen       443;</div><div class="line">    #    server_name  localhost;</div><div class="line"></div><div class="line">    #    ssl                  on;</div><div class="line">    #    ssl_certificate      cert.pem;</div><div class="line">    #    ssl_certificate_key  cert.key;</div><div class="line"></div><div class="line">    #    ssl_session_timeout  5m;</div><div class="line"></div><div class="line">    #    ssl_protocols  SSLv2 SSLv3 TLSv1;</div><div class="line">    #    ssl_ciphers  HIGH:!aNULL:!MD5;</div><div class="line">    #    ssl_prefer_server_ciphers   on;</div><div class="line"></div><div class="line">    #    location / &#123;</div><div class="line">    #        root   html;</div><div class="line">    #        index  index.html index.htm;</div><div class="line">    #    &#125;</div><div class="line">    #&#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>之后我们在地址栏输入服务器的IP地址(如果有域名解析了服务器的IP可以直接输入域名)就会进入我们在<code>upstream</code>中配置的地址加上在<code>server</code>中的地址。根据我这里的配置最后解析地址就是<code>http://127.0.0.1:8080/examples</code>应该是很好理解的。最终的结果是我在片头放的那张截图一样。</p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>这是一个简单的基于centOS的运行环境配置，对于小白练手应该是够了，有不清楚和错误的地方欢迎指出反正我也不会回复。<br><img src="http://i.imgur.com/wQmHabT.gif" alt="4"></p>
-<blockquote>
-<p>个人博客地址：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
-<p>GitHub地址：<a href="https://github.com/crossoverJie" target="_blank" rel="external">https://github.com/crossoverJie</a>。</p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590ea8312b227.jpg&quot; alt=&quot;linux2.jpg&quot;&gt;&lt;/p&gt;
-&lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;p&gt;Linux相信对大多数程序员来说都不陌生，毕竟在服务器端依然还是霸主地位而且丝毫没有退居二线的意思，以至于现在几乎每一个软件开发的相关人员都得或多或少的知道一些Linux的相关内容，本文将介绍如何在刚拿到一台云服务器(采用&lt;code&gt;centos&lt;/code&gt;)来进行运行环境的搭建，包括&lt;code&gt;JDK&lt;/code&gt;、&lt;code&gt;Mysql&lt;/code&gt;、&lt;code&gt;Tomcat&lt;/code&gt;以及&lt;code&gt;nginx&lt;/code&gt;。相信对于小白来说很有必要的，也是我个人的一个记录。&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;该服务器的用途是用于部署JavaEE项目。&lt;br&gt;部署之后的效果图如下:&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590ea878f1a8b.jpg&quot; alt=&quot;mac背景.jpg&quot;&gt;&lt;br&gt;
-    
-    </summary>
-    
-      <category term="Linux笔记" scheme="http://crossoverJie.github.io/categories/Linux%E7%AC%94%E8%AE%B0/"/>
-    
-    
-      <category term="Linux" scheme="http://crossoverJie.github.io/tags/Linux/"/>
-    
-      <category term="centos" scheme="http://crossoverJie.github.io/tags/centos/"/>
-    
-      <category term="nginx" scheme="http://crossoverJie.github.io/tags/nginx/"/>
     
   </entry>
   
