@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://crossoverJie.github.io/"/>
-  <updated>2017-11-13T12:46:41.000Z</updated>
+  <updated>2017-11-27T18:44:50.000Z</updated>
   <id>http://crossoverJie.github.io/</id>
   
   <author>
@@ -16,11 +16,162 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>sbc(六) Zuul GateWay 网关应用</title>
+    <link href="http://crossoverJie.github.io/2017/11/25/sbc6/"/>
+    <id>http://crossoverJie.github.io/2017/11/25/sbc6/</id>
+    <published>2017-11-24T17:13:22.000Z</published>
+    <updated>2017-11-27T18:44:50.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><img src="https://ws1.sinaimg.cn/large/006tNc79gy1flrejb4pbpj30qo0cuq5s.jpg" alt=""></p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>看过之前<a href="https://crossoverjie.top/categories/sbc/" target="_blank" rel="external">SBC</a>系列的小伙伴应该都可以搭建一个高可用、分布式的微服务了。 目前的结构图应该如下所示:<br><img src="https://ws1.sinaimg.cn/large/006tKfTcly1flvyjrv2unj30dc0gwaaw.jpg" alt=""></p>
+<p>各个微服务之间都不存在单点，并且都注册于 <code>Eureka</code> ，基于此进行服务的注册于发现，再通过 <code>Ribbon</code> 进行服务调用，并具有客户端负载功能。</p>
+<p>一切看起来都比较美好，但这里却忘了一个重要的细节：</p>
+<blockquote>
+<p>当我们需要对外提供服务时怎么处理？</p>
+</blockquote>
+<p>这当然也能实现，无非就是将我们具体的微服务地址加端口暴露出去即可。</p>
+<p>那又如何来实现负载呢？</p>
+<p>简单！可以通过 <code>Nginx F5</code> 之类的工具进行负载。</p>
+<p>但是如果系统庞大，服务拆分的足够多那又有谁来维护这些路由关系呢？</p>
+<p>当然这是运维的活，不过这时候运维可能就要发飙了！</p>
+<p>并且还有一系列的问题:</p>
+<ul>
+<li>服务调用之间的一些鉴权、签名校验怎么做？</li>
+<li>由于服务端地址较多，客户端请求难以维护。</li>
+</ul>
+<p>针对于这一些问题 <code>SpringCloud</code> 全家桶自然也有对应的解决方案: <code>Zuul</code>。<br>当我们系统整合 Zuul 网关之后架构图应该如下所示:</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcly1flw0fbfukxj30mp0icdgk.jpg" alt=""></p>
+<a id="more"></a>
+<p>我们在所有的请求进来之前抽出一层网关应用，将服务提供的所有细节都进行了包装，这样所有的客户端都是和网关进行交互，简化了客户端开发。</p>
+<p>同时具有如下功能:</p>
+<ul>
+<li>Zuul 注册于 <code>Eureka</code> 并集成了 <code>Ribbon</code> 所以自然也是可以从注册中心获取到服务列表进行客户端负载。</li>
+<li>功能丰富的路由功能，解放运维。</li>
+<li>具有过滤器，所以鉴权、验签都可以集成。</li>
+</ul>
+<p>基于此我们来看看之前的架构中如何集成 <code>Zuul</code> 。</p>
+<h1 id="集成-Zuul"><a href="#集成-Zuul" class="headerlink" title="集成 Zuul"></a>集成 Zuul</h1><p>为此我新建了一个项目 <code>sbc-gateway-zuul</code> 就是一个基础的 <code>SpringBoot</code> 结构。其中加入了 Zuul 的依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-zuul<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>由于需要将网关也注册到 <code>Eureka</code> 中，所以自然也需要:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-eureka<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>紧接着配置一些项目基本信息:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"># 项目配置</div><div class="line">spring.application.name=sbc-gateway-zuul</div><div class="line">server.context-path=/</div><div class="line">server.port=8383</div><div class="line"></div><div class="line"># eureka地址</div><div class="line">eureka.client.serviceUrl.defaultZone=http://node1:8888/eureka/</div><div class="line">eureka.instance.prefer-ip-address=true</div></pre></td></tr></table></figure>
+<p>在启动类中加入开启 <code>Zuul</code> 的注解，一个网关应用就算是搭好了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@SpringBootApplication</span></div><div class="line"></div><div class="line"><span class="comment">//开启zuul代理</span></div><div class="line"><span class="meta">@EnableZuulProxy</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SbcGateWayZuulApplication</span> </span>&#123;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>启动 <code>Eureka</code> 和网关看到已经注册成功那就大功告成了:</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tKfTcly1flx2fwc3v2j314y085dgp.jpg" alt=""></p>
+<h1 id="服务路由"><a href="#服务路由" class="headerlink" title="服务路由"></a>服务路由</h1><p>路由是网关的核心功能之一，可以使系统有一个统一的对外接口，下面来看看具体的应用。</p>
+<h2 id="传统路由"><a href="#传统路由" class="headerlink" title="传统路由"></a>传统路由</h2><p>传统路由非常简单，和 <code>Nginx</code> 类似，由开发、运维人员来维护请求地址和对应服务的映射关系，类似于:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">zuul.routes.user-service.path=/user-service/**</div><div class="line">zuul.routes.user-sercice.url=http://localhost:8080/</div></pre></td></tr></table></figure>
+<p>这样当我们访问 <code>http://localhost:8383/user-service/getUserInfo/1</code> 网关就会自动给我们路由到 <code>http://localhost:8080/getUserInfo/1</code> 上。</p>
+<p>可见只要我们维护好这个映射关系即可自由的配置路由信息(<code>user-sercice 可自定义</code>)，但是很明显这种方式不管是对运维还是开发都不友好。由于实际这种方式用的不多就再过多展开。</p>
+<h2 id="服务路由-1"><a href="#服务路由-1" class="headerlink" title="服务路由"></a>服务路由</h2><p>对此 <code>Zuul</code> 提供了一种基于服务的路由方式。我们只需要维护请求地址与服务 ID 之间的映射关系即可，并且由于集成了 <code>Ribbon</code> , Zuul 还可以在路由的时候通过 Eureka 实现负载调用。</p>
+<p>具体配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">zuul.routes.sbc-user.path=/api/user/**</div><div class="line">zuul.routes.sbc-user.serviceId=sbc-user</div></pre></td></tr></table></figure>
+<p>这样当输入 <code>http://localhost:8383/api/user/getUserInfo/1</code> 时就会路由到注册到 <code>Eureka</code> 中服务 ID 为 <code>sbc-user</code> 的服务节点，如果有多节点就会按照 Ribbon 的负载算法路由到其中一台上。</p>
+<p>以上配置还可以简写为:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"># 服务路由 简化配置</div><div class="line">zuul.routes.sbc-user=/api/user/**</div></pre></td></tr></table></figure>
+<p>这样让我们访问 <code>http://127.0.0.1:8383/api/user/userService/getUserByHystrix</code> 时候就会根据负载算法帮我们路由到 sbc-user 应用上，如下图所示:</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcly1flx4pbe3nsj31ga0e5gnq.jpg" alt=""><br>启动了两个 sbc-user 服务。</p>
+<p>请求结果:<br><img src="https://ws4.sinaimg.cn/large/006tKfTcly1flx4q2zktbj30yd0ll79b.jpg" alt=""></p>
+<p>一次路由就算完成了。</p>
+<p>在上面的配置中有看到 <code>/api/user/**</code> 这样的通配符配置，具体有以下三种配置需要了解:</p>
+<ul>
+<li><code>?</code> 只能匹配任意的单个字符，如 <code>/api/user/?</code> 就只能匹配 <code>/api/user/x  /api/user/y /api/user/z</code> 这样的路径。</li>
+<li><code>*</code> 只能匹配任意字符，如 <code>/api/user/*</code> 就只能匹配 <code>/api/user/x /api/user/xy /api/user/xyz</code>。</li>
+<li><code>**</code> 可以匹配任意字符、任意层级。结合了以上两种通配符的特点，如 <code>/api/user/**</code> 则可以匹配 <code>/api/user/x /api/user/x/y /api/user/x/y/zzz</code>这样的路径，最简单粗暴！</li>
+</ul>
+<p>谈到通配符匹配就不得不提到一个问题，如上面的 <code>sbc-user</code> 服务由于后期迭代更新，将 sbc-user 中的一部分逻辑抽成了另一个服务 <code>sbc-user-pro</code>。新应用的路由规则是 <code>/api/user/pro/**</code>,如果我们按照:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">zuul.routes.sbc-user=/api/user/**</div><div class="line">zuul.routes.sbc-user-pro=/api/user/pro/**</div></pre></td></tr></table></figure>
+<p>进行配置的话，我们想通过 <code>/api/user/pro/</code> 来访问 <code>sbc-user-pro</code> 应用，却由于满足第一个路由规则，所以会被 Zuul 路由到 <code>sbc-user</code> 这个应用上，这显然是不对的。该怎么解决这个问题呢？</p>
+<p>翻看路由源码 <code>org.springframework.cloud.netflix.zuul.filters.SimpleRouteLocator</code> 中的 <code>locateRoutes()</code> 方法:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * Compute a map of path pattern to route. The default is just a static map from the</div><div class="line"> * &#123;<span class="doctag">@link</span> ZuulProperties&#125;, but subclasses can add dynamic calculations.</div><div class="line"> */</div><div class="line"><span class="function"><span class="keyword">protected</span> Map&lt;String, ZuulRoute&gt; <span class="title">locateRoutes</span><span class="params">()</span> </span>&#123;</div><div class="line">	LinkedHashMap&lt;String, ZuulRoute&gt; routesMap = <span class="keyword">new</span> LinkedHashMap&lt;String, ZuulRoute&gt;();</div><div class="line">	<span class="keyword">for</span> (ZuulRoute route : <span class="keyword">this</span>.properties.getRoutes().values()) &#123;</div><div class="line">		routesMap.put(route.getPath(), route);</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">return</span> routesMap;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>发现路由规则是遍历配置文件并放入 <strong><code>LinkedHashMap</code></strong> 中，由于 <code>LinkedHashMap</code> 是有序的，所以为了达到上文的效果，配置文件的加载顺序非常重要，因此我们只需要将优先匹配的路由规则放前即可解决。</p>
+<h1 id="过滤器"><a href="#过滤器" class="headerlink" title="过滤器"></a>过滤器</h1><p>过滤器可以说是整个 Zuul 最核心的功能，包括上文提到路由功能也是由过滤器来实现的。</p>
+<p>摘抄官方的解释: Zuul 的核心就是一系列的过滤器，他能够在整个 <code>HTTP</code> 请求、响应过程中执行各样的操作。</p>
+<p>其实总结下来就是四个特征:</p>
+<ul>
+<li>过滤类型</li>
+<li>过滤顺序</li>
+<li>执行条件</li>
+<li>具体实现</li>
+</ul>
+<p>其实就是 <code>ZuulFilter</code> 接口中所定义的四个接口:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">String filterType();</div><div class="line"></div><div class="line">int filterOrder();</div><div class="line"></div><div class="line">boolean shouldFilter();</div><div class="line"></div><div class="line">Object run();</div></pre></td></tr></table></figure>
+<p>官方流程图(生命周期):</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tKfTcly1flx65zw2qpj30qo0k0tae.jpg" alt=""></p>
+<p>简单理解下就是:</p>
+<p>当一个请求进来时，首先是进入 <code>pre</code> 过滤器，可以做一些鉴权，记录调试日志等操作。之后进入 <code>routing</code> 过滤器进行路由转发，转发可以使用 <code>Apache HttpClient</code> 或者是 <code>Ribbon</code> 。<br><code>post</code> 过滤器呢则是处理服务响应之后的数据，可以进行一些包装来返回客户端。 <code>error</code> 则是在有异常发生时才会调用，相当于是全局异常拦截器。</p>
+<h2 id="自定义过滤器"><a href="#自定义过滤器" class="headerlink" title="自定义过滤器"></a>自定义过滤器</h2><p>接下来实现一个文初所提到的鉴权操作:</p>
+<p>新建一个 <code>RequestFilter</code> 类继承与 <code>ZuulFilter</code> 接口</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * Function: 请求拦截</div><div class="line"> *</div><div class="line"> * <span class="doctag">@author</span> crossoverJie</div><div class="line"> *         Date: 2017/11/20 00:33</div><div class="line"> * <span class="doctag">@since</span> JDK 1.8</div><div class="line"> */</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RequestFilter</span> <span class="keyword">extends</span> <span class="title">ZuulFilter</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> Logger logger = LoggerFactory.getLogger(RequestFilter.class) ;</div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 请求路由之前被拦截 实现 pre 拦截器</div><div class="line">     * <span class="doctag">@return</span></div><div class="line">     */</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">filterType</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="string">"pre"</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">filterOrder</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">shouldFilter</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line"></div><div class="line">        RequestContext currentContext = RequestContext.getCurrentContext();</div><div class="line">        HttpServletRequest request = currentContext.getRequest();</div><div class="line">        String token = request.getParameter(<span class="string">"token"</span>);</div><div class="line">        <span class="keyword">if</span> (StringUtil.isEmpty(token))&#123;</div><div class="line">            logger.warn(<span class="string">"need token"</span>);</div><div class="line">            <span class="comment">//过滤请求</span></div><div class="line">            currentContext.setSendZuulResponse(<span class="keyword">false</span>);</div><div class="line">            currentContext.setResponseStatusCode(<span class="number">400</span>);</div><div class="line">            <span class="keyword">return</span> <span class="keyword">null</span> ;</div><div class="line">        &#125;</div><div class="line">        logger.info(<span class="string">"token =&#123;&#125;"</span>,token) ;</div><div class="line"></div><div class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>非常 easy，就简单校验下请求中是否包含 <code>token</code>，不包含就返回 401 code。</p>
+<p>不但如此，还需要将该类加入到 Spring 进行管理:</p>
+<p>新建了 <code>FilterConf</code> 类:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Configuration</span></div><div class="line"><span class="meta">@Component</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FilterConf</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Bean</span></div><div class="line">    <span class="function"><span class="keyword">public</span> RequestFilter <span class="title">filter</span><span class="params">()</span></span>&#123;</div><div class="line">        <span class="keyword">return</span>  <span class="keyword">new</span> RequestFilter() ;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这样重启之后就可以看到效果了:</p>
+<p>不传 token 时：<br><img src="https://ws1.sinaimg.cn/large/006tKfTcly1flx6pypmzqj30pt0f1jsq.jpg" alt=""></p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcly1flx6qeu2nfj310l03jjtc.jpg" alt=""></p>
+<p>传入 token 时：<br><img src="https://ws2.sinaimg.cn/large/006tKfTcly1flx6rad3ffj30q00bpjsn.jpg" alt=""></p>
+<p>可见一些鉴权操作是可以放到这里来进行统一处理的。</p>
+<p>其余几个过滤器也是大同小异，可以根据实际场景来自定义。</p>
+<h1 id="Zuul-高可用"><a href="#Zuul-高可用" class="headerlink" title="Zuul 高可用"></a>Zuul 高可用</h1><p>Zuul 现在既然作为了对外的第一入口，那肯定不能是单节点，对于 Zuul 的高可用有以下两种方式实现。</p>
+<h2 id="Eureka-高可用"><a href="#Eureka-高可用" class="headerlink" title="Eureka 高可用"></a>Eureka 高可用</h2><p>第一种最容易想到和实现:<br>我们可以部署多个 Zuul 节点，并且都注册于 Eureka ，如下图：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcly1flx73gaco0j30o80jgq3p.jpg" alt=""></p>
+<p>这样虽然简单易维护，但是有一个严重的缺点：那就是客户端也得注册到 Eureka 上才能对 Zuul 的调用做到负载，这显然是不现实的。</p>
+<p>所以下面这种做法更为常见。</p>
+<h2 id="基于-Nginx-高可用"><a href="#基于-Nginx-高可用" class="headerlink" title="基于 Nginx 高可用"></a>基于 Nginx 高可用</h2><p>在调用 Zuul 之前使用 Nginx 之类的负载均衡工具进行负载，这样 Zuul 既能注册到 Eureka ，客户端也能实现对 Zuul 的负载，如下图：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tKfTcly1flx79q95c0j30o80m8757.jpg" alt=""></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>这样在原有的微服务架构的基础上加上网关之后另整个系统更加完善了，从网关的设计来看：大多数系统架构都有分层的概念，不能解决问题那就多分几层🤓。</p>
+<blockquote>
+<p>项目：<a href="https://github.com/crossoverJie/springboot-cloud" target="_blank" rel="external">https://github.com/crossoverJie/springboot-cloud</a></p>
+<p>博客：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;img src=&quot;https://ws1.sinaimg.cn/large/006tNc79gy1flrejb4pbpj30qo0cuq5s.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;p&gt;看过之前&lt;a href=&quot;https://crossoverjie.top/categories/sbc/&quot;&gt;SBC&lt;/a&gt;系列的小伙伴应该都可以搭建一个高可用、分布式的微服务了。 目前的结构图应该如下所示:&lt;br&gt;&lt;img src=&quot;https://ws1.sinaimg.cn/large/006tKfTcly1flvyjrv2unj30dc0gwaaw.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;各个微服务之间都不存在单点，并且都注册于 &lt;code&gt;Eureka&lt;/code&gt; ，基于此进行服务的注册于发现，再通过 &lt;code&gt;Ribbon&lt;/code&gt; 进行服务调用，并具有客户端负载功能。&lt;/p&gt;
+&lt;p&gt;一切看起来都比较美好，但这里却忘了一个重要的细节：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;当我们需要对外提供服务时怎么处理？&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;这当然也能实现，无非就是将我们具体的微服务地址加端口暴露出去即可。&lt;/p&gt;
+&lt;p&gt;那又如何来实现负载呢？&lt;/p&gt;
+&lt;p&gt;简单！可以通过 &lt;code&gt;Nginx F5&lt;/code&gt; 之类的工具进行负载。&lt;/p&gt;
+&lt;p&gt;但是如果系统庞大，服务拆分的足够多那又有谁来维护这些路由关系呢？&lt;/p&gt;
+&lt;p&gt;当然这是运维的活，不过这时候运维可能就要发飙了！&lt;/p&gt;
+&lt;p&gt;并且还有一系列的问题:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;服务调用之间的一些鉴权、签名校验怎么做？&lt;/li&gt;
+&lt;li&gt;由于服务端地址较多，客户端请求难以维护。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;针对于这一些问题 &lt;code&gt;SpringCloud&lt;/code&gt; 全家桶自然也有对应的解决方案: &lt;code&gt;Zuul&lt;/code&gt;。&lt;br&gt;当我们系统整合 Zuul 网关之后架构图应该如下所示:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://ws2.sinaimg.cn/large/006tKfTcly1flw0fbfukxj30mp0icdgk.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="sbc" scheme="http://crossoverJie.github.io/categories/sbc/"/>
+    
+    
+      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
+    
+      <category term="SpringBoot" scheme="http://crossoverJie.github.io/tags/SpringBoot/"/>
+    
+      <category term="SpringCloud" scheme="http://crossoverJie.github.io/tags/SpringCloud/"/>
+    
+      <category term="Zuul" scheme="http://crossoverJie.github.io/tags/Zuul/"/>
+    
+  </entry>
+  
+  <entry>
     <title>【译】你可以用GitHub做的12件 Cool 事情</title>
     <link href="http://crossoverJie.github.io/2017/11/05/translation1-12%20cool%20things%20you%20can%20do%20with%20GitHub/"/>
     <id>http://crossoverJie.github.io/2017/11/05/translation1-12 cool things you can do with GitHub/</id>
     <published>2017-11-04T17:01:54.000Z</published>
-    <updated>2017-11-13T12:46:41.000Z</updated>
+    <updated>2017-11-13T16:36:25.000Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://ws3.sinaimg.cn/large/006tNc79ly1flef224anmj31kw0ebgnt.jpg" alt=""></p>
 <h3 id="原文链接"><a href="#原文链接" class="headerlink" title="原文链接"></a><a href="https://hackernoon.com/12-cool-things-you-can-do-with-github-f3e0424cf2f0" target="_blank" rel="external">原文链接</a></h3><h2 id="1-在-GitHub-com-编辑代码"><a href="#1-在-GitHub-com-编辑代码" class="headerlink" title="1 在 GitHub.com 编辑代码"></a>1 在 GitHub.com 编辑代码</h2><p>我将从我认为大家都知道的一件事情开始(尽管我是直到一周前才知道)。</p>
@@ -28,7 +179,6 @@
 <p>很厉害吧！他自动帮你 <code>fork</code> 了该 repo。</p>
 <p>不再需要 <code>fork</code> , <code>pull</code> ,本地编辑再 <code>push</code> 以及创建一个 <code>PR</code> 这样的流程了。<br><img src="https://ws3.sinaimg.cn/large/006tKfTcgy1fl5eo3789hj30m80mjwhy.jpg" alt=""></p>
 <p>这非常适合修复编写代码中出现的拼写错误和修正一个不太理想的想法。</p>
-<a id="more"></a>
 <h2 id="2-粘贴图片"><a href="#2-粘贴图片" class="headerlink" title="2 粘贴图片"></a>2 粘贴图片</h2><p>你不仅仅受限于输入文本和描述问题，你知道你可以直接从粘贴板中粘贴图片吗？当你粘贴时，你会看到图片已经被上传了(毫无疑问被上传到云端)之后会变成 <code>Markdown</code> 语法来显示图片。</p>
 <h2 id="3-格式化代码"><a href="#3-格式化代码" class="headerlink" title="3 格式化代码"></a>3 格式化代码</h2><p>如果你想写一段代码，你可以三个反引号开始 —— 就像你在<a href="https://guides.github.com/features/mastering-markdown/" target="_blank" rel="external">研究<code>MarkDown</code></a>时所学到的 —— 之后 GitHub 会试着猜测你写的语言。</p>
 <p>但如果你写了一些类似于 Vue, Typescript, JSX 这样的语言，你可以明确指定得到正确的高亮。</p>
@@ -99,11 +249,7 @@
     <summary type="html">
     
       &lt;p&gt;&lt;img src=&quot;https://ws3.sinaimg.cn/large/006tNc79ly1flef224anmj31kw0ebgnt.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;h3 id=&quot;原文链接&quot;&gt;&lt;a href=&quot;#原文链接&quot; class=&quot;headerlink&quot; title=&quot;原文链接&quot;&gt;&lt;/a&gt;&lt;a href=&quot;https://hackernoon.com/12-cool-things-you-can-do-with-github-f3e0424cf2f0&quot;&gt;原文链接&lt;/a&gt;&lt;/h3&gt;&lt;h2 id=&quot;1-在-GitHub-com-编辑代码&quot;&gt;&lt;a href=&quot;#1-在-GitHub-com-编辑代码&quot; class=&quot;headerlink&quot; title=&quot;1 在 GitHub.com 编辑代码&quot;&gt;&lt;/a&gt;1 在 GitHub.com 编辑代码&lt;/h2&gt;&lt;p&gt;我将从我认为大家都知道的一件事情开始(尽管我是直到一周前才知道)。&lt;/p&gt;
-&lt;p&gt;当你在 GitHub 查看文件时(任何文本文件，任何仓库中)，右上角会有一个小铅笔图标，点击它就可以编辑文件了。完成之后点击 &lt;strong&gt;Propose file change&lt;/strong&gt; 按钮 GitHub 将会自动帮你 fork 该项目并且创建一个 &lt;code&gt;pull request&lt;/code&gt; 。&lt;/p&gt;
-&lt;p&gt;很厉害吧！他自动帮你 &lt;code&gt;fork&lt;/code&gt; 了该 repo。&lt;/p&gt;
-&lt;p&gt;不再需要 &lt;code&gt;fork&lt;/code&gt; , &lt;code&gt;pull&lt;/code&gt; ,本地编辑再 &lt;code&gt;push&lt;/code&gt; 以及创建一个 &lt;code&gt;PR&lt;/code&gt; 这样的流程了。&lt;br&gt;&lt;img src=&quot;https://ws3.sinaimg.cn/large/006tKfTcgy1fl5eo3789hj30m80mjwhy.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;这非常适合修复编写代码中出现的拼写错误和修正一个不太理想的想法。&lt;/p&gt;
+&lt;h3 id=&quot;原文链接&quot;&gt;&lt;a href=&quot;#原文链接&quot; class=&quot;headerlink&quot;
     
     </summary>
     
@@ -593,9 +739,9 @@
       <category term="sbc" scheme="http://crossoverJie.github.io/categories/sbc/"/>
     
     
-      <category term="重构" scheme="http://crossoverJie.github.io/tags/%E9%87%8D%E6%9E%84/"/>
-    
       <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
+    
+      <category term="重构" scheme="http://crossoverJie.github.io/tags/%E9%87%8D%E6%9E%84/"/>
     
       <category term="AOP" scheme="http://crossoverJie.github.io/tags/AOP/"/>
     
@@ -1694,59 +1840,6 @@
       <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
     
       <category term="Redis" scheme="http://crossoverJie.github.io/tags/Redis/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>SSM(六)跨域传输</title>
-    <link href="http://crossoverJie.github.io/2016/10/18/SSM6/"/>
-    <id>http://crossoverJie.github.io/2016/10/18/SSM6/</id>
-    <published>2016-10-18T05:44:54.000Z</published>
-    <updated>2017-05-07T04:51:59.000Z</updated>
-    
-    <content type="html"><![CDATA[<p><img src="https://ooo.0o0.ooo/2017/05/07/590ea7bd9ef94.jpg" alt="跨域.jpg"></p>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>不知大家在平时的开发过程中有没有遇到过跨域访问资源的问题，我不巧在上周就碰到一个这样的问题，幸运的是在公司前端同学的帮忙下解决了该问题。</p>
-<h2 id="什么是跨域问题？"><a href="#什么是跨域问题？" class="headerlink" title="什么是跨域问题？"></a>什么是跨域问题？</h2><ol>
-<li>只要协议、域名、端口有任何一个不同，都被当作是不同的域</li>
-<li>只要是在不同域中是无法进行通信的。</li>
-</ol>
-<a id="more"></a>
-<p>基于以上的的出发点，我们又有跨域共享资源的需求(<code>譬如现在流行的前后端分离之后分别部署的情况</code>)，本文所采用的解决办法是<code>JSONP</code>，说到<code>JSONP</code>就会首先想到<code>JSON</code>。虽然只有一字之差但意义却完全不一样，首先科普一下<code>JSON</code>。</p>
-<h1 id="JSON"><a href="#JSON" class="headerlink" title="JSON"></a>JSON</h1><blockquote>
-<p>其实现在<code>JSON</code>已经是相当流行了，只要涉及到前后端的数据交互大都都是采用的JSON(不管是web还是android和IOS)，所以我这里就举一个例子，就算是没有用过的同学也能很快明白其中的意思。</p>
-</blockquote>
-<h2 id="PostMan"><a href="#PostMan" class="headerlink" title="PostMan"></a>PostMan</h2><p>首先给大家安利一款后端开发的利器<code>PostMan</code>,可以用于模拟几乎所有的<code>HTTP</code>请求，在开发阶段调试后端接口非常有用。<br>这是一个Chrome插件，可以直接在google商店搜索直接下载(当然前提你懂得)。<br>之后界面就如下：<br><img src="http://img.blog.csdn.net/20161018003136470" alt="2">。<br>界面非常简洁，有点开发经验的童鞋应该都会使用，不太会用的直接google下就可以了比较简单。<br>接着我们就可以利用<code>PostMan</code>来发起一次请求获取<code>JSON</code>了。这里以我<code>SSM</code>项目为例,也正好有暴露一个JSON的接口。地址如下:<br><a href="http://www.crossoverjie.top/SSM/content_load" target="_blank" rel="external">http://www.crossoverjie.top/SSM/content_load</a>。<br>直接在<code>POSTMAN</code>中的地址栏输入该地址，采用<code>GET</code>的方式请求，之后所返回的就是JSON格式的字符串。<br>由于<code>Javascript</code>原生的就支持JSON，所以解析起来非常方便。</p>
-<h1 id="JSONP"><a href="#JSONP" class="headerlink" title="JSONP"></a>JSONP</h1><p>好了，终于可以谈谈<code>JSONP</code>了。之前说道<code>JSONP</code>是用来解决跨域问题的，那么他是如何解决的呢。<br>经过我们开发界的前辈们发现，HTML中拥有<code>SRC</code>属性的标签都不受跨域的影响，比如：<code>&lt;script&gt;、&lt;img&gt;、&lt;iframe&gt;</code>标签。<br>由于JS原生支持JSON的解析，于是我们采用<code>&lt;script&gt;</code>的方式来处理跨域解析，代码如下一看就明白。<br>web端:<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"zh"</span>&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span>&gt;</span><span class="javascript"></span></div><div class="line">        $(<span class="built_in">document</span>).ready(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">            $.ajax(&#123;</div><div class="line">                <span class="attr">type</span>: <span class="string">"get"</span>,</div><div class="line">                <span class="attr">async</span>: <span class="literal">false</span>,</div><div class="line">                <span class="attr">url</span>: <span class="string">"http://www.crossoverjie.top/SSM/jsonpInfo?callback=getUser&amp;userId=3"</span>,</div><div class="line">                <span class="attr">dataType</span>: <span class="string">"jsonp"</span>,</div><div class="line">                <span class="attr">jsonp</span>: <span class="string">"callback"</span>,<span class="comment">//一般默认为:callback</span></div><div class="line">                jsonpCallback:<span class="string">"getUser"</span>,<span class="comment">//自定义的jsonp回调函数名称，默认为jQuery自动生成的随机函数名，也可以写"?"，jQuery会自动为你处理数据</span></div><div class="line">                success: <span class="function"><span class="keyword">function</span>(<span class="params">json</span>)</span>&#123;</div><div class="line">                    <span class="comment">/**</span></div><div class="line">                     * 获得服务器返回的信息。</div><div class="line">                     * 可以做具体的业务处理。</div><div class="line">                     */</div><div class="line">                    alert(<span class="string">'用户信息：ID： '</span> + json.userId + <span class="string">' ，姓名： '</span> + json.username + <span class="string">'。'</span>);</div><div class="line">                &#125;,</div><div class="line">                <span class="attr">error</span>: <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">                    alert(<span class="string">'fail'</span>);</div><div class="line">                &#125;</div><div class="line">            &#125;);</div><div class="line">        &#125;);</div><div class="line">    <span class="tag">&lt;/<span class="name">script</span>&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;<span class="name">body</span> <span class="attr">oncontextmenu</span>=<span class="string">"return false"</span>&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></div></pre></td></tr></table></figure></p>
-<p>其中我们采用了JQuery给我封装好的函数，这样就可以自动帮我们解析了。<br>首先我们来看下代码中的<a href="http://www.crossoverjie.top/SSM/jsonpInfo?callback=getUser&amp;userId=3" target="_blank" rel="external">http://www.crossoverjie.top/SSM/jsonpInfo?callback=getUser&amp;userId=3</a>这个地址返回的是什么内容，还是放到<code>POSTMAN</code>中执行如下：<br><img src="http://img.blog.csdn.net/20161018005211291" alt="3">。<br>可以看到我们所传递的<code>callback</code>参数带着查询的数据又原封不动的返回给我们了，这样的话即使我们不使用<code>JQuery</code>给我封装好的函数，我们自定义一个和<code>callback</code>名称一样的函数一样是可以解析其中的数据的，只是<code>Jquery</code>帮我们做了而已。</p>
-<p>前端没问题了，那么后端又是如何实现的呢？也很简单，如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@RequestMapping</span>(value = <span class="string">"/jsonpInfo"</span>,method = &#123; RequestMethod.GET &#125;)</div><div class="line"><span class="meta">@ResponseBody</span></div><div class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">jsonpInfo</span><span class="params">(String callback,Integer userId)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">    User user = userService.getUserById(userId);</div><div class="line">    JSONPObject jsonpObject = <span class="keyword">new</span> JSONPObject(callback,user) ;</div><div class="line">    <span class="keyword">return</span> jsonpObject ;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>后端采用了<code>jackson</code>中的<code>JSONPObject</code>这个类的一个构造方法，只需要将<code>callback</code>字段和需要转成<code>JSON</code>字符串的对象放进去即可。<br>需要主要的是需要使用<code>@ResponseBody</code>注解才能成功返回。</p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>其实网上还有其他的方法来处理跨域问题，不过我觉得这样的方式最为简单。同样JSONP也是有缺点的，比如：只支持<code>GET</code>方式的HTTP请求。<br>以上代码依然在博主的<a href="https://github.com/crossoverJie/SSM" target="_blank" rel="external">SSM</a>项目中，如有需要可以直接<code>FORK</code>。</p>
-<blockquote>
-<p>项目地址：<a href="https://github.com/crossoverJie/SSM.git" target="_blank" rel="external">https://github.com/crossoverJie/SSM.git</a></p>
-<p>个人博客地址：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
-<p>GitHub地址：<a href="https://github.com/crossoverJie" target="_blank" rel="external">https://github.com/crossoverJie</a>。</p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590ea7bd9ef94.jpg&quot; alt=&quot;跨域.jpg&quot;&gt;&lt;/p&gt;
-&lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;p&gt;不知大家在平时的开发过程中有没有遇到过跨域访问资源的问题，我不巧在上周就碰到一个这样的问题，幸运的是在公司前端同学的帮忙下解决了该问题。&lt;/p&gt;
-&lt;h2 id=&quot;什么是跨域问题？&quot;&gt;&lt;a href=&quot;#什么是跨域问题？&quot; class=&quot;headerlink&quot; title=&quot;什么是跨域问题？&quot;&gt;&lt;/a&gt;什么是跨域问题？&lt;/h2&gt;&lt;ol&gt;
-&lt;li&gt;只要协议、域名、端口有任何一个不同，都被当作是不同的域&lt;/li&gt;
-&lt;li&gt;只要是在不同域中是无法进行通信的。&lt;/li&gt;
-&lt;/ol&gt;
-    
-    </summary>
-    
-      <category term="SSM" scheme="http://crossoverJie.github.io/categories/SSM/"/>
-    
-    
-      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
-    
-      <category term="JSONP" scheme="http://crossoverJie.github.io/tags/JSONP/"/>
-    
-      <category term="JSON" scheme="http://crossoverJie.github.io/tags/JSON/"/>
     
   </entry>
   

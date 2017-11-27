@@ -276,6 +276,155 @@
             
               
                 
+                <a class="post-title-link" href="/2017/11/25/sbc6/" itemprop="url">
+                  sbc(六) Zuul GateWay 网关应用
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-11-25T01:13:22+08:00" content="2017-11-25">
+              2017-11-25
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/sbc/" itemprop="url" rel="index">
+                    <span itemprop="name">sbc</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/11/25/sbc6/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/11/25/sbc6/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/11/25/sbc6/" class="leancloud_visitors" data-flag-title="sbc(六) Zuul GateWay 网关应用">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p><img src="https://ws1.sinaimg.cn/large/006tNc79gy1flrejb4pbpj30qo0cuq5s.jpg" alt=""></p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>看过之前<a href="https://crossoverjie.top/categories/sbc/">SBC</a>系列的小伙伴应该都可以搭建一个高可用、分布式的微服务了。 目前的结构图应该如下所示:<br><img src="https://ws1.sinaimg.cn/large/006tKfTcly1flvyjrv2unj30dc0gwaaw.jpg" alt=""></p>
+<p>各个微服务之间都不存在单点，并且都注册于 <code>Eureka</code> ，基于此进行服务的注册于发现，再通过 <code>Ribbon</code> 进行服务调用，并具有客户端负载功能。</p>
+<p>一切看起来都比较美好，但这里却忘了一个重要的细节：</p>
+<blockquote>
+<p>当我们需要对外提供服务时怎么处理？</p>
+</blockquote>
+<p>这当然也能实现，无非就是将我们具体的微服务地址加端口暴露出去即可。</p>
+<p>那又如何来实现负载呢？</p>
+<p>简单！可以通过 <code>Nginx F5</code> 之类的工具进行负载。</p>
+<p>但是如果系统庞大，服务拆分的足够多那又有谁来维护这些路由关系呢？</p>
+<p>当然这是运维的活，不过这时候运维可能就要发飙了！</p>
+<p>并且还有一系列的问题:</p>
+<ul>
+<li>服务调用之间的一些鉴权、签名校验怎么做？</li>
+<li>由于服务端地址较多，客户端请求难以维护。</li>
+</ul>
+<p>针对于这一些问题 <code>SpringCloud</code> 全家桶自然也有对应的解决方案: <code>Zuul</code>。<br>当我们系统整合 Zuul 网关之后架构图应该如下所示:</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcly1flw0fbfukxj30mp0icdgk.jpg" alt=""></p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2017/11/25/sbc6/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/11/05/translation1-12 cool things you can do with GitHub/" itemprop="url">
                   【译】你可以用GitHub做的12件 Cool 事情
                 </a>
@@ -354,17 +503,80 @@
 
       
         
-          <p><img src="https://ws3.sinaimg.cn/large/006tNc79ly1flef224anmj31kw0ebgnt.jpg" alt=""></p>
-<h3 id="原文链接"><a href="#原文链接" class="headerlink" title="原文链接"></a><a href="https://hackernoon.com/12-cool-things-you-can-do-with-github-f3e0424cf2f0">原文链接</a></h3><h2 id="1-在-GitHub-com-编辑代码"><a href="#1-在-GitHub-com-编辑代码" class="headerlink" title="1 在 GitHub.com 编辑代码"></a>1 在 GitHub.com 编辑代码</h2><p>我将从我认为大家都知道的一件事情开始(尽管我是直到一周前才知道)。</p>
+          
+            <p><img src="https://ws3.sinaimg.cn/large/006tNc79ly1flef224anmj31kw0ebgnt.jpg" alt=""></p>
+<h3 id="原文链接"><a href="#原文链接" class="headerlink" title="原文链接"></a><a href="https://hackernoon.com/12-cool-things-you-can-do-with-github-f3e0424cf2f0" target="_blank" rel="external">原文链接</a></h3><h2 id="1-在-GitHub-com-编辑代码"><a href="#1-在-GitHub-com-编辑代码" class="headerlink" title="1 在 GitHub.com 编辑代码"></a>1 在 GitHub.com 编辑代码</h2><p>我将从我认为大家都知道的一件事情开始(尽管我是直到一周前才知道)。</p>
 <p>当你在 GitHub 查看文件时(任何文本文件，任何仓库中)，右上角会有一个小铅笔图标，点击它就可以编辑文件了。完成之后点击 <strong>Propose file change</strong> 按钮 GitHub 将会自动帮你 fork 该项目并且创建一个 <code>pull request</code> 。</p>
 <p>很厉害吧！他自动帮你 <code>fork</code> 了该 repo。</p>
 <p>不再需要 <code>fork</code> , <code>pull</code> ,本地编辑再 <code>push</code> 以及创建一个 <code>PR</code> 这样的流程了。<br><img src="https://ws3.sinaimg.cn/large/006tKfTcgy1fl5eo3789hj30m80mjwhy.jpg" alt=""></p>
 <p>这非常适合修复编写代码中出现的拼写错误和修正一个不太理想的想法。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/11/05/translation1-12 cool things you can do with GitHub/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
+<h2 id="2-粘贴图片"><a href="#2-粘贴图片" class="headerlink" title="2 粘贴图片"></a>2 粘贴图片</h2><p>你不仅仅受限于输入文本和描述问题，你知道你可以直接从粘贴板中粘贴图片吗？当你粘贴时，你会看到图片已经被上传了(毫无疑问被上传到云端)之后会变成 <code>Markdown</code> 语法来显示图片。</p>
+<h2 id="3-格式化代码"><a href="#3-格式化代码" class="headerlink" title="3 格式化代码"></a>3 格式化代码</h2><p>如果你想写一段代码，你可以三个反引号开始 —— 就像你在<a href="https://guides.github.com/features/mastering-markdown/" target="_blank" rel="external">研究<code>MarkDown</code></a>时所学到的 —— 之后 GitHub 会试着猜测你写的语言。</p>
+<p>但如果你写了一些类似于 Vue, Typescript, JSX 这样的语言，你可以明确指定得到正确的高亮。</p>
+<p>注意第一行中的<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">```jsx</div></pre></td></tr></table></figure></p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1fl5fe2vu3rj30b607kq39.jpg" alt=""></p>
+<p>这意味着代码段将会呈现出:</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tKfTcgy1fl5ffl8q7sj30bz06gq36.jpg" alt=""></p>
+<p>(这个扩展于 <code>gists</code> 。顺便说一句，如果你使用 <code>.jsx</code> 后缀，就会得到JSX的语法高亮)</p>
+<p>这是一个所有受支持的<a href="https://github.com/github/linguist/blob/fc1404985abb95d5bc33a0eba518724f1c3c252e/vendor/README.md" target="_blank" rel="external">语法列表</a>。</p>
+<h2 id="4-在-PR-中用关键词关闭-Issues"><a href="#4-在-PR-中用关键词关闭-Issues" class="headerlink" title="4 在 PR 中用关键词关闭 Issues"></a>4 在 PR 中用关键词关闭 Issues</h2><p>假设你创建了一个用于修复 <code>Issues #234</code> 的 PR ,你可以在你 PR 的描述中填写 <code>fixes #234</code> (或是在你 PR 任意评论中填写都是可以的)。<br>之后合并这个 <code>PR</code> 时将会自动关闭填写的 <code>Issues</code>。怎么样,很 cool 吧。</p>
+<p>了解是更多相关的<a href="https://help.github.com/articles/closing-issues-using-keywords/" target="_blank" rel="external">内容</a>。</p>
+<h2 id="5-链接到评论"><a href="#5-链接到评论" class="headerlink" title="5 链接到评论"></a>5 链接到评论</h2><p>你是否有过想要链接到特殊 <code>comment</code> 的想法但却无法实现？那是因为你不知道怎么做。朋友那都是过去式了，现在我就告诉你，点击用户名旁边的日期/时间即可链接到该 <code>comment</code> 。</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tKfTcly1fl69xkm5rtj30d003zq37.jpg" alt=""></p>
+<h2 id="6-链接到代码"><a href="#6-链接到代码" class="headerlink" title="6 链接到代码"></a>6 链接到代码</h2><p>我知道你想链接到具体的代码行上。</p>
+<p>尝试:查看文件时，点击代码旁边的行号。</p>
+<p>看到了吧，浏览器的 <code>URL</code> 已经被更新为行号了。如果你按住 <code>shift</code>,同时点击其他行号，<code>URL</code> 再次被更新，并且你也高亮显示页面中的一段代码。</p>
+<p>分享这个 URL ，访问时将会链接到该文件已经选中的那些代码段。</p>
+<p>但等一下，那指向的是当前的分支，如果文件发生了改变呢？也许一个在当前状态连接到文件的永久连接正是你想要的。</p>
+<p>我很懒，所以用一张截图展示以上的所有操作。</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcly1fl6lw7ji6uj30m80a6mym.jpg" alt=""></p>
+<p>谈到网址。。。</p>
+<h2 id="7-像命令行一样使用-GitHub-链接"><a href="#7-像命令行一样使用-GitHub-链接" class="headerlink" title="7 像命令行一样使用 GitHub 链接"></a>7 像命令行一样使用 GitHub 链接</h2><p>使用 GitHub 自带的 UI 浏览也还不错，但有时直接在 URL 中输入是最快的方法。比如，我想跳转到我正在编辑的分支并和 <code>master</code> 进行对比，就可以在项目名称后面接上 <code>/compare/branch-name</code> 。</p>
+<p>与选中分支的对比页将会显示出来:<br><img src="https://ws2.sinaimg.cn/large/006tKfTcly1fl8rqb8egpj30u50pbaea.jpg" alt=""></p>
+<p>以上就是和 master 分支的差异，如果想要合并分支的话，只需要输入 <code>/compare/integration-branch...my-branch</code> 即可。</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcly1fl8s3yraqrj30u50pbgpx.jpg" alt=""></p>
+<p>你还可以利用快捷键达到同样的效果，使用 <code>ctrl + L</code> 或者 <code>cmd + L</code> 可以将光标移动到 <code>URL</code> 上(至少在 Chrome 中可以)。 加上浏览器的自动补全 —— 你就可以在两个分支之间轻松切换了。</p>
+<h2 id="8-在Issues创建列表"><a href="#8-在Issues创建列表" class="headerlink" title="8 在Issues创建列表"></a>8 在Issues创建列表</h2><p>你想在你的 issue 中看到复选框列表吗?</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcly1fl8snpyb0jj30e708sdgl.jpg" alt=""></p>
+<p>你想在查看 issue 列表是它们以好看的 <code>2 of 5</code> 进度条呈现吗？</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcly1fl8u3bn88hj30dn06jdg9.jpg" alt=""></p>
+<p>太好了！你可以用以下语法来创建一个交互性的复选框:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">- [ ] Screen width (integer)</div><div class="line">- [x] Service worker support</div><div class="line">- [x] Fetch support</div><div class="line">- [ ] CSS flexbox support</div><div class="line">- [ ] Custom elements</div></pre></td></tr></table></figure>
+<p>是由一个空格、中横线、空格、左括号、空格(或者是 X )、右括号、空格以及一些文本组成。</p>
+<p>你甚至可以真正的 选中/取消 这些复选框！基于某些原因，对于我来说你看起来像是技术魔力。是真的能够选中这些复选框！甚至它还更新了底层源码。</p>
+<blockquote>
+<p>ps：以下包括第九点 基于GitHub的项目面板 由于用的不多就没有翻译。</p>
+</blockquote>
+<h2 id="10-GitHub-wiki"><a href="#10-GitHub-wiki" class="headerlink" title="10 GitHub wiki"></a>10 GitHub wiki</h2><p>作为一个像维基百科那样的非结构化的页面集合， <code>GitHub Wiki</code>的供给(我把它称之为 <code>Gwiki</code> ) 是一个非常棒的功能。</p>
+<p>对于结构化的页面来说 —— 例如你的文档：不能说这个页面是其他页面的子页面，或则是有 “下一节”，“上一节” 这样的便捷按钮。并且 <code>Hansel</code> 和 <code>Gretel</code> 也没有，因为结构化页面并没有 <code>breadcrumbs</code> 这样的设计。</p>
+<p>我们继续，让 Gwiki 动起来，我从 <code>NodeJS</code> 的文档中复制了几页来作为 wiki 页面。然后创建了一个自定义侧边栏，帮助我更好地模拟一些实际的目录结构。尽管它不会突出显示你当前的页面位置，但侧边栏会一直存在。</p>
+<p>这些链接需要你手动维护，但总的来说，我认为它可以做得很好。 如果需要的话可以<a href="https://github.com/davidgilbertson/about-github/wiki" target="_blank" rel="external">看看</a>。</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcgy1fl9yl6mhlzj30rw0dqwgn.jpg" alt=""></p>
+<p>虽然它与 <code>GitBook</code> ( <a href="http://redux.js.org/" target="_blank" rel="external">Redux 文档</a>所使用的)或者是定制网站相比仍有差距。但在你的 repo 中它有 80% 完全值得信赖的。</p>
+<p>我的建议是: 如果你已经有多个 <code>README.md</code> 文件，并且想要一些关于用户指南或更详细的文档的不同的页面，那么你应该选择 <code>Gwiki</code>。</p>
+<p>如果缺乏结构化/导航开始让你不爽的话，那就试试其他的吧。</p>
+<h2 id="11-GitHub-Pages"><a href="#11-GitHub-Pages" class="headerlink" title="11 GitHub Pages"></a>11 GitHub Pages</h2><p>你可能已经知道使用 <code>GitHub Pages</code> 来托管一个静态网站。如果你不知道，现在就来学习，这一节是专门用于讨论使用 <code>Jekyll</code> 来构建一个站点的。</p>
+<p>最简单的就是： <code>GitHub Pages + Jekyll</code>会通过一个漂亮的主题来渲染你的 <code>README.md</code> 文件。例如:通过 <a href="https://github.com/davidgilbertson/about-github" target="_blank" rel="external">about-github</a>  来查看的我的 <code>README</code> 页面。</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNc79ly1fle60d5j7hj311l0np78i.jpg" alt=""></p>
+<p>如果我在 GitHub 中点击了 <code>settings</code>选项，切换到 <code>Github Pages</code> 设置，然后选择一个 <code>Jekyll theme</code>。。。</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNc79ly1fle73empc8j30l30bcdh1.jpg" alt=""></p>
+<p>我就可以得到 <a href="https://davidgilbertson.github.io/about-github/" target="_blank" rel="external">Jekyll-themed 页面</a>。</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tNc79ly1fle74nogxlj311l0npgos.jpg" alt=""></p>
+<p>从这点上我可以主要依据易编辑的 <code>Markdown</code> 文件来构建一个完整的静态站点。本质上是把 GitHub 变成了 <code>CMS</code>。</p>
+<p>虽然我没有实际使用过，但是 <code>React Bootstrap</code> 的网站都是使用它来构建的。所以它不会糟糕。</p>
+<p>注意:它要求 <code>Ruby</code> 运行本地环境( Windows 自行安装， macOS 自带)。</p>
+<h2 id="12-把-GitHub-当做-CRM-使用"><a href="#12-把-GitHub-当做-CRM-使用" class="headerlink" title="12 把 GitHub 当做 CRM 使用"></a>12 把 GitHub 当做 CRM 使用</h2><p>假设你有一个存有一些文本内容的网站，你不想将文本内容存储于真正的 <code>HTML</code> 源码中。</p>
+<p>相反的，你想要将这些文本块存储于非开发人员能轻松的进行编辑的地方。可能是一个版本控制系统，甚至是一个审核流程。</p>
+<p>我的建议是:使用 GitHub 厂库中的 Markdown 文件来存储这些文本内容，然后使用前端组件来拉取这些文本块并展示在页面上。</p>
+<p>我是搞 <code>React</code> 的，所以这有一个 解析 <code>Markdown</code> 的组件例子，给定一些 <code>Markdown</code> 文件路径，它将会自动拉取并作为 <code>HTML</code> 显示出来。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">class Markdown extends React.Component &#123;</div><div class="line">    constructor(props) &#123;</div><div class="line">      super(props);</div><div class="line">      </div><div class="line">      // replace with your URL, obviously</div><div class="line">      this.baseUrl = &apos;https://raw.githubusercontent.com/davidgilbertson/about-github/master/text-snippets&apos;;</div><div class="line">      </div><div class="line">      this.state = &#123;</div><div class="line">        markdown: &apos;&apos;,</div><div class="line">      &#125;;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    componentDidMount() &#123;</div><div class="line">      fetch(`$&#123;this.baseUrl&#125;/$&#123;this.props.url&#125;`)</div><div class="line">        .then(response =&gt; response.text())</div><div class="line">        .then((markdown) =&gt; &#123;</div><div class="line">          this.setState(&#123;markdown&#125;);</div><div class="line">        &#125;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    render() &#123;</div><div class="line">      return (</div><div class="line">        &lt;div dangerouslySetInnerHTML=&#123;&#123;__html: marked(this.state.markdown)&#125;&#125; /&gt;</div><div class="line">      );</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="奖励环节-——-GitHub-工具"><a href="#奖励环节-——-GitHub-工具" class="headerlink" title="奖励环节 —— GitHub 工具"></a>奖励环节 —— GitHub 工具</h3><p>我已经使用了 <a href="https://chrome.google.com/webstore/detail/octotree/bkhaagjahfmjljalopjnoealnfndnagc?hl=en-US" target="_blank" rel="external">Octotree Chrome extension</a> 有段时间了，现在我向大家推荐它！<br>无论你是在查看哪个 repo 它都会在左侧给你一个树状面板。</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNc79ly1flee4cevv3j30rs0hygnv.jpg" alt=""></p>
+<p>通过这个<a href="https://www.youtube.com/watch?v=NhlzMcSyQek&amp;index=2&amp;list=PLNYkxOF6rcIB3ci6nwNyLYNU6RDOU3YyL" target="_blank" rel="external">视频</a>我了解到了 octobox，它是用于管理你的 <code>GitHub Issues</code> 收件箱，看起来相当不错！<br>以上就是我针对于<code>octobox</code>的全部想法。</p>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>就是这样了！我希望这里至少有三件事是你还不知道的。</p>
+<p>最后: hava a nice day！</p>
+
+          
         
       
     </div>
@@ -1525,143 +1737,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2017/05/24/SSM14/" itemprop="url">
-                  SSM(十四) 基于annotation的http防重插件
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-05-24T01:01:54+08:00" content="2017-05-24">
-              2017-05-24
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/SSM/" itemprop="url" rel="index">
-                    <span itemprop="name">SSM</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/05/24/SSM14/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/05/24/SSM14/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2017/05/24/SSM14/" class="leancloud_visitors" data-flag-title="SSM(十四) 基于annotation的http防重插件">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p><img src="https://ooo.0o0.ooo/2017/05/24/5924effab7d36.jpg" alt="防重插件封面.jpg"></p>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>针对于我们现在常用的<code>RESTful API</code>通常我们需要对请求进行唯一标识，也就是每次都要带上一个请求号,如<code>reqNO</code>。</p>
-<p>对于入库这种操作数据库的请求我们一般要保证他的唯一性，一个请求号通常只能用一次，所以需要我们对这种请求加上校验机制。</p>
-<blockquote>
-<p>该需求的实现思路是通过自定义<code>annotation</code>，只给需要进行校验的接口加上注解。然后通过切面使用了注解的接口将每次请求号存进<code>Redis</code>，每次都进行判断是否存在这个请求号即可。</p>
-</blockquote>
-<p>来看下加上本次插件的实际效果：<br><img src="https://ooo.0o0.ooo/2017/05/24/59253bc021bf3.jpg" alt="重复请求号01.jpg"><br><img src="https://ooo.0o0.ooo/2017/05/24/59253bc0291c1.jpg" alt="重复请求号02.jpg"><br><img src="https://ooo.0o0.ooo/2017/05/24/59253bc04016d.jpg" alt="重复请求号03.jpg"><br>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2017/05/24/SSM14/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1707,7 +1782,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">37</span>
+              <span class="site-state-item-count">38</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1724,7 +1799,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">51</span>
+                <span class="site-state-item-count">52</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
