@@ -5,7 +5,7 @@
     
   <url>
     <loc>http://crossoverJie.github.io/2018/01/08/Consistent-Hash/</loc>
-    <lastmod>2018-01-07T18:06:40.000Z</lastmod>
+    <lastmod>2018-01-07T18:11:45.000Z</lastmod>
     <data>
         <display>
         <title>一致 Hash 算法分析</title>
@@ -240,9 +240,9 @@
         <title>sbc(三)自定义Starter-SpringBoot重构去重插件</title>
         <pubTime>2017-08-01T12:10:19.000Z</pubTime>
         
-        <tag>重构</tag>
-         
         <tag>Java</tag>
+         
+        <tag>重构</tag>
          
         <tag>AOP</tag>
          
