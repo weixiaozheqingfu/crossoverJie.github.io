@@ -1305,9 +1305,9 @@
     
       <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
     
-      <category term="dubbo" scheme="http://crossoverJie.github.io/tags/dubbo/"/>
-    
       <category term="HTTP" scheme="http://crossoverJie.github.io/tags/HTTP/"/>
+    
+      <category term="dubbo" scheme="http://crossoverJie.github.io/tags/dubbo/"/>
     
   </entry>
   
