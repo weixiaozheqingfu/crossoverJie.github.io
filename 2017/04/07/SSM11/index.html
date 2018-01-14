@@ -94,7 +94,7 @@
 单系统对于一个刚起步的创业公司项目肯定是追求越快完成功能越好，并且用户量也不大。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="SSM(十一) 基于dubbo的分布式架构">
-<meta property="og:url" content="http://crossoverJie.github.io/2017/04/07/SSM11/index.html">
+<meta property="og:url" content="http://crossoverjie.top/2017/04/07/SSM11/index.html">
 <meta property="og:site_name" content="crossoverJie's Blog">
 <meta property="og:description" content="前言现在越来越多的互联网公司还是将自己公司的项目进行服务化，这确实是今后项目开发的一个趋势，就这个点再凭借之前的SSM项目来让第一次接触的同学能快速上手。
 浅谈分布式架构分布式架构单看这个名字给人的感觉就是高逼格，但其实从历史的角度来分析一下就比较明了了。
@@ -142,7 +142,7 @@
 
 
 
-  <link rel="canonical" href="http://crossoverJie.github.io/2017/04/07/SSM11/"/>
+  <link rel="canonical" href="http://crossoverjie.top/2017/04/07/SSM11/"/>
 
   <title> SSM(十一) 基于dubbo的分布式架构 | crossoverJie's Blog </title>
 </head>
@@ -442,7 +442,7 @@
 <h3 id="spring-dubbo-provider-xml"><a href="#spring-dubbo-provider-xml" class="headerlink" title="spring-dubbo-provider.xml"></a>spring-dubbo-provider.xml</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dubbo:annotation</span> <span class="attr">package</span>=<span class="string">"com.crossoverJie.api.impl"</span> /&gt;</span></div></pre></td></tr></table></figure>
 <p>这个配置扫描注解包的位置，一般配置到接口实现包即可。</p>
 <h3 id="spring-dubbo-consumer-xml"><a href="#spring-dubbo-consumer-xml" class="headerlink" title="spring-dubbo-consumer.xml"></a>spring-dubbo-consumer.xml</h3><p>这个是消费者配置项，表明我们需要依赖的其他应用。<br>这里我们在<code>SSM-BOOT</code>项目中进行配置：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dubbo:reference</span> <span class="attr">id</span>=<span class="string">"userInfoApi"</span></span></div><div class="line">		<span class="attr">interface</span>=<span class="string">"com.crossoverJie.api.UserInfoApi"</span> /&gt;</div></pre></td></tr></table></figure></p>
-<p>直接就是配置的刚才我们提供的那个用户查询的接口，这样当我们自己的内部项目需要使用到这个服务只需要依赖<code>SSM-BOOT</code>即可，不需要单独的再去配置<code>consumer</code>。这个我有在上一篇<a href="http://crossoverjie.top/2017/03/04/SSM10/#SSM-BOOT" target="_blank" rel="external">SSM(十) 项目重构-互联网项目的Maven结构</a>中也有提到。</p>
+<p>直接就是配置的刚才我们提供的那个用户查询的接口，这样当我们自己的内部项目需要使用到这个服务只需要依赖<code>SSM-BOOT</code>即可，不需要单独的再去配置<code>consumer</code>。这个我有在上一篇<a href="http://crossoverjie.top/2017/03/04/SSM10/#SSM-BOOT">SSM(十) 项目重构-互联网项目的Maven结构</a>中也有提到。</p>
 <h2 id="安装管理控制台"><a href="#安装管理控制台" class="headerlink" title="安装管理控制台"></a>安装管理控制台</h2><p>还有一个需要做的就是安装管理控制台，这里可以看到我们有多少服务、调用情况是怎么样等作用。</p>
 <p>这里我们可以将dubbo的官方源码下载下来，对其中的<code>dubbo-admin</code>模块进行打包，将生成的<code>WAR包</code>放到<code>Tomcat</code>中运行起来即可。</p>
 <p>但是需要注意一点的是：<br>需要将其中的<code>dubbo.properties</code>的zk地址修改为自己的即可。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">dubbo.registry.address=zookeeper://127.0.0.1:2181</div><div class="line">dubbo.admin.root.password=root</div><div class="line">dubbo.admin.guest.password=guest</div></pre></td></tr></table></figure></p>
@@ -472,7 +472,7 @@
 <p>以上就是我理解的，如有差错欢迎指正。</p>
 <blockquote>
 <p>项目地址：<a href="https://github.com/crossoverJie/SSM.git" target="_blank" rel="external">https://github.com/crossoverJie/SSM.git</a></p>
-<p>个人博客地址：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+<p>个人博客地址：<a href="http://crossoverjie.top">http://crossoverjie.top</a>。</p>
 <p>GitHub地址：<a href="https://github.com/crossoverJie" target="_blank" rel="external">https://github.com/crossoverJie</a>。</p>
 </blockquote>
 
@@ -871,7 +871,7 @@
       var disqus_shortname = 'crossoverjie';
       var disqus_identifier = '2017/04/07/SSM11/';
       var disqus_title = "SSM(十一) 基于dubbo的分布式架构";
-      var disqus_url = 'http://crossoverJie.github.io/2017/04/07/SSM11/';
+      var disqus_url = 'http://crossoverjie.top/2017/04/07/SSM11/';
 
       function run_disqus_script(disqus_script){
         var dsq = document.createElement('script');

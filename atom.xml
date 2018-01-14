@@ -4,9 +4,9 @@
   <subtitle>baller</subtitle>
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://crossoverJie.github.io/"/>
+  <link href="http://crossoverjie.top/"/>
   <updated>2018-01-14T15:30:26.000Z</updated>
-  <id>http://crossoverJie.github.io/</id>
+  <id>http://crossoverjie.top/</id>
   
   <author>
     <name>crossoverJie</name>
@@ -17,8 +17,8 @@
   
   <entry>
     <title>Synchronize 关键字原理</title>
-    <link href="http://crossoverJie.github.io/2018/01/14/Synchronize/"/>
-    <id>http://crossoverJie.github.io/2018/01/14/Synchronize/</id>
+    <link href="http://crossoverjie.top/2018/01/14/Synchronize/"/>
+    <id>http://crossoverjie.top/2018/01/14/Synchronize/</id>
     <published>2018-01-14T14:13:22.000Z</published>
     <updated>2018-01-14T15:30:26.000Z</updated>
     
@@ -82,19 +82,19 @@
     
     </summary>
     
-      <category term="Java 进阶" scheme="http://crossoverJie.github.io/categories/Java-%E8%BF%9B%E9%98%B6/"/>
+      <category term="Java 进阶" scheme="http://crossoverjie.top/categories/Java-%E8%BF%9B%E9%98%B6/"/>
     
     
-      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
+      <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
     
-      <category term="synchronize" scheme="http://crossoverJie.github.io/tags/synchronize/"/>
+      <category term="synchronize" scheme="http://crossoverjie.top/tags/synchronize/"/>
     
   </entry>
   
   <entry>
     <title>一致 Hash 算法分析</title>
-    <link href="http://crossoverJie.github.io/2018/01/08/Consistent-Hash/"/>
-    <id>http://crossoverJie.github.io/2018/01/08/Consistent-Hash/</id>
+    <link href="http://crossoverjie.top/2018/01/08/Consistent-Hash/"/>
+    <id>http://crossoverjie.top/2018/01/08/Consistent-Hash/</id>
     <published>2018-01-07T18:01:36.000Z</published>
     <updated>2018-01-07T18:16:11.000Z</updated>
     
@@ -145,20 +145,20 @@
     
     </summary>
     
-      <category term="算法" scheme="http://crossoverJie.github.io/categories/%E7%AE%97%E6%B3%95/"/>
+      <category term="算法" scheme="http://crossoverjie.top/categories/%E7%AE%97%E6%B3%95/"/>
     
     
   </entry>
   
   <entry>
     <title>sbc(六) Zuul GateWay 网关应用</title>
-    <link href="http://crossoverJie.github.io/2017/11/28/sbc6/"/>
-    <id>http://crossoverJie.github.io/2017/11/28/sbc6/</id>
+    <link href="http://crossoverjie.top/2017/11/28/sbc6/"/>
+    <id>http://crossoverjie.top/2017/11/28/sbc6/</id>
     <published>2017-11-27T17:13:22.000Z</published>
     <updated>2017-11-28T05:14:13.000Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://ws1.sinaimg.cn/large/006tNc79gy1flrejb4pbpj30qo0cuq5s.jpg" alt=""></p>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>看过之前<a href="https://crossoverjie.top/categories/sbc/" target="_blank" rel="external">SBC</a>系列的小伙伴应该都可以搭建一个高可用、分布式的微服务了。 目前的结构图应该如下所示:<br><img src="https://ws1.sinaimg.cn/large/006tKfTcly1flvyjrv2unj30dc0gwaaw.jpg" alt=""></p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>看过之前<a href="https://crossoverjie.top/categories/sbc/">SBC</a>系列的小伙伴应该都可以搭建一个高可用、分布式的微服务了。 目前的结构图应该如下所示:<br><img src="https://ws1.sinaimg.cn/large/006tKfTcly1flvyjrv2unj30dc0gwaaw.jpg" alt=""></p>
 <p>各个微服务之间都不存在单点，并且都注册于 <code>Eureka</code> ，基于此进行服务的注册于发现，再通过 <code>Ribbon</code> 进行服务调用，并具有客户端负载功能。</p>
 <p>一切看起来都比较美好，但这里却忘了一个重要的细节：</p>
 <blockquote>
@@ -260,7 +260,7 @@
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>这样在原有的微服务架构的基础上加上网关之后另整个系统更加完善了，从网关的设计来看：大多数系统架构都有分层的概念，不能解决问题那就多分几层🤓。</p>
 <blockquote>
 <p>项目：<a href="https://github.com/crossoverJie/springboot-cloud" target="_blank" rel="external">https://github.com/crossoverJie/springboot-cloud</a></p>
-<p>博客：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+<p>博客：<a href="http://crossoverjie.top">http://crossoverjie.top</a>。</p>
 </blockquote>
 ]]></content>
     
@@ -288,23 +288,23 @@
     
     </summary>
     
-      <category term="sbc" scheme="http://crossoverJie.github.io/categories/sbc/"/>
+      <category term="sbc" scheme="http://crossoverjie.top/categories/sbc/"/>
     
     
-      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
+      <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
     
-      <category term="SpringBoot" scheme="http://crossoverJie.github.io/tags/SpringBoot/"/>
+      <category term="SpringBoot" scheme="http://crossoverjie.top/tags/SpringBoot/"/>
     
-      <category term="SpringCloud" scheme="http://crossoverJie.github.io/tags/SpringCloud/"/>
+      <category term="SpringCloud" scheme="http://crossoverjie.top/tags/SpringCloud/"/>
     
-      <category term="Zuul" scheme="http://crossoverJie.github.io/tags/Zuul/"/>
+      <category term="Zuul" scheme="http://crossoverjie.top/tags/Zuul/"/>
     
   </entry>
   
   <entry>
     <title>【译】你可以用GitHub做的12件 Cool 事情</title>
-    <link href="http://crossoverJie.github.io/2017/11/05/translation1-12%20cool%20things%20you%20can%20do%20with%20GitHub/"/>
-    <id>http://crossoverJie.github.io/2017/11/05/translation1-12 cool things you can do with GitHub/</id>
+    <link href="http://crossoverjie.top/2017/11/05/translation1-12%20cool%20things%20you%20can%20do%20with%20GitHub/"/>
+    <id>http://crossoverjie.top/2017/11/05/translation1-12 cool things you can do with GitHub/</id>
     <published>2017-11-04T17:01:54.000Z</published>
     <updated>2017-11-28T12:45:10.000Z</updated>
     
@@ -398,22 +398,22 @@
     
     </summary>
     
-      <category term="翻译" scheme="http://crossoverJie.github.io/categories/%E7%BF%BB%E8%AF%91/"/>
+      <category term="翻译" scheme="http://crossoverjie.top/categories/%E7%BF%BB%E8%AF%91/"/>
     
     
-      <category term="GitHub" scheme="http://crossoverJie.github.io/tags/GitHub/"/>
+      <category term="GitHub" scheme="http://crossoverjie.top/tags/GitHub/"/>
     
   </entry>
   
   <entry>
     <title>SSM(十七) MQ应用</title>
-    <link href="http://crossoverJie.github.io/2017/10/20/SSM17/"/>
-    <id>http://crossoverJie.github.io/2017/10/20/SSM17/</id>
+    <link href="http://crossoverjie.top/2017/10/20/SSM17/"/>
+    <id>http://crossoverjie.top/2017/10/20/SSM17/</id>
     <published>2017-10-19T17:01:54.000Z</published>
     <updated>2017-11-01T18:18:10.000Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://ws3.sinaimg.cn/large/006tKfTcly1fkpzk7hcz4j31kw11xhbz.jpg" alt=""></p>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>写这篇文章的起因是由于之前的一篇关于<code>Kafka</code><a href="http://crossoverjie.top/2017/09/05/SSM16/" target="_blank" rel="external">异常消费</a>，当时为了解决问题不得不使用临时的方案。</p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>写这篇文章的起因是由于之前的一篇关于<code>Kafka</code><a href="http://crossoverjie.top/2017/09/05/SSM16/">异常消费</a>，当时为了解决问题不得不使用临时的方案。</p>
 <p>总结起来归根结底还是对Kafka不熟悉导致的，加上平时工作的需要，之后就花些时间看了<code>Kafka</code>相关的资料。</p>
 <h1 id="何时使用MQ"><a href="#何时使用MQ" class="headerlink" title="何时使用MQ"></a>何时使用MQ</h1><p>谈到<code>Kafka</code>就不得不提到MQ，是属于消息队列的一种。作为一种基础中间件在互联网项目中有着大量的使用。</p>
 <p>一种技术的产生自然是为了解决某种需求，通常来说是以下场景：</p>
@@ -493,7 +493,7 @@
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p><code>Kafka</code>的知识点还是较多，<code>Kafka</code>的使用也远不这些。之后会继续分享一些关于<code>Kafka</code>监控等相关内容。</p>
 <blockquote>
 <p>项目地址：<a href="https://github.com/crossoverJie/SSM.git" target="_blank" rel="external">https://github.com/crossoverJie/SSM.git</a></p>
-<p>个人博客：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+<p>个人博客：<a href="http://crossoverjie.top">http://crossoverjie.top</a>。</p>
 </blockquote>
 ]]></content>
     
@@ -519,24 +519,24 @@
     
     </summary>
     
-      <category term="SSM" scheme="http://crossoverJie.github.io/categories/SSM/"/>
+      <category term="SSM" scheme="http://crossoverjie.top/categories/SSM/"/>
     
     
-      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
+      <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
     
-      <category term="Kafka" scheme="http://crossoverJie.github.io/tags/Kafka/"/>
+      <category term="Kafka" scheme="http://crossoverjie.top/tags/Kafka/"/>
     
   </entry>
   
   <entry>
     <title>sbc(五)Hystrix-服务容错与保护</title>
-    <link href="http://crossoverJie.github.io/2017/09/20/sbc5/"/>
-    <id>http://crossoverJie.github.io/2017/09/20/sbc5/</id>
+    <link href="http://crossoverjie.top/2017/09/20/sbc5/"/>
+    <id>http://crossoverjie.top/2017/09/20/sbc5/</id>
     <published>2017-09-19T17:13:22.000Z</published>
     <updated>2017-09-21T07:28:03.000Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://ws2.sinaimg.cn/large/006tKfTcly1fjpcdozanoj30rs0ku76w.jpg" alt="1"></p>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>看过 <a href="http://crossoverjie.top/2017/08/11/sbc4/" target="_blank" rel="external">应用限流</a>的朋友应该知道，限流的根本目的就是为了保障服务的高可用。</p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>看过 <a href="http://crossoverjie.top/2017/08/11/sbc4/">应用限流</a>的朋友应该知道，限流的根本目的就是为了保障服务的高可用。</p>
 <p>本次再借助<code>SpringCloud</code>中的集成的<code>Hystrix</code>组件来谈谈服务容错。</p>
 <p>其实产生某项需求的原因都是为了解决某个需求。当我们将应用进行分布式模块部署之后,各个模块之间通过远程调用的方式进行交互(<code>RPC</code>)。拿我们平时最常见的下单买商品来说，点击下单按钮的一瞬间可能会向发送的请求包含：</p>
 <ul>
@@ -620,7 +620,7 @@
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>服务容错的整个还是比较大的,博主也是摸着石头过河，关于本次的<code>Hystrix</code>只是一个入门版，后面会持续分析它的线程隔离、信号量隔离等原理。</p>
 <blockquote>
 <p>项目：<a href="https://github.com/crossoverJie/springboot-cloud" target="_blank" rel="external">https://github.com/crossoverJie/springboot-cloud</a></p>
-<p>博客：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+<p>博客：<a href="http://crossoverjie.top">http://crossoverjie.top</a>。</p>
 </blockquote>
 ]]></content>
     
@@ -646,23 +646,23 @@
     
     </summary>
     
-      <category term="sbc" scheme="http://crossoverJie.github.io/categories/sbc/"/>
+      <category term="sbc" scheme="http://crossoverjie.top/categories/sbc/"/>
     
     
-      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
+      <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
     
-      <category term="SpringBoot" scheme="http://crossoverJie.github.io/tags/SpringBoot/"/>
+      <category term="SpringBoot" scheme="http://crossoverjie.top/tags/SpringBoot/"/>
     
-      <category term="SpringCloud" scheme="http://crossoverJie.github.io/tags/SpringCloud/"/>
+      <category term="SpringCloud" scheme="http://crossoverjie.top/tags/SpringCloud/"/>
     
-      <category term="Hystrix" scheme="http://crossoverJie.github.io/tags/Hystrix/"/>
+      <category term="Hystrix" scheme="http://crossoverjie.top/tags/Hystrix/"/>
     
   </entry>
   
   <entry>
     <title>SSM(十六) 曲线救国-Kafka消费异常</title>
-    <link href="http://crossoverJie.github.io/2017/09/05/SSM16/"/>
-    <id>http://crossoverJie.github.io/2017/09/05/SSM16/</id>
+    <link href="http://crossoverjie.top/2017/09/05/SSM16/"/>
+    <id>http://crossoverjie.top/2017/09/05/SSM16/</id>
     <published>2017-09-05T03:01:54.000Z</published>
     <updated>2017-09-05T15:18:42.000Z</updated>
     
@@ -692,7 +692,7 @@
 <p>其中也有其他团队的消费程序在正常运行，应该和<code>kafka</code>的配置没有关系。</p>
 <blockquote>
 <p>项目地址：<a href="https://github.com/crossoverJie/SSM.git" target="_blank" rel="external">https://github.com/crossoverJie/SSM.git</a></p>
-<p>个人博客：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+<p>个人博客：<a href="http://crossoverjie.top">http://crossoverjie.top</a>。</p>
 </blockquote>
 ]]></content>
     
@@ -708,21 +708,21 @@
     
     </summary>
     
-      <category term="SSM" scheme="http://crossoverJie.github.io/categories/SSM/"/>
+      <category term="SSM" scheme="http://crossoverjie.top/categories/SSM/"/>
     
     
-      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
+      <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
     
-      <category term="Kafka" scheme="http://crossoverJie.github.io/tags/Kafka/"/>
+      <category term="Kafka" scheme="http://crossoverjie.top/tags/Kafka/"/>
     
-      <category term="shell" scheme="http://crossoverJie.github.io/tags/shell/"/>
+      <category term="shell" scheme="http://crossoverjie.top/tags/shell/"/>
     
   </entry>
   
   <entry>
     <title>sbc(四)应用限流</title>
-    <link href="http://crossoverJie.github.io/2017/08/11/sbc4/"/>
-    <id>http://crossoverJie.github.io/2017/08/11/sbc4/</id>
+    <link href="http://crossoverjie.top/2017/08/11/sbc4/"/>
+    <id>http://crossoverjie.top/2017/08/11/sbc4/</id>
     <published>2017-08-11T10:13:22.000Z</published>
     <updated>2017-08-10T17:51:46.000Z</updated>
     
@@ -761,7 +761,7 @@
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>针对于单个应用的限流<code>RateLimiter</code>够用了，如果是分布式环境可以借助<code>redis</code>来完成。具体实现在接下来讨论。</p>
 <blockquote>
 <p>项目：<a href="https://github.com/crossoverJie/springboot-cloud" target="_blank" rel="external">https://github.com/crossoverJie/springboot-cloud</a></p>
-<p>博客：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+<p>博客：<a href="http://crossoverjie.top">http://crossoverjie.top</a>。</p>
 </blockquote>
 ]]></content>
     
@@ -785,28 +785,28 @@
     
     </summary>
     
-      <category term="sbc" scheme="http://crossoverJie.github.io/categories/sbc/"/>
+      <category term="sbc" scheme="http://crossoverjie.top/categories/sbc/"/>
     
     
-      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
+      <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
     
-      <category term="SpringBoot" scheme="http://crossoverJie.github.io/tags/SpringBoot/"/>
+      <category term="SpringBoot" scheme="http://crossoverjie.top/tags/SpringBoot/"/>
     
-      <category term="SpringCloud" scheme="http://crossoverJie.github.io/tags/SpringCloud/"/>
+      <category term="SpringCloud" scheme="http://crossoverjie.top/tags/SpringCloud/"/>
     
-      <category term="RateLimiter" scheme="http://crossoverJie.github.io/tags/RateLimiter/"/>
+      <category term="RateLimiter" scheme="http://crossoverjie.top/tags/RateLimiter/"/>
     
   </entry>
   
   <entry>
     <title>sbc(三)自定义Starter-SpringBoot重构去重插件</title>
-    <link href="http://crossoverJie.github.io/2017/08/01/sbc3/"/>
-    <id>http://crossoverJie.github.io/2017/08/01/sbc3/</id>
+    <link href="http://crossoverjie.top/2017/08/01/sbc3/"/>
+    <id>http://crossoverjie.top/2017/08/01/sbc3/</id>
     <published>2017-08-01T12:10:19.000Z</published>
     <updated>2017-08-01T08:56:00.000Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://i.loli.net/2017/08/01/59800eca06bf0.jpg" alt="pexels-photo-9046.jpg"></p>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>之前看过<a href="http://crossoverjie.top/2017/05/24/SSM14/" target="_blank" rel="external">SSM(十四) 基于annotation的http防重插件</a>的朋友应该记得我后文说过之后要用<code>SpringBoot</code>来进行重构。</p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>之前看过<a href="http://crossoverjie.top/2017/05/24/SSM14/">SSM(十四) 基于annotation的http防重插件</a>的朋友应该记得我后文说过之后要用<code>SpringBoot</code>来进行重构。</p>
 <blockquote>
 <p>这次采用自定义的<code>starter</code>的方式来进行重构。 </p>
 </blockquote>
@@ -862,7 +862,7 @@
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>注意一点是<code>spring.factories</code>的路径不要搞错了,之前就是因为路径写错了，导致自动配置没有加载，AOP也就没有生效，排查了好久。。</p>
 <blockquote>
 <p>项目：<a href="https://github.com/crossoverJie/springboot-cloud" target="_blank" rel="external">https://github.com/crossoverJie/springboot-cloud</a></p>
-<p>博客：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+<p>博客：<a href="http://crossoverjie.top">http://crossoverjie.top</a>。</p>
 </blockquote>
 ]]></content>
     
@@ -881,31 +881,31 @@
     
     </summary>
     
-      <category term="sbc" scheme="http://crossoverJie.github.io/categories/sbc/"/>
+      <category term="sbc" scheme="http://crossoverjie.top/categories/sbc/"/>
     
     
-      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
+      <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
     
-      <category term="重构" scheme="http://crossoverJie.github.io/tags/%E9%87%8D%E6%9E%84/"/>
+      <category term="重构" scheme="http://crossoverjie.top/tags/%E9%87%8D%E6%9E%84/"/>
     
-      <category term="AOP" scheme="http://crossoverJie.github.io/tags/AOP/"/>
+      <category term="AOP" scheme="http://crossoverjie.top/tags/AOP/"/>
     
-      <category term="SpringBoot" scheme="http://crossoverJie.github.io/tags/SpringBoot/"/>
+      <category term="SpringBoot" scheme="http://crossoverjie.top/tags/SpringBoot/"/>
     
-      <category term="SpringCloud" scheme="http://crossoverJie.github.io/tags/SpringCloud/"/>
+      <category term="SpringCloud" scheme="http://crossoverjie.top/tags/SpringCloud/"/>
     
   </entry>
   
   <entry>
     <title>sbc(二)高可用Eureka+声明式服务调用</title>
-    <link href="http://crossoverJie.github.io/2017/07/19/sbc2/"/>
-    <id>http://crossoverJie.github.io/2017/07/19/sbc2/</id>
+    <link href="http://crossoverjie.top/2017/07/19/sbc2/"/>
+    <id>http://crossoverjie.top/2017/07/19/sbc2/</id>
     <published>2017-07-19T14:10:05.000Z</published>
     <updated>2017-07-20T18:47:44.000Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://i.loli.net/2017/07/20/596f9bc03c484.jpeg" alt="pexels-photo-516961.jpeg"></p>
 <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><blockquote>
-<p>上一篇简单入门了<a href="http://crossoverjie.top/2017/06/15/sbc1/" target="_blank" rel="external">SpringBoot+SpringCloud</a> 构建微服务。但只能算是一个<code>demo</code>级别的应用。<br>这次会按照实际生产要求来搭建这套服务。</p>
+<p>上一篇简单入门了<a href="http://crossoverjie.top/2017/06/15/sbc1/">SpringBoot+SpringCloud</a> 构建微服务。但只能算是一个<code>demo</code>级别的应用。<br>这次会按照实际生产要求来搭建这套服务。</p>
 </blockquote>
 <h1 id="Swagger应用"><a href="#Swagger应用" class="headerlink" title="Swagger应用"></a>Swagger应用</h1><p>上次提到我们调用自己的<code>http</code>接口的时候采用的是<code>PostMan</code>来模拟请求，这个在平时调试时自然没有什么问题，但当我们需要和前端联调开发的时候效率就比较低了。</p>
 <p><strong>通常来说现在前后端分离的项目一般都是后端接口先行。</strong></p>
@@ -995,7 +995,7 @@
 <p>后续还会继续谈到<code>zuul网关，容错，断路器</code>等内容，欢迎拍砖讨论。</p>
 <blockquote>
 <p>项目：<a href="https://github.com/crossoverJie/springboot-cloud" target="_blank" rel="external">https://github.com/crossoverJie/springboot-cloud</a></p>
-<p>博客：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+<p>博客：<a href="http://crossoverjie.top">http://crossoverjie.top</a>。</p>
 </blockquote>
 ]]></content>
     
@@ -1016,25 +1016,25 @@
     
     </summary>
     
-      <category term="sbc" scheme="http://crossoverJie.github.io/categories/sbc/"/>
+      <category term="sbc" scheme="http://crossoverjie.top/categories/sbc/"/>
     
     
-      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
+      <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
     
-      <category term="SpringBoot" scheme="http://crossoverJie.github.io/tags/SpringBoot/"/>
+      <category term="SpringBoot" scheme="http://crossoverjie.top/tags/SpringBoot/"/>
     
-      <category term="SpringCloud" scheme="http://crossoverJie.github.io/tags/SpringCloud/"/>
+      <category term="SpringCloud" scheme="http://crossoverjie.top/tags/SpringCloud/"/>
     
-      <category term="swagger" scheme="http://crossoverJie.github.io/tags/swagger/"/>
+      <category term="swagger" scheme="http://crossoverjie.top/tags/swagger/"/>
     
-      <category term="Eureka" scheme="http://crossoverJie.github.io/tags/Eureka/"/>
+      <category term="Eureka" scheme="http://crossoverjie.top/tags/Eureka/"/>
     
   </entry>
   
   <entry>
     <title>SSM(十五) 乐观锁与悲观锁的实际应用</title>
-    <link href="http://crossoverJie.github.io/2017/07/09/SSM15/"/>
-    <id>http://crossoverJie.github.io/2017/07/09/SSM15/</id>
+    <link href="http://crossoverjie.top/2017/07/09/SSM15/"/>
+    <id>http://crossoverjie.top/2017/07/09/SSM15/</id>
     <published>2017-07-09T03:01:54.000Z</published>
     <updated>2017-09-05T14:10:59.000Z</updated>
     
@@ -1086,7 +1086,7 @@
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>以上两种各有优劣，大家可以根据具体的业务场景来判断具体使用哪种方式来保证数据的一致性。</p>
 <blockquote>
 <p>项目地址：<a href="https://github.com/crossoverJie/SSM.git" target="_blank" rel="external">https://github.com/crossoverJie/SSM.git</a></p>
-<p>个人博客：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+<p>个人博客：<a href="http://crossoverjie.top">http://crossoverjie.top</a>。</p>
 </blockquote>
 ]]></content>
     
@@ -1101,19 +1101,19 @@
     
     </summary>
     
-      <category term="SSM" scheme="http://crossoverJie.github.io/categories/SSM/"/>
+      <category term="SSM" scheme="http://crossoverjie.top/categories/SSM/"/>
     
     
-      <category term="lock" scheme="http://crossoverJie.github.io/tags/lock/"/>
+      <category term="lock" scheme="http://crossoverjie.top/tags/lock/"/>
     
-      <category term="mysql" scheme="http://crossoverJie.github.io/tags/mysql/"/>
+      <category term="mysql" scheme="http://crossoverjie.top/tags/mysql/"/>
     
   </entry>
   
   <entry>
     <title>sbc(一)SpringBoot+SpringCloud初探</title>
-    <link href="http://crossoverJie.github.io/2017/06/15/sbc1/"/>
-    <id>http://crossoverJie.github.io/2017/06/15/sbc1/</id>
+    <link href="http://crossoverjie.top/2017/06/15/sbc1/"/>
+    <id>http://crossoverjie.top/2017/06/15/sbc1/</id>
     <published>2017-06-15T13:40:15.000Z</published>
     <updated>2017-07-20T18:14:12.000Z</updated>
     
@@ -1191,7 +1191,7 @@
 <p>本次算是<code>springBoot+springCloud</code>的入门，还有很多东西没有讲到，之后我将会根据实际使用的一些经验继续分享<code>SpringCloud</code>这个新兴框架。</p>
 <blockquote>
 <p>项目：<a href="https://github.com/crossoverJie/springboot-cloud" target="_blank" rel="external">https://github.com/crossoverJie/springboot-cloud</a></p>
-<p>博客：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+<p>博客：<a href="http://crossoverjie.top">http://crossoverjie.top</a>。</p>
 </blockquote>
 ]]></content>
     
@@ -1210,21 +1210,21 @@
     
     </summary>
     
-      <category term="sbc" scheme="http://crossoverJie.github.io/categories/sbc/"/>
+      <category term="sbc" scheme="http://crossoverjie.top/categories/sbc/"/>
     
     
-      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
+      <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
     
-      <category term="SpringBoot" scheme="http://crossoverJie.github.io/tags/SpringBoot/"/>
+      <category term="SpringBoot" scheme="http://crossoverjie.top/tags/SpringBoot/"/>
     
-      <category term="SpringCloud" scheme="http://crossoverJie.github.io/tags/SpringCloud/"/>
+      <category term="SpringCloud" scheme="http://crossoverjie.top/tags/SpringCloud/"/>
     
   </entry>
   
   <entry>
     <title>SSM(十四) 基于annotation的http防重插件</title>
-    <link href="http://crossoverJie.github.io/2017/05/24/SSM14/"/>
-    <id>http://crossoverJie.github.io/2017/05/24/SSM14/</id>
+    <link href="http://crossoverjie.top/2017/05/24/SSM14/"/>
+    <id>http://crossoverjie.top/2017/05/24/SSM14/</id>
     <published>2017-05-23T17:01:54.000Z</published>
     <updated>2017-07-09T18:16:50.000Z</updated>
     
@@ -1260,8 +1260,8 @@
 <p>这样当controller层出现异常之后都会进入这里进行统一的返回。</p>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>至此整个插件的流程已经全部OK，从中可以看出<code>Spring AOP</code>在实际开发中的各种好处。<br>之前的几篇文章也有应用到：</p>
 <ul>
-<li><a href="https://crossoverjie.top/2016/12/18/SSM7/" target="_blank" rel="external">在JavaWeb应用中使用Redis</a></li>
-<li><a href="https://crossoverjie.top/2017/01/05/SSM8/" target="_blank" rel="external">动态切换数据源</a></li>
+<li><a href="https://crossoverjie.top/2016/12/18/SSM7/">在JavaWeb应用中使用Redis</a></li>
+<li><a href="https://crossoverjie.top/2017/01/05/SSM8/">动态切换数据源</a></li>
 </ul>
 <p>不知不觉这个小白入门的<code>SSM</code>系列已经更新了14篇了，在<code>GitHub</code>也有了500多颗星了，期间也和不少朋友有过交流、探讨，感谢大家的支持。</p>
 <p><strong>接下来可能不太会更新这个系列了，由于博主现在所在的项目组采用的是目前比较流行的<code>SpringBoot+SpringCloud</code>和<code>Docker</code>的方式来进行架构的，所以之后的重心肯定会移到这方面，用过<code>SpringBoot</code>之后相信大家肯定也回不去了。</strong></p>
@@ -1269,7 +1269,7 @@
 <blockquote>
 <p>插件地址：<a href="https://github.com/crossoverJie/SSM-REQUEST-CHECK.git" target="_blank" rel="external">https://github.com/crossoverJie/SSM-REQUEST-CHECK.git</a></p>
 <p>项目地址：<a href="https://github.com/crossoverJie/SSM.git" target="_blank" rel="external">https://github.com/crossoverJie/SSM.git</a></p>
-<p>个人博客地址：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+<p>个人博客地址：<a href="http://crossoverjie.top">http://crossoverjie.top</a>。</p>
 </blockquote>
 ]]></content>
     
@@ -1285,21 +1285,76 @@
     
     </summary>
     
-      <category term="SSM" scheme="http://crossoverJie.github.io/categories/SSM/"/>
+      <category term="SSM" scheme="http://crossoverjie.top/categories/SSM/"/>
     
     
-      <category term="HTTP" scheme="http://crossoverJie.github.io/tags/HTTP/"/>
+      <category term="HTTP" scheme="http://crossoverjie.top/tags/HTTP/"/>
     
-      <category term="annotation" scheme="http://crossoverJie.github.io/tags/annotation/"/>
+      <category term="annotation" scheme="http://crossoverjie.top/tags/annotation/"/>
     
-      <category term="AOP" scheme="http://crossoverJie.github.io/tags/AOP/"/>
+      <category term="AOP" scheme="http://crossoverjie.top/tags/AOP/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>科普-为自己的博客免费加上小绿锁</title>
+    <link href="http://crossoverjie.top/2017/05/07/https/"/>
+    <id>http://crossoverjie.top/2017/05/07/https/</id>
+    <published>2017-05-06T17:01:54.000Z</published>
+    <updated>2017-05-07T08:40:47.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><img src="https://ooo.0o0.ooo/2017/05/07/590edced5545e.jpg" alt="https.jpg"></p>
+<p>在如今的<code>HTTPS</code>大当其道的情况下自己的博客要是还没有用上。作为互联网的螺丝钉(<code>码农</code>)岂不是很没面子。</p>
+<h1 id="使用CLOUDFLARE"><a href="#使用CLOUDFLARE" class="headerlink" title="使用CLOUDFLARE"></a>使用CLOUDFLARE</h1><p>这里使用<a href="http://www.CLOUDFLARE.com" target="_blank" rel="external">CLOUDFLARE</a>来提供<code>HTTPS</code>服务。</p>
+<ul>
+<li>在其官网进行注册，按照提示添加好自己的域名即可。</li>
+<li>之后需要在自己域名的提供商处修改<code>DNS服务器</code>，我是在万网购买的修改后如下图：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd1a4cfd0.jpg" alt="1.jpg"><br>其中的<code>DNS服务器地址</code>由<code>CLOUDFLARE</code>是提供的。<br>修改完成之后通常需要等待一段时间才能生效。</li>
+<li>接着在<code>CLOUDFLARE</code>配置<code>DNS</code>解析：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd4913c2b.jpg" alt="DNS解析.jpg"><br>点击<code>CLOUDFLARE</code>顶部的<code>DNS</code>进行如我上图中的配置，和之前的配置没有什么区别。</li>
+</ul>
+<p>等待一段时间之后发现使用<code>HTTP</code>,<code>HTTPS</code>都能访问，但是最好还是能在访问<code>HTTP</code>的时候能强制跳转到<code>HTTPS</code>.</p>
+<ul>
+<li>在<code>CLOUDFLARE</code>菜单栏点击<code>page-rules</code>之后新建一个<code>page rule</code>：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd73a9f9d.jpg" alt="强制https.jpg"><br>这样整个网站的请求都会强制到请求到<code>HTTPS</code>.</li>
+</ul>
+<a id="more"></a>
+<h1 id="主题配置"><a href="#主题配置" class="headerlink" title="主题配置"></a>主题配置</h1><p>由于我才用的是<code>Hexo</code>中的<code>Next</code>主题，其中配置了<code>CNZZ</code>站长统计。其中配置的<code>CNZZ</code>统计JS是才用的<code>HTTP</code>。导致在首页的时候<code>chrome</code>一直提示感叹号。<br>修改站点<code>themes/next/layout/_scripts/third-party/analytics</code>目录下的<code>cnzz-analytics.swig</code>文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&#123;% if theme.cnzz_siteid %&#125;</div><div class="line"></div><div class="line">  &lt;div style=&quot;display: none;&quot;&gt;</div><div class="line">    &lt;script src=&quot;https://s6.cnzz.com/stat.php?id=&#123;&#123; theme.cnzz_siteid &#125;&#125;&amp;web_id=&#123;&#123; theme.cnzz_siteid &#125;&#125;&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;</div><div class="line">  &lt;/div&gt;</div><div class="line"></div><div class="line">&#123;% endif %&#125;</div></pre></td></tr></table></figure></p>
+<p>之后再进行构建的时候就会使用<code>HTTPS</code>.</p>
+<blockquote>
+<p>值得注意一点的是之后文章中所使用的图片都要用<code>HTTPS</code>的地址了，不然<code>chrome</code>会提示感叹号。</p>
+<p>个人博客地址：<a href="http://crossoverjie.top">http://crossoverjie.top</a>。</p>
+<p>GitHub地址：<a href="https://github.com/crossoverJie" target="_blank" rel="external">https://github.com/crossoverJie</a>。</p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edced5545e.jpg&quot; alt=&quot;https.jpg&quot;&gt;&lt;/p&gt;
+&lt;p&gt;在如今的&lt;code&gt;HTTPS&lt;/code&gt;大当其道的情况下自己的博客要是还没有用上。作为互联网的螺丝钉(&lt;code&gt;码农&lt;/code&gt;)岂不是很没面子。&lt;/p&gt;
+&lt;h1 id=&quot;使用CLOUDFLARE&quot;&gt;&lt;a href=&quot;#使用CLOUDFLARE&quot; class=&quot;headerlink&quot; title=&quot;使用CLOUDFLARE&quot;&gt;&lt;/a&gt;使用CLOUDFLARE&lt;/h1&gt;&lt;p&gt;这里使用&lt;a href=&quot;http://www.CLOUDFLARE.com&quot;&gt;CLOUDFLARE&lt;/a&gt;来提供&lt;code&gt;HTTPS&lt;/code&gt;服务。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;在其官网进行注册，按照提示添加好自己的域名即可。&lt;/li&gt;
+&lt;li&gt;之后需要在自己域名的提供商处修改&lt;code&gt;DNS服务器&lt;/code&gt;，我是在万网购买的修改后如下图：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd1a4cfd0.jpg&quot; alt=&quot;1.jpg&quot;&gt;&lt;br&gt;其中的&lt;code&gt;DNS服务器地址&lt;/code&gt;由&lt;code&gt;CLOUDFLARE&lt;/code&gt;是提供的。&lt;br&gt;修改完成之后通常需要等待一段时间才能生效。&lt;/li&gt;
+&lt;li&gt;接着在&lt;code&gt;CLOUDFLARE&lt;/code&gt;配置&lt;code&gt;DNS&lt;/code&gt;解析：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd4913c2b.jpg&quot; alt=&quot;DNS解析.jpg&quot;&gt;&lt;br&gt;点击&lt;code&gt;CLOUDFLARE&lt;/code&gt;顶部的&lt;code&gt;DNS&lt;/code&gt;进行如我上图中的配置，和之前的配置没有什么区别。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;等待一段时间之后发现使用&lt;code&gt;HTTP&lt;/code&gt;,&lt;code&gt;HTTPS&lt;/code&gt;都能访问，但是最好还是能在访问&lt;code&gt;HTTP&lt;/code&gt;的时候能强制跳转到&lt;code&gt;HTTPS&lt;/code&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;在&lt;code&gt;CLOUDFLARE&lt;/code&gt;菜单栏点击&lt;code&gt;page-rules&lt;/code&gt;之后新建一个&lt;code&gt;page rule&lt;/code&gt;：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd73a9f9d.jpg&quot; alt=&quot;强制https.jpg&quot;&gt;&lt;br&gt;这样整个网站的请求都会强制到请求到&lt;code&gt;HTTPS&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+      <category term="科普" scheme="http://crossoverjie.top/categories/%E7%A7%91%E6%99%AE/"/>
+    
+    
+      <category term="HTTP" scheme="http://crossoverjie.top/tags/HTTP/"/>
+    
+      <category term="HTTPS" scheme="http://crossoverjie.top/tags/HTTPS/"/>
     
   </entry>
   
   <entry>
     <title>SSM(十三) 将dubbo暴露出HTTP服务</title>
-    <link href="http://crossoverJie.github.io/2017/05/07/SSM13/"/>
-    <id>http://crossoverJie.github.io/2017/05/07/SSM13/</id>
+    <link href="http://crossoverjie.top/2017/05/07/SSM13/"/>
+    <id>http://crossoverjie.top/2017/05/07/SSM13/</id>
     <published>2017-05-06T17:01:54.000Z</published>
     <updated>2017-05-20T05:40:59.000Z</updated>
     
@@ -1361,7 +1416,7 @@
 <blockquote>
 <p> 插件地址：<a href="https://github.com/crossoverJie/SSM-DUBBO-HTTP" target="_blank" rel="external">https://github.com/crossoverJie/SSM-DUBBO-HTTP</a></p>
 <p>项目地址：<a href="https://github.com/crossoverJie/SSM.git" target="_blank" rel="external">https://github.com/crossoverJie/SSM.git</a></p>
-<p>个人博客地址：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+<p>个人博客地址：<a href="http://crossoverjie.top">http://crossoverjie.top</a>。</p>
 <p>GitHub地址：<a href="https://github.com/crossoverJie" target="_blank" rel="external">https://github.com/crossoverJie</a>。</p>
 </blockquote>
 ]]></content>
@@ -1376,81 +1431,26 @@
     
     </summary>
     
-      <category term="SSM" scheme="http://crossoverJie.github.io/categories/SSM/"/>
+      <category term="SSM" scheme="http://crossoverjie.top/categories/SSM/"/>
     
     
-      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
+      <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
     
-      <category term="dubbo" scheme="http://crossoverJie.github.io/tags/dubbo/"/>
+      <category term="HTTP" scheme="http://crossoverjie.top/tags/HTTP/"/>
     
-      <category term="HTTP" scheme="http://crossoverJie.github.io/tags/HTTP/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>科普-为自己的博客免费加上小绿锁</title>
-    <link href="http://crossoverJie.github.io/2017/05/07/https/"/>
-    <id>http://crossoverJie.github.io/2017/05/07/https/</id>
-    <published>2017-05-06T17:01:54.000Z</published>
-    <updated>2017-05-07T08:40:47.000Z</updated>
-    
-    <content type="html"><![CDATA[<p><img src="https://ooo.0o0.ooo/2017/05/07/590edced5545e.jpg" alt="https.jpg"></p>
-<p>在如今的<code>HTTPS</code>大当其道的情况下自己的博客要是还没有用上。作为互联网的螺丝钉(<code>码农</code>)岂不是很没面子。</p>
-<h1 id="使用CLOUDFLARE"><a href="#使用CLOUDFLARE" class="headerlink" title="使用CLOUDFLARE"></a>使用CLOUDFLARE</h1><p>这里使用<a href="http://www.CLOUDFLARE.com" target="_blank" rel="external">CLOUDFLARE</a>来提供<code>HTTPS</code>服务。</p>
-<ul>
-<li>在其官网进行注册，按照提示添加好自己的域名即可。</li>
-<li>之后需要在自己域名的提供商处修改<code>DNS服务器</code>，我是在万网购买的修改后如下图：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd1a4cfd0.jpg" alt="1.jpg"><br>其中的<code>DNS服务器地址</code>由<code>CLOUDFLARE</code>是提供的。<br>修改完成之后通常需要等待一段时间才能生效。</li>
-<li>接着在<code>CLOUDFLARE</code>配置<code>DNS</code>解析：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd4913c2b.jpg" alt="DNS解析.jpg"><br>点击<code>CLOUDFLARE</code>顶部的<code>DNS</code>进行如我上图中的配置，和之前的配置没有什么区别。</li>
-</ul>
-<p>等待一段时间之后发现使用<code>HTTP</code>,<code>HTTPS</code>都能访问，但是最好还是能在访问<code>HTTP</code>的时候能强制跳转到<code>HTTPS</code>.</p>
-<ul>
-<li>在<code>CLOUDFLARE</code>菜单栏点击<code>page-rules</code>之后新建一个<code>page rule</code>：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd73a9f9d.jpg" alt="强制https.jpg"><br>这样整个网站的请求都会强制到请求到<code>HTTPS</code>.</li>
-</ul>
-<a id="more"></a>
-<h1 id="主题配置"><a href="#主题配置" class="headerlink" title="主题配置"></a>主题配置</h1><p>由于我才用的是<code>Hexo</code>中的<code>Next</code>主题，其中配置了<code>CNZZ</code>站长统计。其中配置的<code>CNZZ</code>统计JS是才用的<code>HTTP</code>。导致在首页的时候<code>chrome</code>一直提示感叹号。<br>修改站点<code>themes/next/layout/_scripts/third-party/analytics</code>目录下的<code>cnzz-analytics.swig</code>文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&#123;% if theme.cnzz_siteid %&#125;</div><div class="line"></div><div class="line">  &lt;div style=&quot;display: none;&quot;&gt;</div><div class="line">    &lt;script src=&quot;https://s6.cnzz.com/stat.php?id=&#123;&#123; theme.cnzz_siteid &#125;&#125;&amp;web_id=&#123;&#123; theme.cnzz_siteid &#125;&#125;&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;</div><div class="line">  &lt;/div&gt;</div><div class="line"></div><div class="line">&#123;% endif %&#125;</div></pre></td></tr></table></figure></p>
-<p>之后再进行构建的时候就会使用<code>HTTPS</code>.</p>
-<blockquote>
-<p>值得注意一点的是之后文章中所使用的图片都要用<code>HTTPS</code>的地址了，不然<code>chrome</code>会提示感叹号。</p>
-<p>个人博客地址：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
-<p>GitHub地址：<a href="https://github.com/crossoverJie" target="_blank" rel="external">https://github.com/crossoverJie</a>。</p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edced5545e.jpg&quot; alt=&quot;https.jpg&quot;&gt;&lt;/p&gt;
-&lt;p&gt;在如今的&lt;code&gt;HTTPS&lt;/code&gt;大当其道的情况下自己的博客要是还没有用上。作为互联网的螺丝钉(&lt;code&gt;码农&lt;/code&gt;)岂不是很没面子。&lt;/p&gt;
-&lt;h1 id=&quot;使用CLOUDFLARE&quot;&gt;&lt;a href=&quot;#使用CLOUDFLARE&quot; class=&quot;headerlink&quot; title=&quot;使用CLOUDFLARE&quot;&gt;&lt;/a&gt;使用CLOUDFLARE&lt;/h1&gt;&lt;p&gt;这里使用&lt;a href=&quot;http://www.CLOUDFLARE.com&quot;&gt;CLOUDFLARE&lt;/a&gt;来提供&lt;code&gt;HTTPS&lt;/code&gt;服务。&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;在其官网进行注册，按照提示添加好自己的域名即可。&lt;/li&gt;
-&lt;li&gt;之后需要在自己域名的提供商处修改&lt;code&gt;DNS服务器&lt;/code&gt;，我是在万网购买的修改后如下图：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd1a4cfd0.jpg&quot; alt=&quot;1.jpg&quot;&gt;&lt;br&gt;其中的&lt;code&gt;DNS服务器地址&lt;/code&gt;由&lt;code&gt;CLOUDFLARE&lt;/code&gt;是提供的。&lt;br&gt;修改完成之后通常需要等待一段时间才能生效。&lt;/li&gt;
-&lt;li&gt;接着在&lt;code&gt;CLOUDFLARE&lt;/code&gt;配置&lt;code&gt;DNS&lt;/code&gt;解析：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd4913c2b.jpg&quot; alt=&quot;DNS解析.jpg&quot;&gt;&lt;br&gt;点击&lt;code&gt;CLOUDFLARE&lt;/code&gt;顶部的&lt;code&gt;DNS&lt;/code&gt;进行如我上图中的配置，和之前的配置没有什么区别。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;等待一段时间之后发现使用&lt;code&gt;HTTP&lt;/code&gt;,&lt;code&gt;HTTPS&lt;/code&gt;都能访问，但是最好还是能在访问&lt;code&gt;HTTP&lt;/code&gt;的时候能强制跳转到&lt;code&gt;HTTPS&lt;/code&gt;.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;在&lt;code&gt;CLOUDFLARE&lt;/code&gt;菜单栏点击&lt;code&gt;page-rules&lt;/code&gt;之后新建一个&lt;code&gt;page rule&lt;/code&gt;：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd73a9f9d.jpg&quot; alt=&quot;强制https.jpg&quot;&gt;&lt;br&gt;这样整个网站的请求都会强制到请求到&lt;code&gt;HTTPS&lt;/code&gt;.&lt;/li&gt;
-&lt;/ul&gt;
-    
-    </summary>
-    
-      <category term="科普" scheme="http://crossoverJie.github.io/categories/%E7%A7%91%E6%99%AE/"/>
-    
-    
-      <category term="HTTP" scheme="http://crossoverJie.github.io/tags/HTTP/"/>
-    
-      <category term="HTTPS" scheme="http://crossoverJie.github.io/tags/HTTPS/"/>
+      <category term="dubbo" scheme="http://crossoverjie.top/tags/dubbo/"/>
     
   </entry>
   
   <entry>
     <title>SSM(十二) dubbo日志插件</title>
-    <link href="http://crossoverJie.github.io/2017/04/25/SSM12/"/>
-    <id>http://crossoverJie.github.io/2017/04/25/SSM12/</id>
+    <link href="http://crossoverjie.top/2017/04/25/SSM12/"/>
+    <id>http://crossoverjie.top/2017/04/25/SSM12/</id>
     <published>2017-04-25T10:01:54.000Z</published>
     <updated>2017-04-25T10:07:48.000Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://ooo.0o0.ooo/2017/04/25/58ff0b1b40d27.jpg" alt="dubbo-filter.jpg"></p>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在之前<a href="http://crossoverjie.top/2017/04/07/SSM11/" target="_blank" rel="external">dubbo分布式框架中</a>讲到了如何利用dubbo来搭建一个微服务项目。其中还有一些值得优化提高开发效率的地方，比如日志：</p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在之前<a href="http://crossoverjie.top/2017/04/07/SSM11/">dubbo分布式框架中</a>讲到了如何利用dubbo来搭建一个微服务项目。其中还有一些值得优化提高开发效率的地方，比如日志：</p>
 <blockquote>
 <p>当我们一个项目拆分为N多个微服务之后，当其中一个调用另一个服务出现了问题，首先第一步自然是查看日志。 </p>
 <p>出现问题的有很多情况，如提供方自身代码的问题，调用方的姿势不对等。</p>
@@ -1473,7 +1473,7 @@
 <p><strong>在拦截器中最好不要加上一些耗时任务，需要考虑到性能问题。</strong></p>
 <blockquote>
 <p>项目地址：<a href="https://github.com/crossoverJie/SSM.git" target="_blank" rel="external">https://github.com/crossoverJie/SSM.git</a></p>
-<p>个人博客地址：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+<p>个人博客地址：<a href="http://crossoverjie.top">http://crossoverjie.top</a>。</p>
 <p>GitHub地址：<a href="https://github.com/crossoverJie" target="_blank" rel="external">https://github.com/crossoverJie</a>。</p>
 </blockquote>
 ]]></content>
@@ -1493,19 +1493,19 @@
     
     </summary>
     
-      <category term="SSM" scheme="http://crossoverJie.github.io/categories/SSM/"/>
+      <category term="SSM" scheme="http://crossoverjie.top/categories/SSM/"/>
     
     
-      <category term="dubbo" scheme="http://crossoverJie.github.io/tags/dubbo/"/>
+      <category term="dubbo" scheme="http://crossoverjie.top/tags/dubbo/"/>
     
-      <category term="日志" scheme="http://crossoverJie.github.io/tags/%E6%97%A5%E5%BF%97/"/>
+      <category term="日志" scheme="http://crossoverjie.top/tags/%E6%97%A5%E5%BF%97/"/>
     
   </entry>
   
   <entry>
     <title>SSM(十一) 基于dubbo的分布式架构</title>
-    <link href="http://crossoverJie.github.io/2017/04/07/SSM11/"/>
-    <id>http://crossoverJie.github.io/2017/04/07/SSM11/</id>
+    <link href="http://crossoverjie.top/2017/04/07/SSM11/"/>
+    <id>http://crossoverjie.top/2017/04/07/SSM11/</id>
     <published>2017-04-06T17:30:54.000Z</published>
     <updated>2017-04-07T01:44:09.000Z</updated>
     
@@ -1548,7 +1548,7 @@
 <h3 id="spring-dubbo-provider-xml"><a href="#spring-dubbo-provider-xml" class="headerlink" title="spring-dubbo-provider.xml"></a>spring-dubbo-provider.xml</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dubbo:annotation</span> <span class="attr">package</span>=<span class="string">"com.crossoverJie.api.impl"</span> /&gt;</span></div></pre></td></tr></table></figure>
 <p>这个配置扫描注解包的位置，一般配置到接口实现包即可。</p>
 <h3 id="spring-dubbo-consumer-xml"><a href="#spring-dubbo-consumer-xml" class="headerlink" title="spring-dubbo-consumer.xml"></a>spring-dubbo-consumer.xml</h3><p>这个是消费者配置项，表明我们需要依赖的其他应用。<br>这里我们在<code>SSM-BOOT</code>项目中进行配置：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dubbo:reference</span> <span class="attr">id</span>=<span class="string">"userInfoApi"</span></span></div><div class="line">		<span class="attr">interface</span>=<span class="string">"com.crossoverJie.api.UserInfoApi"</span> /&gt;</div></pre></td></tr></table></figure></p>
-<p>直接就是配置的刚才我们提供的那个用户查询的接口，这样当我们自己的内部项目需要使用到这个服务只需要依赖<code>SSM-BOOT</code>即可，不需要单独的再去配置<code>consumer</code>。这个我有在上一篇<a href="http://crossoverjie.top/2017/03/04/SSM10/#SSM-BOOT" target="_blank" rel="external">SSM(十) 项目重构-互联网项目的Maven结构</a>中也有提到。</p>
+<p>直接就是配置的刚才我们提供的那个用户查询的接口，这样当我们自己的内部项目需要使用到这个服务只需要依赖<code>SSM-BOOT</code>即可，不需要单独的再去配置<code>consumer</code>。这个我有在上一篇<a href="http://crossoverjie.top/2017/03/04/SSM10/#SSM-BOOT">SSM(十) 项目重构-互联网项目的Maven结构</a>中也有提到。</p>
 <h2 id="安装管理控制台"><a href="#安装管理控制台" class="headerlink" title="安装管理控制台"></a>安装管理控制台</h2><p>还有一个需要做的就是安装管理控制台，这里可以看到我们有多少服务、调用情况是怎么样等作用。</p>
 <p>这里我们可以将dubbo的官方源码下载下来，对其中的<code>dubbo-admin</code>模块进行打包，将生成的<code>WAR包</code>放到<code>Tomcat</code>中运行起来即可。</p>
 <p>但是需要注意一点的是：<br>需要将其中的<code>dubbo.properties</code>的zk地址修改为自己的即可。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">dubbo.registry.address=zookeeper://127.0.0.1:2181</div><div class="line">dubbo.admin.root.password=root</div><div class="line">dubbo.admin.guest.password=guest</div></pre></td></tr></table></figure></p>
@@ -1578,7 +1578,7 @@
 <p>以上就是我理解的，如有差错欢迎指正。</p>
 <blockquote>
 <p>项目地址：<a href="https://github.com/crossoverJie/SSM.git" target="_blank" rel="external">https://github.com/crossoverJie/SSM.git</a></p>
-<p>个人博客地址：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+<p>个人博客地址：<a href="http://crossoverjie.top">http://crossoverjie.top</a>。</p>
 <p>GitHub地址：<a href="https://github.com/crossoverJie" target="_blank" rel="external">https://github.com/crossoverJie</a>。</p>
 </blockquote>
 ]]></content>
@@ -1595,19 +1595,19 @@
     
     </summary>
     
-      <category term="SSM" scheme="http://crossoverJie.github.io/categories/SSM/"/>
+      <category term="SSM" scheme="http://crossoverjie.top/categories/SSM/"/>
     
     
-      <category term="dubbo" scheme="http://crossoverJie.github.io/tags/dubbo/"/>
+      <category term="dubbo" scheme="http://crossoverjie.top/tags/dubbo/"/>
     
-      <category term="分布式" scheme="http://crossoverJie.github.io/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+      <category term="分布式" scheme="http://crossoverjie.top/tags/%E5%88%86%E5%B8%83%E5%BC%8F/"/>
     
   </entry>
   
   <entry>
     <title>SSM(十) 项目重构-互联网项目的Maven结构</title>
-    <link href="http://crossoverJie.github.io/2017/03/04/SSM10/"/>
-    <id>http://crossoverJie.github.io/2017/03/04/SSM10/</id>
+    <link href="http://crossoverjie.top/2017/03/04/SSM10/"/>
+    <id>http://crossoverjie.top/2017/03/04/SSM10/</id>
     <published>2017-03-03T17:44:54.000Z</published>
     <updated>2017-03-03T16:58:38.000Z</updated>
     
@@ -1649,7 +1649,7 @@
 <p>具体源码还请关注我的<code>github</code>。</p>
 <blockquote>
 <p>项目地址：<a href="https://github.com/crossoverJie/SSM.git" target="_blank" rel="external">https://github.com/crossoverJie/SSM.git</a></p>
-<p>个人博客地址：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+<p>个人博客地址：<a href="http://crossoverjie.top">http://crossoverjie.top</a>。</p>
 <p>GitHub地址：<a href="https://github.com/crossoverJie" target="_blank" rel="external">https://github.com/crossoverJie</a>。</p>
 </blockquote>
 ]]></content>
@@ -1665,19 +1665,19 @@
     
     </summary>
     
-      <category term="SSM" scheme="http://crossoverJie.github.io/categories/SSM/"/>
+      <category term="SSM" scheme="http://crossoverjie.top/categories/SSM/"/>
     
     
-      <category term="Maven" scheme="http://crossoverJie.github.io/tags/Maven/"/>
+      <category term="Maven" scheme="http://crossoverjie.top/tags/Maven/"/>
     
-      <category term="重构" scheme="http://crossoverJie.github.io/tags/%E9%87%8D%E6%9E%84/"/>
+      <category term="重构" scheme="http://crossoverjie.top/tags/%E9%87%8D%E6%9E%84/"/>
     
   </entry>
   
   <entry>
     <title>SSM(九) 反射的实际应用 - 构建日志对象</title>
-    <link href="http://crossoverJie.github.io/2017/01/19/SSM9/"/>
-    <id>http://crossoverJie.github.io/2017/01/19/SSM9/</id>
+    <link href="http://crossoverjie.top/2017/01/19/SSM9/"/>
+    <id>http://crossoverjie.top/2017/01/19/SSM9/</id>
     <published>2017-01-18T19:44:54.000Z</published>
     <updated>2017-05-07T04:46:41.000Z</updated>
     
@@ -1685,7 +1685,7 @@
 <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>相信做Java的童鞋或多或少都听过反射，这也应该是Java从入门到进阶的必经之路。</p>
 <p>但是在我们的实际开发中直接使用它们的几率貌似还是比较少的，（<code>除了造轮子或者是Spring Mybatis这些框架外</code>）。</p>
 <p>所以这里介绍一个在实际开发中还是小有用处的反射实例。</p>
-<h1 id="传统日志"><a href="#传统日志" class="headerlink" title="传统日志"></a>传统日志</h1><p>有关反射的一些基本知识就不说了，可以自行<code>Google</code>，也可以看下<a href="http://crossoverjie.top/2016/05/10/java-reflect/" target="_blank" rel="external">反射入门</a>。</p>
+<h1 id="传统日志"><a href="#传统日志" class="headerlink" title="传统日志"></a>传统日志</h1><p>有关反射的一些基本知识就不说了，可以自行<code>Google</code>，也可以看下<a href="http://crossoverjie.top/2016/05/10/java-reflect/">反射入门</a>。</p>
 <p>日志相信大家都不陌生，在实际开发中一些比较敏感的数据表我们需要对它的每一次操作都记录下来。</p>
 <p>先来看看传统的写法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Test</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">insertSelective</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line"></div><div class="line">    Content content = <span class="keyword">new</span> Content() ;</div><div class="line">    content.setContent(<span class="string">"asdsf"</span>);</div><div class="line">    content.setCreatedate(<span class="string">"2016-12-09"</span>);</div><div class="line">    contentService.insertSelective(content) ;</div><div class="line"></div><div class="line">    ContentLog log = <span class="keyword">new</span> ContentLog();</div><div class="line">    log.setContentid(content.getContentid());</div><div class="line">    log.setContent(<span class="string">"asdsf"</span>);</div><div class="line">    log.setCreatedate(<span class="string">"2016-12-09"</span>);</div><div class="line">    contentLogService.insertSelective(log);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <p>非常简单，就是在保存完数据表之后再把相同的数据保存到日志表中。<br><a id="more"></a><br>但是这样有以下几个问题：</p>
@@ -1717,7 +1717,7 @@
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>反射其实是非常耗资源的，再使用过程中还是要慎用。<br>其中对method、field、constructor等对象做缓存也是很有必要的。</p>
 <blockquote>
 <p>项目地址：<a href="https://github.com/crossoverJie/SSM.git" target="_blank" rel="external">https://github.com/crossoverJie/SSM.git</a></p>
-<p>个人博客地址：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+<p>个人博客地址：<a href="http://crossoverjie.top">http://crossoverjie.top</a>。</p>
 <p>GitHub地址：<a href="https://github.com/crossoverJie" target="_blank" rel="external">https://github.com/crossoverJie</a>。</p>
 </blockquote>
 ]]></content>
@@ -1735,19 +1735,19 @@
     
     </summary>
     
-      <category term="SSM" scheme="http://crossoverJie.github.io/categories/SSM/"/>
+      <category term="SSM" scheme="http://crossoverjie.top/categories/SSM/"/>
     
     
-      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
+      <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
     
-      <category term="Reflect" scheme="http://crossoverJie.github.io/tags/Reflect/"/>
+      <category term="Reflect" scheme="http://crossoverjie.top/tags/Reflect/"/>
     
   </entry>
   
   <entry>
     <title>SSM(八)动态切换数据源</title>
-    <link href="http://crossoverJie.github.io/2017/01/05/SSM8/"/>
-    <id>http://crossoverJie.github.io/2017/01/05/SSM8/</id>
+    <link href="http://crossoverjie.top/2017/01/05/SSM8/"/>
+    <id>http://crossoverjie.top/2017/01/05/SSM8/</id>
     <published>2017-01-04T19:44:54.000Z</published>
     <updated>2017-05-07T04:57:13.000Z</updated>
     
@@ -1794,13 +1794,13 @@
 <p>为了通过<code>包名</code>来区分不同数据源，我将目录结构稍微调整了下：<br><img src="http://img.blog.csdn.net/20170105010819866?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvcXFfMTg2NjE3OTM=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="2"></p>
 <p>将两个不同的数据源的实现类放到不同的包中，这样今后如果还需要新增其他数据源也可以灵活的切换。</p>
 <p>看下<code>Spring</code>的配置：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"dataSourceExchange"</span> <span class="attr">class</span>=<span class="string">"com.crossoverJie.util.DataSourceExchange"</span>/&gt;</span></div><div class="line"><span class="comment">&lt;!--配置切面拦截方法 --&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">aop:config</span> <span class="attr">proxy-target-class</span>=<span class="string">"false"</span>&gt;</span></div><div class="line">    <span class="comment">&lt;!--将com.crossoverJie.service包下的所有select开头的方法加入拦截</span></div><div class="line">    去掉select则加入所有方法</div><div class="line">    --&gt;</div><div class="line">    <span class="tag">&lt;<span class="name">aop:pointcut</span> <span class="attr">id</span>=<span class="string">"controllerMethodPointcut"</span> <span class="attr">expression</span>=<span class="string">"</span></span></div><div class="line">    execution(* com.crossoverJie.service.*.select*(..))"/&gt;</div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">aop:pointcut</span> <span class="attr">id</span>=<span class="string">"selectMethodPointcut"</span> <span class="attr">expression</span>=<span class="string">"</span></span></div><div class="line">    execution(* com.crossoverJie.dao..*Mapper.select*(..))"/&gt;</div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">aop:advisor</span> <span class="attr">advice-ref</span>=<span class="string">"methodCacheInterceptor"</span> <span class="attr">pointcut-ref</span>=<span class="string">"controllerMethodPointcut"</span>/&gt;</span></div><div class="line"></div><div class="line">    <span class="comment">&lt;!--所有数据库操作的方法加入切面--&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">aop:aspect</span> <span class="attr">ref</span>=<span class="string">"dataSourceExchange"</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">aop:pointcut</span> <span class="attr">id</span>=<span class="string">"dataSourcePointcut"</span> <span class="attr">expression</span>=<span class="string">"execution(* com.crossoverJie.service.*.*(..))"</span>/&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">aop:before</span> <span class="attr">pointcut-ref</span>=<span class="string">"dataSourcePointcut"</span> <span class="attr">method</span>=<span class="string">"before"</span>/&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">aop:after</span> <span class="attr">pointcut-ref</span>=<span class="string">"dataSourcePointcut"</span> <span class="attr">method</span>=<span class="string">"after"</span>/&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">aop:aspect</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">aop:config</span>&gt;</span></div></pre></td></tr></table></figure></p>
-<p>这是在我们上一篇整合<a href="http://crossoverjie.top/2016/12/18/SSM7/" target="_blank" rel="external">redis缓存</a>的基础上进行修改的。<br>这样缓存和多数据源都满足了。</p>
+<p>这是在我们上一篇整合<a href="http://crossoverjie.top/2016/12/18/SSM7/">redis缓存</a>的基础上进行修改的。<br>这样缓存和多数据源都满足了。</p>
 <p>实际使用：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Test</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">selectByPrimaryKey</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">    Rediscontent rediscontent = rediscontentService.selectByPrimaryKey(<span class="number">30</span>);</div><div class="line">    System.out.println(JSON.toJSONString(rediscontent));</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <p><img src="http://img.blog.csdn.net/20170105012845706?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvcXFfMTg2NjE3OTM=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="3"><br>这样看起来就和使用一个数据源这样简单，再也不用关心切换的问题了。</p>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>不过按照这样的写法是无法做到在一个事务里控制两个数据源的。这个我还在学习中，有相关经验的大牛不妨指点一下。</p>
 <blockquote>
 <p>项目地址：<a href="https://github.com/crossoverJie/SSM.git" target="_blank" rel="external">https://github.com/crossoverJie/SSM.git</a></p>
-<p>个人博客地址：<a href="http://crossoverjie.top" target="_blank" rel="external">http://crossoverjie.top</a>。</p>
+<p>个人博客地址：<a href="http://crossoverjie.top">http://crossoverjie.top</a>。</p>
 <p>GitHub地址：<a href="https://github.com/crossoverJie" target="_blank" rel="external">https://github.com/crossoverJie</a>。</p>
 </blockquote>
 ]]></content>
@@ -1818,12 +1818,12 @@
     
     </summary>
     
-      <category term="SSM" scheme="http://crossoverJie.github.io/categories/SSM/"/>
+      <category term="SSM" scheme="http://crossoverjie.top/categories/SSM/"/>
     
     
-      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
+      <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
     
-      <category term="AOP" scheme="http://crossoverJie.github.io/tags/AOP/"/>
+      <category term="AOP" scheme="http://crossoverjie.top/tags/AOP/"/>
     
   </entry>
   
