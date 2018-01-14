@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://crossoverJie.github.io/"/>
-  <updated>2018-01-07T18:16:11.000Z</updated>
+  <updated>2018-01-14T15:30:26.000Z</updated>
   <id>http://crossoverJie.github.io/</id>
   
   <author>
@@ -14,6 +14,82 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Synchronize 关键字原理</title>
+    <link href="http://crossoverJie.github.io/2018/01/14/Synchronize/"/>
+    <id>http://crossoverJie.github.io/2018/01/14/Synchronize/</id>
+    <published>2018-01-14T14:13:22.000Z</published>
+    <updated>2018-01-14T15:30:26.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><img src="https://ws1.sinaimg.cn/large/006tKfTcly1fngjnyotvcj30z00jpn0d.jpg" alt=""></p>
+<p>众所周知 <code>Synchronize</code> 关键字是解决并发问题常用解决方案，有以下三种使用方式:</p>
+<ul>
+<li>同步普通方法，锁的是当前对象。</li>
+<li>同步静态方法，锁的是当前 <code>Class</code> 对象。</li>
+<li>同步块，锁的是 <code>{}</code> 中的对象。</li>
+</ul>
+<p>实现原理：<br><code>JVM</code> 是通过进入、退出对象监视器( <code>Monitor</code> )来实现对方法、同步块的同步的。</p>
+<p>具体实现是在编译之后在同步方法调用前加入一个 <code>monitor.enter</code> 指令，在退出方法和异常处插入 <code>monitor.exit</code> 的指令。</p>
+<p>其本质就是对一个对象监视器( <code>Monitor</code> )进行获取，而这个获取过程具有排他性从而达到了同一时刻只能一个线程访问的目的。</p>
+<p>而对于没有获取到锁的线程将会阻塞到方法入口处，直到获取锁的线程 <code>monitor.exit</code> 之后才能尝试继续获取锁。</p>
+<p>流程图如下:</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNc79ly1fn27fkl07jj31e80hyn0n.jpg" alt=""></p>
+<a id="more"></a>
+<p>通过一段代码来演示:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">    <span class="keyword">synchronized</span> (Synchronize.class)&#123;</div><div class="line">        System.out.println(<span class="string">"Synchronize"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>使用 <code>javap -c Synchronize</code> 可以查看编译之后的具体信息。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">public class com.crossoverjie.synchronize.Synchronize &#123;</div><div class="line">  public com.crossoverjie.synchronize.Synchronize();</div><div class="line">    Code:</div><div class="line">       0: aload_0</div><div class="line">       1: invokespecial #1                  // Method java/lang/Object.&quot;&lt;init&gt;&quot;:()V</div><div class="line">       4: return</div><div class="line"></div><div class="line">  public static void main(java.lang.String[]);</div><div class="line">    Code:</div><div class="line">       0: ldc           #2                  // class com/crossoverjie/synchronize/Synchronize</div><div class="line">       2: dup</div><div class="line">       3: astore_1</div><div class="line">       **4: monitorenter**</div><div class="line">       5: getstatic     #3                  // Field java/lang/System.out:Ljava/io/PrintStream;</div><div class="line">       8: ldc           #4                  // String Synchronize</div><div class="line">      10: invokevirtual #5                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V</div><div class="line">      13: aload_1</div><div class="line">      **14: monitorexit**</div><div class="line">      15: goto          23</div><div class="line">      18: astore_2</div><div class="line">      19: aload_1</div><div class="line">      20: monitorexit</div><div class="line">      21: aload_2</div><div class="line">      22: athrow</div><div class="line">      23: return</div><div class="line">    Exception table:</div><div class="line">       from    to  target type</div><div class="line">           5    15    18   any</div><div class="line">          18    21    18   any</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到在同步块的入口和出口分别有 <code>monitorenter,monitorexit</code><br>指令。</p>
+<h2 id="锁优化"><a href="#锁优化" class="headerlink" title="锁优化"></a>锁优化</h2><p><code>synchronize</code>  很多都称之为重量锁，<code>JDK1.6</code> 中对 <code>synchronize</code> 进行了各种优化，为了能减少获取和释放锁带来的消耗引入了<code>偏向锁</code>和<code>轻量锁</code>。</p>
+<h3 id="轻量锁"><a href="#轻量锁" class="headerlink" title="轻量锁"></a>轻量锁</h3><p>当代码进入同步块时，如果同步对象为无锁状态时，当前线程会在栈帧中创建一个锁记录(<code>Lock Record</code>)区域，同时将锁对象的对象头中 <code>Mark Word</code> 拷贝到锁记录中，再尝试使用 <code>CAS</code> 将 <code>Mark Word</code> 更新为指向锁记录的指针。</p>
+<p>如果更新<strong>成功</strong>，当前线程就获得了锁。</p>
+<p>如果更新<strong>失败</strong> <code>JVM</code> 会先检查锁对象的 <code>Mark Word</code> 是否指向当前线程的锁记录。</p>
+<p>如果是则说明当前线程拥有锁对象的锁，可以直接进入同步块。</p>
+<p>不是则说明有其他线程抢占了锁，如果存在多个线程同时竞争一把锁，<strong>轻量锁就会膨胀为重量锁</strong>。</p>
+<h4 id="解锁"><a href="#解锁" class="headerlink" title="解锁"></a>解锁</h4><p>轻量锁的解锁过程也是利用 <code>CAS</code> 来实现的，会尝试锁记录替换回锁对象的 <code>Mark Word</code> 。如果替换成功则说明整个同步操作完成，失败则说明有其他线程尝试获取锁，这时就会唤醒被挂起的线程(此时已经膨胀为<code>重量锁</code>)</p>
+<p>轻量锁能提升性能的原因是：认为大多数锁在整个同步周期都不存在竞争，所以使用 <code>CAS</code> 比使用互斥开销更少。但如果锁竞争激烈，轻量锁就不但有互斥的开销，还有 <code>CAS</code> 的开销，甚至比重量锁更慢。</p>
+<h3 id="偏向锁"><a href="#偏向锁" class="headerlink" title="偏向锁"></a>偏向锁</h3><p>为了进一步的降低获取锁的代价，<code>JDK1.6</code> 之后还引入了偏向锁。</p>
+<p>偏向锁的特征是:锁不存在多线程竞争，并且应由一个线程多次获得锁。</p>
+<p>当线程访问同步块时，会使用 <code>CAS</code> 将线程 ID 更新到锁对象的 <code>Mark Word</code> 中，如果更新成功则获得偏向锁，并且之后每次进入这个对象锁相关的同步块时都不需要再次获取锁了。</p>
+<h4 id="释放锁"><a href="#释放锁" class="headerlink" title="释放锁"></a>释放锁</h4><p>当有另外一个线程获取这个锁时，持有偏向锁的线程就会释放锁，释放时会等待全局安全点(这一时刻没有字节码运行)，接着会暂停拥有偏向锁的线程，根据锁对象目前是否被锁来判定将对象头中的 <code>Mark Word</code> 设置为无锁或者是轻量锁状态。</p>
+<p>轻量锁可以提高带有同步却没有竞争的程序性能，但如果程序中大多数锁都存在竞争时，那偏向锁就起不到太大作用。可以使用 <code>-XX:-userBiasedLocking=false</code> 来关闭偏向锁，并默认进入轻量锁。</p>
+<h3 id="其他优化"><a href="#其他优化" class="headerlink" title="其他优化"></a>其他优化</h3><h4 id="适应性自旋"><a href="#适应性自旋" class="headerlink" title="适应性自旋"></a>适应性自旋</h4><p>在使用 <code>CAS</code> 时，如果操作失败，<code>CAS</code> 会自旋再次尝试。由于自旋是需要消耗 <code>CPU</code> 资源的，所以如果长期自旋就白白浪费了 <code>CPU</code>。<code>JDK1.6</code>加入了适应性自旋:</p>
+<blockquote>
+<p>如果某个锁自旋很少成功获得，那么下一次就会减少自旋。</p>
+</blockquote>
+<h2 id="号外"><a href="#号外" class="headerlink" title="号外"></a>号外</h2><p>最近在总结一些 Java 相关的知识点，感兴趣的朋友可以一起维护。</p>
+<blockquote>
+<p>地址: <a href="https://github.com/crossoverJie/Java-Interview" target="_blank" rel="external">https://github.com/crossoverJie/Java-Interview</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;img src=&quot;https://ws1.sinaimg.cn/large/006tKfTcly1fngjnyotvcj30z00jpn0d.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;众所周知 &lt;code&gt;Synchronize&lt;/code&gt; 关键字是解决并发问题常用解决方案，有以下三种使用方式:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;同步普通方法，锁的是当前对象。&lt;/li&gt;
+&lt;li&gt;同步静态方法，锁的是当前 &lt;code&gt;Class&lt;/code&gt; 对象。&lt;/li&gt;
+&lt;li&gt;同步块，锁的是 &lt;code&gt;{}&lt;/code&gt; 中的对象。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;实现原理：&lt;br&gt;&lt;code&gt;JVM&lt;/code&gt; 是通过进入、退出对象监视器( &lt;code&gt;Monitor&lt;/code&gt; )来实现对方法、同步块的同步的。&lt;/p&gt;
+&lt;p&gt;具体实现是在编译之后在同步方法调用前加入一个 &lt;code&gt;monitor.enter&lt;/code&gt; 指令，在退出方法和异常处插入 &lt;code&gt;monitor.exit&lt;/code&gt; 的指令。&lt;/p&gt;
+&lt;p&gt;其本质就是对一个对象监视器( &lt;code&gt;Monitor&lt;/code&gt; )进行获取，而这个获取过程具有排他性从而达到了同一时刻只能一个线程访问的目的。&lt;/p&gt;
+&lt;p&gt;而对于没有获取到锁的线程将会阻塞到方法入口处，直到获取锁的线程 &lt;code&gt;monitor.exit&lt;/code&gt; 之后才能尝试继续获取锁。&lt;/p&gt;
+&lt;p&gt;流程图如下:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://ws2.sinaimg.cn/large/006tNc79ly1fn27fkl07jj31e80hyn0n.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Java 进阶" scheme="http://crossoverJie.github.io/categories/Java-%E8%BF%9B%E9%98%B6/"/>
+    
+    
+      <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
+    
+      <category term="synchronize" scheme="http://crossoverJie.github.io/tags/synchronize/"/>
+    
+  </entry>
   
   <entry>
     <title>一致 Hash 算法分析</title>
@@ -1305,9 +1381,9 @@
     
       <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
     
-      <category term="HTTP" scheme="http://crossoverJie.github.io/tags/HTTP/"/>
-    
       <category term="dubbo" scheme="http://crossoverJie.github.io/tags/dubbo/"/>
+    
+      <category term="HTTP" scheme="http://crossoverJie.github.io/tags/HTTP/"/>
     
   </entry>
   
@@ -1748,89 +1824,6 @@
       <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
     
       <category term="AOP" scheme="http://crossoverJie.github.io/tags/AOP/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>GoodBye 2016,Welcome 2017 | 码农砌墙记</title>
-    <link href="http://crossoverJie.github.io/2016/12/31/GoodBye%202016,Welcome%202017%20%7C%20%E7%A0%81%E5%86%9C%E7%A0%8C%E5%A2%99%E8%AE%B0/"/>
-    <id>http://crossoverJie.github.io/2016/12/31/GoodBye 2016,Welcome 2017 | 码农砌墙记/</id>
-    <published>2016-12-31T15:35:14.000Z</published>
-    <updated>2017-05-07T04:49:05.000Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p><img src="https://ooo.0o0.ooo/2017/05/07/590ea6ebdbc57.jpg" alt="agenda-1928416_1920.jpg"></p>
-<p>早在这个月初的时候我就很想写一篇年终总结了，因为这一年相对于去年确实是经历的太多了。<br>结果一直等到31号，在家里和媳妇吃完晚饭就马上打开电脑开码。</p>
-<h1 id="五月二十三-第一次跳槽"><a href="#五月二十三-第一次跳槽" class="headerlink" title="五月二十三-第一次跳槽"></a>五月二十三-第一次跳槽</h1><blockquote>
-<p><strong>根据整年的时间线开始第一件大事自然就是换公司了。</strong></p>
-</blockquote>
-<p>先来点前景提要:我是14年11月份参加工作的。当时其实还没有毕业就在一家给大型企业做定制软件开发的公司实习。刚开始工作的时候什么事情都觉得非常新奇，一个在学校学的东西能运用到实际开发中并能给用户带来便利让我觉得做码农真是一件非常正确的选择啊(ps当时真是太年轻)。</p>
-<p>后来真是造化弄人，当时负责我参与的这个项目的负责人跳槽了，我自然就成了整个公司最熟悉此项目的人了。现在不得不佩服公司老板真是心大啊，居然让一个实习生来负责这个项目。就这样我成了整个项目的负责人，从之后的开发到测试到上线到后面的维护几乎都是我一个人在负责。<br>来一张当时上线的截图：<br><img src="https://ooo.0o0.ooo/2017/05/07/590ea72eac0e7.jpg" alt="QQ20161231-222737@2x.jpg"></p>
-<p>由于这次项目的顺利验收，公司也对我越来越信任。之后也就理所当然的又负责了几个项目。<br><a id="more"></a></p>
-<blockquote>
-<p>虽然离开了但真的非常感谢公司当时对一个什么都不懂的新人给予信任。</p>
-</blockquote>
-<p>之后随着技术的提升我接触了github、v站这样的技术论坛，逐渐的发现天外有天，我这点雕虫小技真的完全不算什么，真正机遇与挑战并存的地方是互联网。</p>
-<p>但是此时我已经在这家公司做了一年多了，突然离开这个舒适圈来到一个陌生的环境是需要很大勇气的，或者说需要一个刺激点。</p>
-<p>正好<a href="http://tengj.top" target="_blank" rel="external">@嘟爷</a>成了这个导火索。那个时候我正在搭我的个人博客正好看到了他的文章，觉得写得非常好。而且正好他也正准备转向互联网，于是我给他写了一封很长的邮件说了我心中的一些疑惑与顾虑让他给点建议。</p>
-<p>在他的建议之下我才开始投递简历准备换一家互联网公司，感谢嘟爷给了我一个这么正确的建议。</p>
-<p>之后我顺利的进入了一个创业公司，开始了<code>狭义</code>的互联网开发道路，为什么是狭义请接着往后看。</p>
-<h1 id="搭建个人博客"><a href="#搭建个人博客" class="headerlink" title="搭建个人博客"></a>搭建个人博客</h1><blockquote>
-<p>搭建博客这事也是必须的拿出来说一说的。</p>
-</blockquote>
-<p>上面说到我看了嘟爷的博客才开始搭建自己的博客，到现在为止由于我的拖延症(<code>加上是真的懒</code>)一共写了20篇。不能说写的有多好，但确实是我在工作和学习中的一些总结。</p>
-<p>让我意外的是我博客的访问量，下图是我<code>cnzz</code>的统计截图：<br><img src="http://img.blog.csdn.net/20161231225404369?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvcXFfMTg2NjE3OTM=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="2"></p>
-<h1 id="六月二十一-开源项目"><a href="#六月二十一-开源项目" class="headerlink" title="六月二十一-开源项目"></a>六月二十一-开源项目</h1><p>关于开源项目，之前我在<code>github</code>上面看很多优秀的开源项目，也很佩服那些作者，于是就想着自己能不能也搞一个，但是一来就造个轮子对我来说确实有点不现实。</p>
-<p>于是我换了一个思路，由于现在我勉强也不算是新入门的菜鸟了，但我是从菜鸟过来的，深知刚开始的时候找资料的痛苦。不是资料太老就是没有体系，讲一点是一点的那种。</p>
-<p>于是就有了现在这个项目:<br><code>会不定期更新一些在实际开发中使用的技巧(ps:目前不是很忙基本上一周一更)。 没有复杂的业务流程，更不是XXXX系统，只有一些技术的分享。</code></p>
-<p>从六月二十一号到现在还是有100多颗星了：<br><img src="http://img.blog.csdn.net/20161231230128550?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvcXFfMTg2NjE3OTM=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="3"></p>
-<h1 id="九月二十三-第二次跳槽"><a href="#九月二十三-第二次跳槽" class="headerlink" title="九月二十三-第二次跳槽"></a>九月二十三-第二次跳槽</h1><p>看到这里是不是觉得我有病啊，怎么又是跳槽。。。</p>
-<p>其实我也不想，我在上面说到开始了我的<code>狭义</code>互联网开发，为什么是狭义呢？</p>
-<p>因为做了一段时间才发现这个项目除了是部署在云服务器上和有一个微信端之外和我之前所做的项目貌似没有本质上的区别，还是一个管理系统。</p>
-<p>这里我不评价公司的业务，但是公司的技术总监在修改问题的时候是直接在云服务器上登陆数据库删除数据，会不会觉得很奇葩。最奇葩的是删除的时候忘了写<code>where</code>条件导致把整张表的数据都删了，这个时候如果是你你会不会怀疑那啥。。</p>
-<p>除此之外技术总监本人还是挺好的，不过我更觉得他适合做销售总监。</p>
-<p>加上后来公司的业务没有发展起来，所做的系统又老是出问题(联想上文)，加上还在流传我们技术部要裁人。那我还不如自己走(现在V站逛多了突然觉得好亏)。</p>
-<p>于是我开始了我的第二次跳槽，前后时间才间隔4个月，不得不感慨命运弄人啊。</p>
-<p>之后我来到现在这家员工5000余人的真正的互联网公司，开始了真正意义的互联网开发。这里必须得感谢我的面试官也是我现在这个项目的leader，给了我这个互联网菜鸟机会。</p>
-<p>不过命运总是如此的相识，明年也就是下周他就换部门了，意味着现在这个项目我又成<code>负责人</code>了。希望一切顺利吧。</p>
-<h1 id="技术相关"><a href="#技术相关" class="headerlink" title="技术相关"></a>技术相关</h1><p>前面说到我是九月份的时候才进入这家正真意义的互联网公司的，所以体术提升最明显也是在这段时间。</p>
-<p>这段时间所学的起码是我在前面两家公司一年都学不到的，这里我大致列了一下：</p>
-<ul>
-<li>熟悉了一个互联网产品的生命周期(关于开发、测试、预发布、灰度以及上线)</li>
-<li>熟悉了一些关于<code>并发</code>、<code>主从</code>、<code>缓存</code>、<code>调度</code>、<code>容器</code>这些主流的技术。</li>
-<li>最重要的一点，学会了不加班不舒服斯基。</li>
-</ul>
-<h1 id="身体相关"><a href="#身体相关" class="headerlink" title="身体相关"></a>身体相关</h1><p>不知是错觉还是什么，感觉今年看到<code>IT</code>行业猝死或者是出事的新闻越来越多，加上我这个今年才22岁的青年有时候也会腰疼脖子酸，导致我对于身体也是越来越担忧。</p>
-<p>其实我从初中的时候就开始打篮球，在工作之前也是对篮球完全是痴迷的状态，每天不打球就浑身难受。刚工作的那段时间还能坚持每周末去打球，但是今年能做到一个月打一次都非常难得了。。</p>
-<p>再此，我立个<code>flag</code>，明天下午出去打球，明年坚持至少每两周打一次球。</p>
-<h1 id="2017小目标"><a href="#2017小目标" class="headerlink" title="2017小目标"></a>2017小目标</h1><p>到这里也基本上总结的差不多了，还有半个小时就是17年了。</p>
-<p>还是定一个17年的小目标吧：</p>
-<blockquote>
-<ul>
-<li>博客坚持写，至少保持两周一更。</li>
-<li>开源项目坚持维护，争取造一个轮子出来。</li>
-<li>坚持锻炼，我还得养家糊口。</li>
-<li>最后希望家人朋友都平平安安。</li>
-</ul>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;p&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590ea6ebdbc57.jpg&quot; alt=&quot;agenda-1928416_1920.jpg&quot;&gt;&lt;/p&gt;
-&lt;p&gt;早在这个月初的时候我就很想写一篇年终总结了，因为这一年相对于去年确实是经历的太多了。&lt;br&gt;结果一直等到31号，在家里和媳妇吃完晚饭就马上打开电脑开码。&lt;/p&gt;
-&lt;h1 id=&quot;五月二十三-第一次跳槽&quot;&gt;&lt;a href=&quot;#五月二十三-第一次跳槽&quot; class=&quot;headerlink&quot; title=&quot;五月二十三-第一次跳槽&quot;&gt;&lt;/a&gt;五月二十三-第一次跳槽&lt;/h1&gt;&lt;blockquote&gt;
-&lt;p&gt;&lt;strong&gt;根据整年的时间线开始第一件大事自然就是换公司了。&lt;/strong&gt;&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;先来点前景提要:我是14年11月份参加工作的。当时其实还没有毕业就在一家给大型企业做定制软件开发的公司实习。刚开始工作的时候什么事情都觉得非常新奇，一个在学校学的东西能运用到实际开发中并能给用户带来便利让我觉得做码农真是一件非常正确的选择啊(ps当时真是太年轻)。&lt;/p&gt;
-&lt;p&gt;后来真是造化弄人，当时负责我参与的这个项目的负责人跳槽了，我自然就成了整个公司最熟悉此项目的人了。现在不得不佩服公司老板真是心大啊，居然让一个实习生来负责这个项目。就这样我成了整个项目的负责人，从之后的开发到测试到上线到后面的维护几乎都是我一个人在负责。&lt;br&gt;来一张当时上线的截图：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590ea72eac0e7.jpg&quot; alt=&quot;QQ20161231-222737@2x.jpg&quot;&gt;&lt;/p&gt;
-&lt;p&gt;由于这次项目的顺利验收，公司也对我越来越信任。之后也就理所当然的又负责了几个项目。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="blog" scheme="http://crossoverJie.github.io/categories/blog/"/>
-    
-    
-      <category term="总结" scheme="http://crossoverJie.github.io/tags/%E6%80%BB%E7%BB%93/"/>
     
   </entry>
   
