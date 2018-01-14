@@ -884,9 +884,9 @@
       <category term="sbc" scheme="http://crossoverJie.github.io/categories/sbc/"/>
     
     
-      <category term="重构" scheme="http://crossoverJie.github.io/tags/%E9%87%8D%E6%9E%84/"/>
-    
       <category term="Java" scheme="http://crossoverJie.github.io/tags/Java/"/>
+    
+      <category term="重构" scheme="http://crossoverJie.github.io/tags/%E9%87%8D%E6%9E%84/"/>
     
       <category term="AOP" scheme="http://crossoverJie.github.io/tags/AOP/"/>
     

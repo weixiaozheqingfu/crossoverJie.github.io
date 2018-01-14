@@ -106,8 +106,8 @@
         <category>sbc</category>
       </categories>
       <tags>
-        <tag>重构</tag>
         <tag>Java</tag>
+        <tag>重构</tag>
         <tag>AOP</tag>
         <tag>SpringBoot</tag>
         <tag>SpringCloud</tag>
