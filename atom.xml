@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://crossoverjie.top/"/>
-  <updated>2018-01-18T08:50:41.000Z</updated>
+  <updated>2018-01-18T09:10:12.000Z</updated>
   <id>http://crossoverjie.top/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://crossoverjie.top/2018/01/18/newObject/"/>
     <id>http://crossoverjie.top/2018/01/18/newObject/</id>
     <published>2018-01-17T18:01:36.000Z</published>
-    <updated>2018-01-18T08:50:41.000Z</updated>
+    <updated>2018-01-18T09:10:12.000Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://ws2.sinaimg.cn/large/006tKfTcly1fnkuy01igij31g80tetfy.jpg" alt=""></p>
 <h2 id="创建对象"><a href="#创建对象" class="headerlink" title="创建对象"></a>创建对象</h2><p>当 <code>JVM</code> 收到一个 <code>new</code> 指令时，会检查指令中的参数在常量池是否有这个符号的引用，还会检查该类是否已经被<a href="https://github.com/crossoverJie/Java-Interview/blob/master/MD/ClassLoad.md" target="_blank" rel="external">加载</a>过了，如果没有的话则要进行一次类加载。</p>
@@ -59,6 +59,10 @@
 <p>可以使用 <code>-XX:MaxTenuringThreshold=15</code> 来配置这个阈值。</p>
 </blockquote>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>虽说这些内容略显枯燥，但当应用发生不正常的 <code>GC</code> 时，可以方便更快的定位问题。</p>
+<h2 id="号外"><a href="#号外" class="headerlink" title="号外"></a>号外</h2><p>最近在总结一些 Java 相关的知识点，感兴趣的朋友可以一起维护。</p>
+<blockquote>
+<p>地址: <a href="https://github.com/crossoverJie/Java-Interview" target="_blank" rel="external">https://github.com/crossoverJie/Java-Interview</a></p>
+</blockquote>
 ]]></content>
     
     <summary type="html">
@@ -950,9 +954,9 @@
       <category term="sbc" scheme="http://crossoverjie.top/categories/sbc/"/>
     
     
-      <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
-    
       <category term="重构" scheme="http://crossoverjie.top/tags/%E9%87%8D%E6%9E%84/"/>
+    
+      <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
     
       <category term="AOP" scheme="http://crossoverjie.top/tags/AOP/"/>
     
@@ -1500,9 +1504,9 @@
       <category term="SSM" scheme="http://crossoverjie.top/categories/SSM/"/>
     
     
-      <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
-    
       <category term="dubbo" scheme="http://crossoverjie.top/tags/dubbo/"/>
+    
+      <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
     
       <category term="HTTP" scheme="http://crossoverjie.top/tags/HTTP/"/>
     
