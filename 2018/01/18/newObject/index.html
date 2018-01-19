@@ -108,7 +108,7 @@
 当堆中已经使用的内存和未使用的内">
 <meta property="og:image" content="https://ws2.sinaimg.cn/large/006tKfTcly1fnkuy01igij31g80tetfy.jpg">
 <meta property="og:image" content="https://ws2.sinaimg.cn/large/006tKfTcly1fnkmy0bvu3j30o60heaaq.jpg">
-<meta property="og:updated_time" content="2018-01-18T09:10:12.000Z">
+<meta property="og:updated_time" content="2018-01-19T16:43:13.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="对象的创建与内存分配">
 <meta name="twitter:description" content="创建对象当 JVM 收到一个 new 指令时，会检查指令中的参数在常量池是否有这个符号的引用，还会检查该类是否已经被加载过了，如果没有的话则要进行一次类加载。
@@ -429,7 +429,7 @@
 <p>其中 <code>Eden</code> 和 <code>Survivor</code> 区的比例默认是 <code>8:1:1</code>，当然也支持参数调整 <code>-XX:SurvivorRatio=8</code>。</p>
 <p>当在 <code>Eden</code> 区分配内存不足时，则会发生 <code>minorGC</code> ，由于 <code>Java</code> 对象多数是<strong>朝生夕灭</strong>的特性，所以 <code>minorGC</code> 通常会比较频繁，效率也比较高。</p>
 <p>当发生 <code>minorGC</code> 时，JVM 会根据<a href="https://github.com/crossoverJie/Java-Interview/blob/145064ecf867e898ad025f3467b7ada9086fc8dd/MD/GarbageCollection.md#%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%AE%97%E6%B3%95" target="_blank" rel="external">复制算法</a>将存活的对象拷贝到另一个未使用的 <code>Survivor</code> 区，如果 <code>Survivor</code> 区内存不足时，则会使用分配担保策略将对象移动到老年代中。</p>
-<p>谈到 <code>minorGC</code> 时，就不得不提到 <code>fullGC(majorGC)</code> ，这是指发生在老年代的 <code>GC</code> ，不论是效率还是速度都比 <code>majorGC</code> 慢的多，回收时还会发生 <code>stop the world</code> 使程序发生停顿，所以应当尽量避免发生 <code>fullGC</code> 。</p>
+<p>谈到 <code>minorGC</code> 时，就不得不提到 <code>fullGC(majorGC)</code> ，这是指发生在老年代的 <code>GC</code> ，不论是效率还是速度都比 <code>minorGC</code> 慢的多，回收时还会发生 <code>stop the world</code> 使程序发生停顿，所以应当尽量避免发生 <code>fullGC</code> 。</p>
 <h3 id="老年代分配"><a href="#老年代分配" class="headerlink" title="老年代分配"></a>老年代分配</h3><p>也有一些情况会导致对象直接在老年代分配，比如当分配一个大对象时(大的数组，很长的字符串)，由于 <code>Eden</code> 区没有足够大的连续空间来分配时，会导致提前触发一次 <code>GC</code>，所以尽量别频繁的创建大对象。</p>
 <p>因此 <code>JVM</code> 会根据一个阈值来判断大于该阈值对象直接分配到老年代，这样可以避免在新生代频繁的发生 <code>GC</code>。</p>
 <p>对于一些在新生代的老对象 <code>JVM</code> 也会根据某种机制移动到老年代中。</p>
