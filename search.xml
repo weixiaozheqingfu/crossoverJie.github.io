@@ -182,8 +182,8 @@
         <category>SSM</category>
       </categories>
       <tags>
-        <tag>Java</tag>
         <tag>dubbo</tag>
+        <tag>Java</tag>
         <tag>HTTP</tag>
       </tags>
   </entry>
@@ -470,8 +470,8 @@
         <category>blog</category>
       </categories>
       <tags>
-        <tag>总结</tag>
         <tag>Markdown</tag>
+        <tag>总结</tag>
       </tags>
   </entry>
   <entry>
