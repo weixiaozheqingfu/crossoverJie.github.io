@@ -90,7 +90,7 @@
     <link href="http://crossoverjie.top/2018/01/14/Synchronize/"/>
     <id>http://crossoverjie.top/2018/01/14/Synchronize/</id>
     <published>2018-01-14T14:13:22.000Z</published>
-    <updated>2018-01-14T15:30:26.000Z</updated>
+    <updated>2018-01-21T14:46:08.000Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://ws1.sinaimg.cn/large/006tKfTcly1fngjnyotvcj30z00jpn0d.jpg" alt=""></p>
 <p>众所周知 <code>Synchronize</code> 关键字是解决并发问题常用解决方案，有以下三种使用方式:</p>
@@ -123,7 +123,7 @@
 <p>偏向锁的特征是:锁不存在多线程竞争，并且应由一个线程多次获得锁。</p>
 <p>当线程访问同步块时，会使用 <code>CAS</code> 将线程 ID 更新到锁对象的 <code>Mark Word</code> 中，如果更新成功则获得偏向锁，并且之后每次进入这个对象锁相关的同步块时都不需要再次获取锁了。</p>
 <h4 id="释放锁"><a href="#释放锁" class="headerlink" title="释放锁"></a>释放锁</h4><p>当有另外一个线程获取这个锁时，持有偏向锁的线程就会释放锁，释放时会等待全局安全点(这一时刻没有字节码运行)，接着会暂停拥有偏向锁的线程，根据锁对象目前是否被锁来判定将对象头中的 <code>Mark Word</code> 设置为无锁或者是轻量锁状态。</p>
-<p>轻量锁可以提高带有同步却没有竞争的程序性能，但如果程序中大多数锁都存在竞争时，那偏向锁就起不到太大作用。可以使用 <code>-XX:-userBiasedLocking=false</code> 来关闭偏向锁，并默认进入轻量锁。</p>
+<p>偏向锁可以提高带有同步却没有竞争的程序性能，但如果程序中大多数锁都存在竞争时，那偏向锁就起不到太大作用。可以使用 <code>-XX:-userBiasedLocking=false</code> 来关闭偏向锁，并默认进入轻量锁。</p>
 <h3 id="其他优化"><a href="#其他优化" class="headerlink" title="其他优化"></a>其他优化</h3><h4 id="适应性自旋"><a href="#适应性自旋" class="headerlink" title="适应性自旋"></a>适应性自旋</h4><p>在使用 <code>CAS</code> 时，如果操作失败，<code>CAS</code> 会自旋再次尝试。由于自旋是需要消耗 <code>CPU</code> 资源的，所以如果长期自旋就白白浪费了 <code>CPU</code>。<code>JDK1.6</code>加入了适应性自旋:</p>
 <blockquote>
 <p>如果某个锁自旋很少成功获得，那么下一次就会减少自旋。</p>
@@ -1449,9 +1449,9 @@
       <category term="SSM" scheme="http://crossoverjie.top/categories/SSM/"/>
     
     
-      <category term="dubbo" scheme="http://crossoverjie.top/tags/dubbo/"/>
-    
       <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
+    
+      <category term="dubbo" scheme="http://crossoverjie.top/tags/dubbo/"/>
     
       <category term="HTTP" scheme="http://crossoverjie.top/tags/HTTP/"/>
     
