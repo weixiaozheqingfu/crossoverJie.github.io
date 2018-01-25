@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://crossoverjie.top/"/>
-  <updated>2018-01-19T16:43:13.000Z</updated>
+  <updated>2018-01-25T15:43:25.000Z</updated>
   <id>http://crossoverjie.top/</id>
   
   <author>
@@ -14,6 +14,84 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>ReentrantLock 实现原理</title>
+    <link href="http://crossoverjie.top/2018/01/25/ReentrantLock/"/>
+    <id>http://crossoverjie.top/2018/01/25/ReentrantLock/</id>
+    <published>2018-01-25T15:01:36.000Z</published>
+    <updated>2018-01-25T15:43:25.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><img src="https://ws1.sinaimg.cn/large/006tKfTcly1fnt9p6qc88j31g80yu41d.jpg" alt=""></p>
+<p>使用 <code>synchronize</code> 来做同步处理时，锁的获取和释放都是隐式的，实现的原理是通过编译后加上不同的机器指令来实现。</p>
+<p>而 <code>ReentrantLock</code> 就是一个普通的类，它是基于 <code>AQS(AbstractQueuedSynchronizer)</code>来实现的。</p>
+<p>是一个<strong>重入锁</strong>：一个线程获得了锁之后仍然可以<strong>反复</strong>的加锁，不会出现自己阻塞自己的情况。</p>
+<blockquote>
+<p><code>AQS</code> 是 <code>Java</code> 并发包里实现锁、同步的一个重要的基础框架。</p>
+</blockquote>
+<h2 id="锁类型"><a href="#锁类型" class="headerlink" title="锁类型"></a>锁类型</h2><p>ReentrantLock 分为<strong>公平锁</strong>和<strong>非公平锁</strong>，可以通过构造方法来指定具体类型：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//默认非公平锁</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">ReentrantLock</span><span class="params">()</span> </span>&#123;</div><div class="line">    sync = <span class="keyword">new</span> NonfairSync();</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//公平锁</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">ReentrantLock</span><span class="params">(<span class="keyword">boolean</span> fair)</span> </span>&#123;</div><div class="line">    sync = fair ? <span class="keyword">new</span> FairSync() : <span class="keyword">new</span> NonfairSync();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>默认一般使用<strong>非公平锁</strong>，它的效率和吞吐量都比公平锁高的多(后面会分析具体原因)。</p>
+<h2 id="获取锁"><a href="#获取锁" class="headerlink" title="获取锁"></a>获取锁</h2><p>通常的使用方式如下:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> ReentrantLock lock = <span class="keyword">new</span> ReentrantLock();</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">    lock.lock();</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        <span class="comment">//do bussiness</span></div><div class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</div><div class="line">        e.printStackTrace();</div><div class="line">    &#125; <span class="keyword">finally</span> &#123;</div><div class="line">        lock.unlock();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="公平锁获取锁"><a href="#公平锁获取锁" class="headerlink" title="公平锁获取锁"></a>公平锁获取锁</h3><p>首先看下获取锁的过程：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">lock</span><span class="params">()</span> </span>&#123;</div><div class="line">    sync.lock();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到是使用 <code>sync</code>的方法，而这个方法是一个抽象方法，具体是由其子类(<code>FairSync</code>)来实现的，以下是公平锁的实现:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">   <span class="function"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title">lock</span><span class="params">()</span> </span>&#123;</div><div class="line">       acquire(<span class="number">1</span>);</div><div class="line">   &#125;</div><div class="line">   </div><div class="line">   <span class="comment">//AbstractQueuedSynchronizer 中的 acquire()</span></div><div class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">acquire</span><span class="params">(<span class="keyword">int</span> arg)</span> </span>&#123;</div><div class="line">   <span class="keyword">if</span> (!tryAcquire(arg) &amp;&amp;</div><div class="line">       acquireQueued(addWaiter(Node.EXCLUSIVE), arg))</div><div class="line">       selfInterrupt();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>第一步是尝试获取锁(<code>tryAcquire(arg)</code>),这个也是由其子类实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">tryAcquire</span><span class="params">(<span class="keyword">int</span> acquires)</span> </span>&#123;</div><div class="line">        <span class="keyword">final</span> Thread current = Thread.currentThread();</div><div class="line">        <span class="keyword">int</span> c = getState();</div><div class="line">        <span class="keyword">if</span> (c == <span class="number">0</span>) &#123;</div><div class="line">            <span class="keyword">if</span> (!hasQueuedPredecessors() &amp;&amp;</div><div class="line">                compareAndSetState(<span class="number">0</span>, acquires)) &#123;</div><div class="line">                setExclusiveOwnerThread(current);</div><div class="line">                <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (current == getExclusiveOwnerThread()) &#123;</div><div class="line">            <span class="keyword">int</span> nextc = c + acquires;</div><div class="line">            <span class="keyword">if</span> (nextc &lt; <span class="number">0</span>)</div><div class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Maximum lock count exceeded"</span>);</div><div class="line">            setState(nextc);</div><div class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>首先会判断 <code>AQS</code> 中的 <code>state</code> 是否等于 0，0 表示目前没有其他线程获得锁，当前线程就可以尝试获取锁。</p>
+<p><strong>注意</strong>:尝试之前会利用 <code>hasQueuedPredecessors()</code> 方法来判断 AQS 的队列中中是否有其他线程，如果有则不会尝试获取锁(<strong>这是公平锁特有的情况</strong>)。</p>
+<p>如果队列中没有线程就利用 CAS 来将 AQS 中的 state 修改为1，也就是获取锁，获取成功则将当前线程置为获得锁的独占线程(<code>setExclusiveOwnerThread(current)</code>)。</p>
+<p>如果 <code>state</code> 大于 0 时，说明锁已经被获取了，则需要判断获取锁的线程是否为当前线程(<code>ReentrantLock</code> 支持重入)，是则需要将 <code>state + 1</code>，并将值更新。</p>
+<h4 id="写入队列"><a href="#写入队列" class="headerlink" title="写入队列"></a>写入队列</h4><p>如果 <code>tryAcquire(arg)</code> 获取锁失败，则需要用 <code>addWaiter(Node.EXCLUSIVE)</code> 将当前线程写入队列中。</p>
+<p>写入之前需要将当前线程包装为一个 <code>Node</code> 对象(<code>addWaiter(Node.EXCLUSIVE)</code>)。</p>
+<blockquote>
+<p>AQS 中的队列是由 Node 节点组成的双向链表实现的。</p>
+</blockquote>
+<p>包装代码:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> Node <span class="title">addWaiter</span><span class="params">(Node mode)</span> </span>&#123;</div><div class="line">    Node node = <span class="keyword">new</span> Node(Thread.currentThread(), mode);</div><div class="line">    <span class="comment">// Try the fast path of enq; backup to full enq on failure</span></div><div class="line">    Node pred = tail;</div><div class="line">    <span class="keyword">if</span> (pred != <span class="keyword">null</span>) &#123;</div><div class="line">        node.prev = pred;</div><div class="line">        <span class="keyword">if</span> (compareAndSetTail(pred, node)) &#123;</div><div class="line">            pred.next = node;</div><div class="line">            <span class="keyword">return</span> node;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    enq(node);</div><div class="line">    <span class="keyword">return</span> node;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>首先判断队列是否为空，不为空时则将封装好的 <code>Node</code> 利用 <code>CAS</code> 写入队尾，如果出现并发写入失败就需要调用 <code>enq(node);</code> 来写入了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> Node <span class="title">enq</span><span class="params">(<span class="keyword">final</span> Node node)</span> </span>&#123;</div><div class="line">    <span class="keyword">for</span> (;;) &#123;</div><div class="line">        Node t = tail;</div><div class="line">        <span class="keyword">if</span> (t == <span class="keyword">null</span>) &#123; <span class="comment">// Must initialize</span></div><div class="line">            <span class="keyword">if</span> (compareAndSetHead(<span class="keyword">new</span> Node()))</div><div class="line">                tail = head;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            node.prev = t;</div><div class="line">            <span class="keyword">if</span> (compareAndSetTail(t, node)) &#123;</div><div class="line">                t.next = node;</div><div class="line">                <span class="keyword">return</span> t;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这个处理逻辑就相当于<code>自旋</code>加上 <code>CAS</code> 保证一定能写入队列。</p>
+<h4 id="挂起等待线程"><a href="#挂起等待线程" class="headerlink" title="挂起等待线程"></a>挂起等待线程</h4><p>写入队列之后需要将当前线程挂起(利用<code>acquireQueued(addWaiter(Node.EXCLUSIVE), arg)</code>)：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">acquireQueued</span><span class="params">(<span class="keyword">final</span> Node node, <span class="keyword">int</span> arg)</span> </span>&#123;</div><div class="line">    <span class="keyword">boolean</span> failed = <span class="keyword">true</span>;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        <span class="keyword">boolean</span> interrupted = <span class="keyword">false</span>;</div><div class="line">        <span class="keyword">for</span> (;;) &#123;</div><div class="line">            <span class="keyword">final</span> Node p = node.predecessor();</div><div class="line">            <span class="keyword">if</span> (p == head &amp;&amp; tryAcquire(arg)) &#123;</div><div class="line">                setHead(node);</div><div class="line">                p.next = <span class="keyword">null</span>; <span class="comment">// help GC</span></div><div class="line">                failed = <span class="keyword">false</span>;</div><div class="line">                <span class="keyword">return</span> interrupted;</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">if</span> (shouldParkAfterFailedAcquire(p, node) &amp;&amp;</div><div class="line">                parkAndCheckInterrupt())</div><div class="line">                interrupted = <span class="keyword">true</span>;</div><div class="line">        &#125;</div><div class="line">    &#125; <span class="keyword">finally</span> &#123;</div><div class="line">        <span class="keyword">if</span> (failed)</div><div class="line">            cancelAcquire(node);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>首先会根据 <code>node.predecessor()</code> 获取到上一个节点是否为头节点，如果是则尝试获取一次锁，获取成功就万事大吉了。</p>
+<p>如果不是头节点，或者获取锁失败，则会根据上一个节点的 <code>waitStatus</code> 状态来处理(<code>shouldParkAfterFailedAcquire(p, node)</code>)。</p>
+<p><code>waitStatus</code> 用于记录当前节点的状态，如节点取消、节点等待等。</p>
+<p><code>shouldParkAfterFailedAcquire(p, node)</code> 返回当前线程是否需要挂起，如果需要则调用 <code>parkAndCheckInterrupt()</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">parkAndCheckInterrupt</span><span class="params">()</span> </span>&#123;</div><div class="line">    LockSupport.park(<span class="keyword">this</span>);</div><div class="line">    <span class="keyword">return</span> Thread.interrupted();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>他是利用 <code>LockSupport</code> 的 <code>part</code> 方法来挂起当前线程的，直到被唤醒。</p>
+<h3 id="非公平锁获取锁"><a href="#非公平锁获取锁" class="headerlink" title="非公平锁获取锁"></a>非公平锁获取锁</h3><p>公平锁与非公平锁的差异主要在获取锁：</p>
+<p>公平锁就相当于买票，后来的人需要排到队尾依次买票，<strong>不能插队</strong>。</p>
+<p>而非公平锁则没有这些规则，是<strong>抢占模式</strong>，每来一个人不会去管队列如何，直接尝试获取锁。</p>
+<p>非公平锁:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title">lock</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="comment">//直接尝试获取锁</span></div><div class="line">    <span class="keyword">if</span> (compareAndSetState(<span class="number">0</span>, <span class="number">1</span>))</div><div class="line">        setExclusiveOwnerThread(Thread.currentThread());</div><div class="line">    <span class="keyword">else</span></div><div class="line">        acquire(<span class="number">1</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>公平锁:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title">lock</span><span class="params">()</span> </span>&#123;</div><div class="line">    acquire(<span class="number">1</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>还要一个重要的区别是在尝试获取锁时<code>tryAcquire(arg)</code>，非公平锁是不需要判断队列中是否还有其他线程，也是直接尝试获取锁：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">nonfairTryAcquire</span><span class="params">(<span class="keyword">int</span> acquires)</span> </span>&#123;</div><div class="line">    <span class="keyword">final</span> Thread current = Thread.currentThread();</div><div class="line">    <span class="keyword">int</span> c = getState();</div><div class="line">    <span class="keyword">if</span> (c == <span class="number">0</span>) &#123;</div><div class="line">        <span class="comment">//没有 !hasQueuedPredecessors() 判断</span></div><div class="line">        <span class="keyword">if</span> (compareAndSetState(<span class="number">0</span>, acquires)) &#123;</div><div class="line">            setExclusiveOwnerThread(current);</div><div class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (current == getExclusiveOwnerThread()) &#123;</div><div class="line">        <span class="keyword">int</span> nextc = c + acquires;</div><div class="line">        <span class="keyword">if</span> (nextc &lt; <span class="number">0</span>) <span class="comment">// overflow</span></div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">"Maximum lock count exceeded"</span>);</div><div class="line">        setState(nextc);</div><div class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="释放锁"><a href="#释放锁" class="headerlink" title="释放锁"></a>释放锁</h2><p>公平锁和非公平锁的释放流程都是一样的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">unlock</span><span class="params">()</span> </span>&#123;</div><div class="line">    sync.release(<span class="number">1</span>);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">release</span><span class="params">(<span class="keyword">int</span> arg)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (tryRelease(arg)) &#123;</div><div class="line">        Node h = head;</div><div class="line">        <span class="keyword">if</span> (h != <span class="keyword">null</span> &amp;&amp; h.waitStatus != <span class="number">0</span>)</div><div class="line">        	   <span class="comment">//唤醒被挂起的线程</span></div><div class="line">            unparkSuccessor(h);</div><div class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//尝试释放锁</span></div><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">tryRelease</span><span class="params">(<span class="keyword">int</span> releases)</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> c = getState() - releases;</div><div class="line">    <span class="keyword">if</span> (Thread.currentThread() != getExclusiveOwnerThread())</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalMonitorStateException();</div><div class="line">    <span class="keyword">boolean</span> free = <span class="keyword">false</span>;</div><div class="line">    <span class="keyword">if</span> (c == <span class="number">0</span>) &#123;</div><div class="line">        free = <span class="keyword">true</span>;</div><div class="line">        setExclusiveOwnerThread(<span class="keyword">null</span>);</div><div class="line">    &#125;</div><div class="line">    setState(c);</div><div class="line">    <span class="keyword">return</span> free;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>首先会判断当前线程是否为获得锁的线程，由于是重入锁所以需要将 <code>state</code> 减到 0 才认为完全释放锁。</p>
+<p>释放之后需要调用 <code>unparkSuccessor(h)</code> 来唤醒被挂起的线程。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>由于公平锁需要关心队列的情况，得按照队列里的先后顺序来获取锁(会造成大量的线程上下文切换)，而非公平锁则没有这个限制。</p>
+<p>所以也就能解释非公平锁的效率会被公平锁更高。</p>
+<h2 id="号外"><a href="#号外" class="headerlink" title="号外"></a>号外</h2><p>最近在总结一些 Java 相关的知识点，感兴趣的朋友可以一起维护。</p>
+<blockquote>
+<p>地址: <a href="https://github.com/crossoverJie/Java-Interview" target="_blank" rel="external">https://github.com/crossoverJie/Java-Interview</a></p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;img src=&quot;https://ws1.sinaimg.cn/large/006tKfTcly1fnt9p6qc88j31g80yu41d.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;使用 &lt;code&gt;synchronize&lt;/code&gt; 来做同步处理时，锁的获取和释放都是
+    
+    </summary>
+    
+      <category term="Java 进阶" scheme="http://crossoverjie.top/categories/Java-%E8%BF%9B%E9%98%B6/"/>
+    
+    
+  </entry>
   
   <entry>
     <title>对象的创建与内存分配</title>
@@ -954,9 +1032,9 @@
       <category term="sbc" scheme="http://crossoverjie.top/categories/sbc/"/>
     
     
-      <category term="重构" scheme="http://crossoverjie.top/tags/%E9%87%8D%E6%9E%84/"/>
-    
       <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
+    
+      <category term="重构" scheme="http://crossoverjie.top/tags/%E9%87%8D%E6%9E%84/"/>
     
       <category term="AOP" scheme="http://crossoverjie.top/tags/AOP/"/>
     
@@ -1367,6 +1445,61 @@
   </entry>
   
   <entry>
+    <title>科普-为自己的博客免费加上小绿锁</title>
+    <link href="http://crossoverjie.top/2017/05/07/https/"/>
+    <id>http://crossoverjie.top/2017/05/07/https/</id>
+    <published>2017-05-06T17:01:54.000Z</published>
+    <updated>2017-05-07T08:40:47.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><img src="https://ooo.0o0.ooo/2017/05/07/590edced5545e.jpg" alt="https.jpg"></p>
+<p>在如今的<code>HTTPS</code>大当其道的情况下自己的博客要是还没有用上。作为互联网的螺丝钉(<code>码农</code>)岂不是很没面子。</p>
+<h1 id="使用CLOUDFLARE"><a href="#使用CLOUDFLARE" class="headerlink" title="使用CLOUDFLARE"></a>使用CLOUDFLARE</h1><p>这里使用<a href="http://www.CLOUDFLARE.com" target="_blank" rel="external">CLOUDFLARE</a>来提供<code>HTTPS</code>服务。</p>
+<ul>
+<li>在其官网进行注册，按照提示添加好自己的域名即可。</li>
+<li>之后需要在自己域名的提供商处修改<code>DNS服务器</code>，我是在万网购买的修改后如下图：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd1a4cfd0.jpg" alt="1.jpg"><br>其中的<code>DNS服务器地址</code>由<code>CLOUDFLARE</code>是提供的。<br>修改完成之后通常需要等待一段时间才能生效。</li>
+<li>接着在<code>CLOUDFLARE</code>配置<code>DNS</code>解析：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd4913c2b.jpg" alt="DNS解析.jpg"><br>点击<code>CLOUDFLARE</code>顶部的<code>DNS</code>进行如我上图中的配置，和之前的配置没有什么区别。</li>
+</ul>
+<p>等待一段时间之后发现使用<code>HTTP</code>,<code>HTTPS</code>都能访问，但是最好还是能在访问<code>HTTP</code>的时候能强制跳转到<code>HTTPS</code>.</p>
+<ul>
+<li>在<code>CLOUDFLARE</code>菜单栏点击<code>page-rules</code>之后新建一个<code>page rule</code>：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd73a9f9d.jpg" alt="强制https.jpg"><br>这样整个网站的请求都会强制到请求到<code>HTTPS</code>.</li>
+</ul>
+<a id="more"></a>
+<h1 id="主题配置"><a href="#主题配置" class="headerlink" title="主题配置"></a>主题配置</h1><p>由于我才用的是<code>Hexo</code>中的<code>Next</code>主题，其中配置了<code>CNZZ</code>站长统计。其中配置的<code>CNZZ</code>统计JS是才用的<code>HTTP</code>。导致在首页的时候<code>chrome</code>一直提示感叹号。<br>修改站点<code>themes/next/layout/_scripts/third-party/analytics</code>目录下的<code>cnzz-analytics.swig</code>文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&#123;% if theme.cnzz_siteid %&#125;</div><div class="line"></div><div class="line">  &lt;div style=&quot;display: none;&quot;&gt;</div><div class="line">    &lt;script src=&quot;https://s6.cnzz.com/stat.php?id=&#123;&#123; theme.cnzz_siteid &#125;&#125;&amp;web_id=&#123;&#123; theme.cnzz_siteid &#125;&#125;&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;</div><div class="line">  &lt;/div&gt;</div><div class="line"></div><div class="line">&#123;% endif %&#125;</div></pre></td></tr></table></figure></p>
+<p>之后再进行构建的时候就会使用<code>HTTPS</code>.</p>
+<blockquote>
+<p>值得注意一点的是之后文章中所使用的图片都要用<code>HTTPS</code>的地址了，不然<code>chrome</code>会提示感叹号。</p>
+<p>个人博客地址：<a href="http://crossoverjie.top">http://crossoverjie.top</a>。</p>
+<p>GitHub地址：<a href="https://github.com/crossoverJie" target="_blank" rel="external">https://github.com/crossoverJie</a>。</p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edced5545e.jpg&quot; alt=&quot;https.jpg&quot;&gt;&lt;/p&gt;
+&lt;p&gt;在如今的&lt;code&gt;HTTPS&lt;/code&gt;大当其道的情况下自己的博客要是还没有用上。作为互联网的螺丝钉(&lt;code&gt;码农&lt;/code&gt;)岂不是很没面子。&lt;/p&gt;
+&lt;h1 id=&quot;使用CLOUDFLARE&quot;&gt;&lt;a href=&quot;#使用CLOUDFLARE&quot; class=&quot;headerlink&quot; title=&quot;使用CLOUDFLARE&quot;&gt;&lt;/a&gt;使用CLOUDFLARE&lt;/h1&gt;&lt;p&gt;这里使用&lt;a href=&quot;http://www.CLOUDFLARE.com&quot;&gt;CLOUDFLARE&lt;/a&gt;来提供&lt;code&gt;HTTPS&lt;/code&gt;服务。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;在其官网进行注册，按照提示添加好自己的域名即可。&lt;/li&gt;
+&lt;li&gt;之后需要在自己域名的提供商处修改&lt;code&gt;DNS服务器&lt;/code&gt;，我是在万网购买的修改后如下图：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd1a4cfd0.jpg&quot; alt=&quot;1.jpg&quot;&gt;&lt;br&gt;其中的&lt;code&gt;DNS服务器地址&lt;/code&gt;由&lt;code&gt;CLOUDFLARE&lt;/code&gt;是提供的。&lt;br&gt;修改完成之后通常需要等待一段时间才能生效。&lt;/li&gt;
+&lt;li&gt;接着在&lt;code&gt;CLOUDFLARE&lt;/code&gt;配置&lt;code&gt;DNS&lt;/code&gt;解析：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd4913c2b.jpg&quot; alt=&quot;DNS解析.jpg&quot;&gt;&lt;br&gt;点击&lt;code&gt;CLOUDFLARE&lt;/code&gt;顶部的&lt;code&gt;DNS&lt;/code&gt;进行如我上图中的配置，和之前的配置没有什么区别。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;等待一段时间之后发现使用&lt;code&gt;HTTP&lt;/code&gt;,&lt;code&gt;HTTPS&lt;/code&gt;都能访问，但是最好还是能在访问&lt;code&gt;HTTP&lt;/code&gt;的时候能强制跳转到&lt;code&gt;HTTPS&lt;/code&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;在&lt;code&gt;CLOUDFLARE&lt;/code&gt;菜单栏点击&lt;code&gt;page-rules&lt;/code&gt;之后新建一个&lt;code&gt;page rule&lt;/code&gt;：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd73a9f9d.jpg&quot; alt=&quot;强制https.jpg&quot;&gt;&lt;br&gt;这样整个网站的请求都会强制到请求到&lt;code&gt;HTTPS&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+      <category term="科普" scheme="http://crossoverjie.top/categories/%E7%A7%91%E6%99%AE/"/>
+    
+    
+      <category term="HTTP" scheme="http://crossoverjie.top/tags/HTTP/"/>
+    
+      <category term="HTTPS" scheme="http://crossoverjie.top/tags/HTTPS/"/>
+    
+  </entry>
+  
+  <entry>
     <title>SSM(十三) 将dubbo暴露出HTTP服务</title>
     <link href="http://crossoverjie.top/2017/05/07/SSM13/"/>
     <id>http://crossoverjie.top/2017/05/07/SSM13/</id>
@@ -1454,61 +1587,6 @@
       <category term="dubbo" scheme="http://crossoverjie.top/tags/dubbo/"/>
     
       <category term="HTTP" scheme="http://crossoverjie.top/tags/HTTP/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>科普-为自己的博客免费加上小绿锁</title>
-    <link href="http://crossoverjie.top/2017/05/07/https/"/>
-    <id>http://crossoverjie.top/2017/05/07/https/</id>
-    <published>2017-05-06T17:01:54.000Z</published>
-    <updated>2017-05-07T08:40:47.000Z</updated>
-    
-    <content type="html"><![CDATA[<p><img src="https://ooo.0o0.ooo/2017/05/07/590edced5545e.jpg" alt="https.jpg"></p>
-<p>在如今的<code>HTTPS</code>大当其道的情况下自己的博客要是还没有用上。作为互联网的螺丝钉(<code>码农</code>)岂不是很没面子。</p>
-<h1 id="使用CLOUDFLARE"><a href="#使用CLOUDFLARE" class="headerlink" title="使用CLOUDFLARE"></a>使用CLOUDFLARE</h1><p>这里使用<a href="http://www.CLOUDFLARE.com" target="_blank" rel="external">CLOUDFLARE</a>来提供<code>HTTPS</code>服务。</p>
-<ul>
-<li>在其官网进行注册，按照提示添加好自己的域名即可。</li>
-<li>之后需要在自己域名的提供商处修改<code>DNS服务器</code>，我是在万网购买的修改后如下图：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd1a4cfd0.jpg" alt="1.jpg"><br>其中的<code>DNS服务器地址</code>由<code>CLOUDFLARE</code>是提供的。<br>修改完成之后通常需要等待一段时间才能生效。</li>
-<li>接着在<code>CLOUDFLARE</code>配置<code>DNS</code>解析：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd4913c2b.jpg" alt="DNS解析.jpg"><br>点击<code>CLOUDFLARE</code>顶部的<code>DNS</code>进行如我上图中的配置，和之前的配置没有什么区别。</li>
-</ul>
-<p>等待一段时间之后发现使用<code>HTTP</code>,<code>HTTPS</code>都能访问，但是最好还是能在访问<code>HTTP</code>的时候能强制跳转到<code>HTTPS</code>.</p>
-<ul>
-<li>在<code>CLOUDFLARE</code>菜单栏点击<code>page-rules</code>之后新建一个<code>page rule</code>：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd73a9f9d.jpg" alt="强制https.jpg"><br>这样整个网站的请求都会强制到请求到<code>HTTPS</code>.</li>
-</ul>
-<a id="more"></a>
-<h1 id="主题配置"><a href="#主题配置" class="headerlink" title="主题配置"></a>主题配置</h1><p>由于我才用的是<code>Hexo</code>中的<code>Next</code>主题，其中配置了<code>CNZZ</code>站长统计。其中配置的<code>CNZZ</code>统计JS是才用的<code>HTTP</code>。导致在首页的时候<code>chrome</code>一直提示感叹号。<br>修改站点<code>themes/next/layout/_scripts/third-party/analytics</code>目录下的<code>cnzz-analytics.swig</code>文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&#123;% if theme.cnzz_siteid %&#125;</div><div class="line"></div><div class="line">  &lt;div style=&quot;display: none;&quot;&gt;</div><div class="line">    &lt;script src=&quot;https://s6.cnzz.com/stat.php?id=&#123;&#123; theme.cnzz_siteid &#125;&#125;&amp;web_id=&#123;&#123; theme.cnzz_siteid &#125;&#125;&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;</div><div class="line">  &lt;/div&gt;</div><div class="line"></div><div class="line">&#123;% endif %&#125;</div></pre></td></tr></table></figure></p>
-<p>之后再进行构建的时候就会使用<code>HTTPS</code>.</p>
-<blockquote>
-<p>值得注意一点的是之后文章中所使用的图片都要用<code>HTTPS</code>的地址了，不然<code>chrome</code>会提示感叹号。</p>
-<p>个人博客地址：<a href="http://crossoverjie.top">http://crossoverjie.top</a>。</p>
-<p>GitHub地址：<a href="https://github.com/crossoverJie" target="_blank" rel="external">https://github.com/crossoverJie</a>。</p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edced5545e.jpg&quot; alt=&quot;https.jpg&quot;&gt;&lt;/p&gt;
-&lt;p&gt;在如今的&lt;code&gt;HTTPS&lt;/code&gt;大当其道的情况下自己的博客要是还没有用上。作为互联网的螺丝钉(&lt;code&gt;码农&lt;/code&gt;)岂不是很没面子。&lt;/p&gt;
-&lt;h1 id=&quot;使用CLOUDFLARE&quot;&gt;&lt;a href=&quot;#使用CLOUDFLARE&quot; class=&quot;headerlink&quot; title=&quot;使用CLOUDFLARE&quot;&gt;&lt;/a&gt;使用CLOUDFLARE&lt;/h1&gt;&lt;p&gt;这里使用&lt;a href=&quot;http://www.CLOUDFLARE.com&quot;&gt;CLOUDFLARE&lt;/a&gt;来提供&lt;code&gt;HTTPS&lt;/code&gt;服务。&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;在其官网进行注册，按照提示添加好自己的域名即可。&lt;/li&gt;
-&lt;li&gt;之后需要在自己域名的提供商处修改&lt;code&gt;DNS服务器&lt;/code&gt;，我是在万网购买的修改后如下图：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd1a4cfd0.jpg&quot; alt=&quot;1.jpg&quot;&gt;&lt;br&gt;其中的&lt;code&gt;DNS服务器地址&lt;/code&gt;由&lt;code&gt;CLOUDFLARE&lt;/code&gt;是提供的。&lt;br&gt;修改完成之后通常需要等待一段时间才能生效。&lt;/li&gt;
-&lt;li&gt;接着在&lt;code&gt;CLOUDFLARE&lt;/code&gt;配置&lt;code&gt;DNS&lt;/code&gt;解析：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd4913c2b.jpg&quot; alt=&quot;DNS解析.jpg&quot;&gt;&lt;br&gt;点击&lt;code&gt;CLOUDFLARE&lt;/code&gt;顶部的&lt;code&gt;DNS&lt;/code&gt;进行如我上图中的配置，和之前的配置没有什么区别。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;等待一段时间之后发现使用&lt;code&gt;HTTP&lt;/code&gt;,&lt;code&gt;HTTPS&lt;/code&gt;都能访问，但是最好还是能在访问&lt;code&gt;HTTP&lt;/code&gt;的时候能强制跳转到&lt;code&gt;HTTPS&lt;/code&gt;.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;在&lt;code&gt;CLOUDFLARE&lt;/code&gt;菜单栏点击&lt;code&gt;page-rules&lt;/code&gt;之后新建一个&lt;code&gt;page rule&lt;/code&gt;：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd73a9f9d.jpg&quot; alt=&quot;强制https.jpg&quot;&gt;&lt;br&gt;这样整个网站的请求都会强制到请求到&lt;code&gt;HTTPS&lt;/code&gt;.&lt;/li&gt;
-&lt;/ul&gt;
-    
-    </summary>
-    
-      <category term="科普" scheme="http://crossoverjie.top/categories/%E7%A7%91%E6%99%AE/"/>
-    
-    
-      <category term="HTTP" scheme="http://crossoverjie.top/tags/HTTP/"/>
-    
-      <category term="HTTPS" scheme="http://crossoverjie.top/tags/HTTPS/"/>
     
   </entry>
   
@@ -1741,76 +1819,6 @@
       <category term="Maven" scheme="http://crossoverjie.top/tags/Maven/"/>
     
       <category term="重构" scheme="http://crossoverjie.top/tags/%E9%87%8D%E6%9E%84/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>SSM(九) 反射的实际应用 - 构建日志对象</title>
-    <link href="http://crossoverjie.top/2017/01/19/SSM9/"/>
-    <id>http://crossoverjie.top/2017/01/19/SSM9/</id>
-    <published>2017-01-18T19:44:54.000Z</published>
-    <updated>2017-05-07T04:46:41.000Z</updated>
-    
-    <content type="html"><![CDATA[<p><img src="https://ooo.0o0.ooo/2017/05/07/590ea69c8052e.jpg" alt="构建日志对象.jpg"></p>
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>相信做Java的童鞋或多或少都听过反射，这也应该是Java从入门到进阶的必经之路。</p>
-<p>但是在我们的实际开发中直接使用它们的几率貌似还是比较少的，（<code>除了造轮子或者是Spring Mybatis这些框架外</code>）。</p>
-<p>所以这里介绍一个在实际开发中还是小有用处的反射实例。</p>
-<h1 id="传统日志"><a href="#传统日志" class="headerlink" title="传统日志"></a>传统日志</h1><p>有关反射的一些基本知识就不说了，可以自行<code>Google</code>，也可以看下<a href="http://crossoverjie.top/2016/05/10/java-reflect/">反射入门</a>。</p>
-<p>日志相信大家都不陌生，在实际开发中一些比较敏感的数据表我们需要对它的每一次操作都记录下来。</p>
-<p>先来看看传统的写法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Test</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">insertSelective</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line"></div><div class="line">    Content content = <span class="keyword">new</span> Content() ;</div><div class="line">    content.setContent(<span class="string">"asdsf"</span>);</div><div class="line">    content.setCreatedate(<span class="string">"2016-12-09"</span>);</div><div class="line">    contentService.insertSelective(content) ;</div><div class="line"></div><div class="line">    ContentLog log = <span class="keyword">new</span> ContentLog();</div><div class="line">    log.setContentid(content.getContentid());</div><div class="line">    log.setContent(<span class="string">"asdsf"</span>);</div><div class="line">    log.setCreatedate(<span class="string">"2016-12-09"</span>);</div><div class="line">    contentLogService.insertSelective(log);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>非常简单，就是在保存完数据表之后再把相同的数据保存到日志表中。<br><a id="more"></a><br>但是这样有以下几个问题：</p>
-<ul>
-<li>如果数据表的字段较多的话，比如几百个。那么日志表的<code>setter()</code>方法就得写几百次，还得是都写对的情况下。</li>
-<li>如果哪天数据表的字段发生了增加，那么每个写日志的地方都得增加该字段，提高了维护的成本。</li>
-</ul>
-<p>针对以上的情况就得需要反射这个主角来解决了。</p>
-<h1 id="利用反射构建日志"><a href="#利用反射构建日志" class="headerlink" title="利用反射构建日志"></a>利用反射构建日志</h1><p>我们先来先来看下使用反射之后对代码所带来的改变：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Test</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">insertSelective2</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">    Content content = <span class="keyword">new</span> Content();</div><div class="line">    content.setContent(<span class="string">"你好"</span>);</div><div class="line">    content.setContentname(<span class="string">"1"</span>);</div><div class="line">    content.setCreatedate(<span class="string">"2016-09-23"</span>);</div><div class="line"></div><div class="line">    contentService.insertSelective(content);</div><div class="line"></div><div class="line">    ContentLog log = <span class="keyword">new</span> ContentLog();</div><div class="line">    CommonUtil.setLogValueModelToModel(content, log);</div><div class="line">    contentLogService.insertSelective(log);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>同样的保存日志，不管多少字段，只需要三行代码即可解决。<br>而且就算之后字段发生改变写日志这段代码仍然不需要改动。</p>
-<p>其实这里最主要的一个方法就是<code>CommonUtil.setLogValueModelToModel(content, log);</code></p>
-<p>来看下是如何实现的;<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line">     * 生成日志实体工具</div><div class="line">     *</div><div class="line">     * <span class="doctag">@param</span> objectFrom</div><div class="line">     * <span class="doctag">@param</span> objectTo</div><div class="line">     */</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">setLogValueModelToModel</span><span class="params">(Object objectFrom, Object objectTo)</span> </span>&#123;</div><div class="line">        Class&lt;? extends Object&gt; clazzFrom = objectFrom.getClass();</div><div class="line">        Class&lt;? extends Object&gt; clazzTo = objectTo.getClass();</div><div class="line"></div><div class="line">        <span class="keyword">for</span> (Method toSetMethod : clazzTo.getMethods()) &#123;</div><div class="line">            String mName = toSetMethod.getName();</div><div class="line">            <span class="keyword">if</span> (mName.startsWith(<span class="string">"set"</span>)) &#123;</div><div class="line">                <span class="comment">//字段名</span></div><div class="line">                String field = mName.substring(<span class="number">3</span>);</div><div class="line"></div><div class="line">                <span class="comment">//获取from 值</span></div><div class="line">                Object value;</div><div class="line">                <span class="keyword">try</span> &#123;</div><div class="line">                    <span class="keyword">if</span> (<span class="string">"LogId"</span>.equals(field)) &#123;</div><div class="line">                        <span class="keyword">continue</span>;</div><div class="line">                    &#125;</div><div class="line">                    Method fromGetMethod = clazzFrom.getMethod(<span class="string">"get"</span> + field);</div><div class="line">                    value = fromGetMethod.invoke(objectFrom);</div><div class="line"></div><div class="line">                    <span class="comment">//设置值</span></div><div class="line">                    toSetMethod.invoke(objectTo, value);</div><div class="line">                &#125; <span class="keyword">catch</span> (NoSuchMethodException e) &#123;</div><div class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(e);</div><div class="line">                &#125; <span class="keyword">catch</span> (InvocationTargetException e) &#123;</div><div class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(e);</div><div class="line">                &#125; <span class="keyword">catch</span> (IllegalAccessException e) &#123;</div><div class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(e);</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div></pre></td></tr></table></figure></p>
-<p>再使用之前我们首先需要构建好主的数据表，然后<code>new</code>一个日志表的对象。</p>
-<p>在<code>setLogValueModelToModel()</code>方法中：</p>
-<ul>
-<li>分别获得数据表和日志表对象的类类型。</li>
-<li>获取到日志对象的所有方法集合。</li>
-<li>遍历该集合，并拿到该方法的名称。</li>
-<li>只取其中set开头的方法，也就是set方法。因为我们需要在循环中为日志对象的每一个字段赋值。 </li>
-<li>之后截取方法名称获得具体的字段名称。</li>
-<li>用之前截取的字段名称，通过<code>getMethod()</code>方法返回数据表中的该字段的<code>getter</code>方法。</li>
-<li>相当于执行了<code>String content = content.getContent();</code></li>
-<li>执行该方法获得该字段具体的值。</li>
-<li>利用当前循环的<code>setter</code>方法为日志对象的每一个字段赋值。</li>
-<li>相当于执行了<code>log.setContent(&quot;asdsf&quot;);</code></li>
-</ul>
-<p>其中字段名称为<code>LogId</code>时跳出了当前循环，因为LogId是日志表的主键，是不需要赋值的。</p>
-<p>当循环结束时，日志对象也就构建完成了。之后只需要保存到数据库中即可。</p>
-<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>反射其实是非常耗资源的，再使用过程中还是要慎用。<br>其中对method、field、constructor等对象做缓存也是很有必要的。</p>
-<blockquote>
-<p>项目地址：<a href="https://github.com/crossoverJie/SSM.git" target="_blank" rel="external">https://github.com/crossoverJie/SSM.git</a></p>
-<p>个人博客地址：<a href="http://crossoverjie.top">http://crossoverjie.top</a>。</p>
-<p>GitHub地址：<a href="https://github.com/crossoverJie" target="_blank" rel="external">https://github.com/crossoverJie</a>。</p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590ea69c8052e.jpg&quot; alt=&quot;构建日志对象.jpg&quot;&gt;&lt;/p&gt;
-&lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;p&gt;相信做Java的童鞋或多或少都听过反射，这也应该是Java从入门到进阶的必经之路。&lt;/p&gt;
-&lt;p&gt;但是在我们的实际开发中直接使用它们的几率貌似还是比较少的，（&lt;code&gt;除了造轮子或者是Spring Mybatis这些框架外&lt;/code&gt;）。&lt;/p&gt;
-&lt;p&gt;所以这里介绍一个在实际开发中还是小有用处的反射实例。&lt;/p&gt;
-&lt;h1 id=&quot;传统日志&quot;&gt;&lt;a href=&quot;#传统日志&quot; class=&quot;headerlink&quot; title=&quot;传统日志&quot;&gt;&lt;/a&gt;传统日志&lt;/h1&gt;&lt;p&gt;有关反射的一些基本知识就不说了，可以自行&lt;code&gt;Google&lt;/code&gt;，也可以看下&lt;a href=&quot;http://crossoverjie.top/2016/05/10/java-reflect/&quot;&gt;反射入门&lt;/a&gt;。&lt;/p&gt;
-&lt;p&gt;日志相信大家都不陌生，在实际开发中一些比较敏感的数据表我们需要对它的每一次操作都记录下来。&lt;/p&gt;
-&lt;p&gt;先来看看传统的写法：&lt;br&gt;&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;1&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;2&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;3&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;4&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;5&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;6&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;7&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;8&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;9&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;10&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;11&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;12&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;13&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;14&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;meta&quot;&gt;@Test&lt;/span&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;insertSelective&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;throws&lt;/span&gt; Exception &lt;/span&gt;&amp;#123;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    Content content = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; Content() ;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    content.setContent(&lt;span class=&quot;string&quot;&gt;&quot;asdsf&quot;&lt;/span&gt;);&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    content.setCreatedate(&lt;span class=&quot;string&quot;&gt;&quot;2016-12-09&quot;&lt;/span&gt;);&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    contentService.insertSelective(content) ;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    ContentLog log = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; ContentLog();&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    log.setContentid(content.getContentid());&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    log.setContent(&lt;span class=&quot;string&quot;&gt;&quot;asdsf&quot;&lt;/span&gt;);&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    log.setCreatedate(&lt;span class=&quot;string&quot;&gt;&quot;2016-12-09&quot;&lt;/span&gt;);&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;    contentLogService.insertSelective(log);&lt;/div&gt;&lt;div class=&quot;line&quot;&gt;&amp;#125;&lt;/div&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
-&lt;p&gt;非常简单，就是在保存完数据表之后再把相同的数据保存到日志表中。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="SSM" scheme="http://crossoverjie.top/categories/SSM/"/>
-    
-    
-      <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
-    
-      <category term="Reflect" scheme="http://crossoverjie.top/tags/Reflect/"/>
     
   </entry>
   
