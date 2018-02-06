@@ -105,7 +105,7 @@ LinkedHashMap 的排序方式有两种：
 <meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNc79ly1fo6w785brkj31g80ytjx5.jpg">
 <meta property="og:image" content="https://ws2.sinaimg.cn/large/006tKfTcly1fo6l9xp91lj319m0s4tgi.jpg">
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcly1fo6n0jdrwqj310w0mqac0.jpg">
-<meta property="og:updated_time" content="2018-02-06T10:16:22.000Z">
+<meta property="og:updated_time" content="2018-02-06T10:20:33.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="LinkedHashMap 底层分析">
 <meta name="twitter:description" content="众所周知 HashMap 是一个无序的 Map，因为每次根据 key 的 hashcode 映射到 Entry 数组上，所以遍历出来的顺序并不是写入的顺序。
@@ -441,6 +441,10 @@ LinkedHashMap 的排序方式有两种：
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//只需要把指针都指向自己即可，原本那些 Entry 没有引用之后就会被 JVM 自动回收。</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">clear</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">super</span>.clear();</div><div class="line">    header.before = header.after = header;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总的来说 <code>LinkedHashMap</code> 其实就是对 <code>HashMap</code> 进行了拓展，使用了双向链表来保证了顺序性。</p>
 <p>因为是继承与 <code>HashMap</code> 的，所以一些 <code>HashMap</code> 存在的问题 <code>LinkedHashMap</code> 也会存在，比如不支持并发等。</p>
+<h2 id="号外"><a href="#号外" class="headerlink" title="号外"></a>号外</h2><p>最近在总结一些 Java 相关的知识点，感兴趣的朋友可以一起维护。</p>
+<blockquote>
+<p>地址: <a href="https://github.com/crossoverJie/Java-Interview" target="_blank" rel="external">https://github.com/crossoverJie/Java-Interview</a></p>
+</blockquote>
 
       
     </div>
@@ -695,7 +699,7 @@ LinkedHashMap 的排序方式有两种：
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#数据结构"><span class="nav-number">1.</span> <span class="nav-text">数据结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#构造方法"><span class="nav-number">2.</span> <span class="nav-text">构造方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#put-方法"><span class="nav-number">3.</span> <span class="nav-text">put() 方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#get-方法"><span class="nav-number">4.</span> <span class="nav-text">get 方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#数据结构"><span class="nav-number">1.</span> <span class="nav-text">数据结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#构造方法"><span class="nav-number">2.</span> <span class="nav-text">构造方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#put-方法"><span class="nav-number">3.</span> <span class="nav-text">put() 方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#get-方法"><span class="nav-number">4.</span> <span class="nav-text">get 方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#号外"><span class="nav-number">6.</span> <span class="nav-text">号外</span></a></li></ol></div>
             
           </div>
         </section>
