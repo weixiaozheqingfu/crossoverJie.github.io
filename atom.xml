@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://crossoverjie.top/"/>
-  <updated>2018-02-06T10:20:33.000Z</updated>
+  <updated>2018-02-06T15:06:42.000Z</updated>
   <id>http://crossoverjie.top/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://crossoverjie.top/2018/02/06/LinkedHashMap/"/>
     <id>http://crossoverjie.top/2018/02/06/LinkedHashMap/</id>
     <published>2018-02-06T15:01:36.000Z</published>
-    <updated>2018-02-06T10:20:33.000Z</updated>
+    <updated>2018-02-06T15:06:42.000Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://ws2.sinaimg.cn/large/006tNc79ly1fo6w785brkj31g80ytjx5.jpg" alt=""></p>
 <p>众所周知 <a href="https://github.com/crossoverJie/Java-Interview/blob/master/MD/HashMap.md" target="_blank" rel="external">HashMap</a> 是一个无序的 <code>Map</code>，因为每次根据 <code>key</code> 的 <code>hashcode</code> 映射到 <code>Entry</code> 数组上，所以遍历出来的顺序并不是写入的顺序。</p>
@@ -56,7 +56,7 @@
 <p>可以看到里面有一个空的 <code>init()</code>，具体是由 <code>LinkedHashMap</code> 来实现的：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> </span>&#123;</div><div class="line">    header = <span class="keyword">new</span> Entry&lt;&gt;(-<span class="number">1</span>, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">null</span>);</div><div class="line">    header.before = header.after = header;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>其实也就是对 <code>header</code> 进行了初始化。</p>
-<h2 id="put-方法"><a href="#put-方法" class="headerlink" title="put() 方法"></a>put() 方法</h2><p>看 <code>LinkedHashMap</code> 的 <code>put()</code> 方法之前先看看 <code>HashMap</code> 的 <code>put</code> 方法：</p>
+<h2 id="put-方法"><a href="#put-方法" class="headerlink" title="put 方法"></a>put 方法</h2><p>看 <code>LinkedHashMap</code> 的 <code>put()</code> 方法之前先看看 <code>HashMap</code> 的 <code>put</code> 方法：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line">public V put(K key, V value) &#123;</div><div class="line">    if (table == EMPTY_TABLE) &#123;</div><div class="line">        inflateTable(threshold);</div><div class="line">    &#125;</div><div class="line">    if (key == null)</div><div class="line">        return putForNullKey(value);</div><div class="line">    int hash = hash(key);</div><div class="line">    int i = indexFor(hash, table.length);</div><div class="line">    for (Entry&lt;K,V&gt; e = table[i]; e != null; e = e.next) &#123;</div><div class="line">        Object k;</div><div class="line">        if (e.hash == hash &amp;&amp; ((k = e.key) == key || key.equals(k))) &#123;</div><div class="line">            V oldValue = e.value;</div><div class="line">            e.value = value;</div><div class="line">            //空实现，交给 LinkedHashMap 自己实现</div><div class="line">            e.recordAccess(this);</div><div class="line">            return oldValue;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    modCount++;</div><div class="line">    // LinkedHashMap 对其重写</div><div class="line">    addEntry(hash, key, value, i);</div><div class="line">    return null;</div><div class="line">&#125;</div><div class="line"></div><div class="line">// LinkedHashMap 对其重写</div><div class="line">void addEntry(int hash, K key, V value, int bucketIndex) &#123;</div><div class="line">    if ((size &gt;= threshold) &amp;&amp; (null != table[bucketIndex])) &#123;</div><div class="line">        resize(2 * table.length);</div><div class="line">        hash = (null != key) ? hash(key) : 0;</div><div class="line">        bucketIndex = indexFor(hash, table.length);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    createEntry(hash, key, value, bucketIndex);</div><div class="line">&#125;</div><div class="line"></div><div class="line">// LinkedHashMap 对其重写</div><div class="line">void createEntry(int hash, K key, V value, int bucketIndex) &#123;</div><div class="line">    Entry&lt;K,V&gt; e = table[bucketIndex];</div><div class="line">    table[bucketIndex] = new Entry&lt;&gt;(hash, key, value, e);</div><div class="line">    size++;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>主体的实现都是借助于 <code>HashMap</code> 来完成的，只是对其中的 <code>recordAccess(), addEntry(), createEntry()</code> 进行了重写。</p>
 <p><code>LinkedHashMap</code> 的实现：</p>
@@ -1540,6 +1540,61 @@
   </entry>
   
   <entry>
+    <title>科普-为自己的博客免费加上小绿锁</title>
+    <link href="http://crossoverjie.top/2017/05/07/https/"/>
+    <id>http://crossoverjie.top/2017/05/07/https/</id>
+    <published>2017-05-06T17:01:54.000Z</published>
+    <updated>2017-05-07T08:40:47.000Z</updated>
+    
+    <content type="html"><![CDATA[<p><img src="https://ooo.0o0.ooo/2017/05/07/590edced5545e.jpg" alt="https.jpg"></p>
+<p>在如今的<code>HTTPS</code>大当其道的情况下自己的博客要是还没有用上。作为互联网的螺丝钉(<code>码农</code>)岂不是很没面子。</p>
+<h1 id="使用CLOUDFLARE"><a href="#使用CLOUDFLARE" class="headerlink" title="使用CLOUDFLARE"></a>使用CLOUDFLARE</h1><p>这里使用<a href="http://www.CLOUDFLARE.com" target="_blank" rel="external">CLOUDFLARE</a>来提供<code>HTTPS</code>服务。</p>
+<ul>
+<li>在其官网进行注册，按照提示添加好自己的域名即可。</li>
+<li>之后需要在自己域名的提供商处修改<code>DNS服务器</code>，我是在万网购买的修改后如下图：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd1a4cfd0.jpg" alt="1.jpg"><br>其中的<code>DNS服务器地址</code>由<code>CLOUDFLARE</code>是提供的。<br>修改完成之后通常需要等待一段时间才能生效。</li>
+<li>接着在<code>CLOUDFLARE</code>配置<code>DNS</code>解析：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd4913c2b.jpg" alt="DNS解析.jpg"><br>点击<code>CLOUDFLARE</code>顶部的<code>DNS</code>进行如我上图中的配置，和之前的配置没有什么区别。</li>
+</ul>
+<p>等待一段时间之后发现使用<code>HTTP</code>,<code>HTTPS</code>都能访问，但是最好还是能在访问<code>HTTP</code>的时候能强制跳转到<code>HTTPS</code>.</p>
+<ul>
+<li>在<code>CLOUDFLARE</code>菜单栏点击<code>page-rules</code>之后新建一个<code>page rule</code>：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd73a9f9d.jpg" alt="强制https.jpg"><br>这样整个网站的请求都会强制到请求到<code>HTTPS</code>.</li>
+</ul>
+<a id="more"></a>
+<h1 id="主题配置"><a href="#主题配置" class="headerlink" title="主题配置"></a>主题配置</h1><p>由于我才用的是<code>Hexo</code>中的<code>Next</code>主题，其中配置了<code>CNZZ</code>站长统计。其中配置的<code>CNZZ</code>统计JS是才用的<code>HTTP</code>。导致在首页的时候<code>chrome</code>一直提示感叹号。<br>修改站点<code>themes/next/layout/_scripts/third-party/analytics</code>目录下的<code>cnzz-analytics.swig</code>文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&#123;% if theme.cnzz_siteid %&#125;</div><div class="line"></div><div class="line">  &lt;div style=&quot;display: none;&quot;&gt;</div><div class="line">    &lt;script src=&quot;https://s6.cnzz.com/stat.php?id=&#123;&#123; theme.cnzz_siteid &#125;&#125;&amp;web_id=&#123;&#123; theme.cnzz_siteid &#125;&#125;&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;</div><div class="line">  &lt;/div&gt;</div><div class="line"></div><div class="line">&#123;% endif %&#125;</div></pre></td></tr></table></figure></p>
+<p>之后再进行构建的时候就会使用<code>HTTPS</code>.</p>
+<blockquote>
+<p>值得注意一点的是之后文章中所使用的图片都要用<code>HTTPS</code>的地址了，不然<code>chrome</code>会提示感叹号。</p>
+<p>个人博客地址：<a href="http://crossoverjie.top">http://crossoverjie.top</a>。</p>
+<p>GitHub地址：<a href="https://github.com/crossoverJie" target="_blank" rel="external">https://github.com/crossoverJie</a>。</p>
+</blockquote>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edced5545e.jpg&quot; alt=&quot;https.jpg&quot;&gt;&lt;/p&gt;
+&lt;p&gt;在如今的&lt;code&gt;HTTPS&lt;/code&gt;大当其道的情况下自己的博客要是还没有用上。作为互联网的螺丝钉(&lt;code&gt;码农&lt;/code&gt;)岂不是很没面子。&lt;/p&gt;
+&lt;h1 id=&quot;使用CLOUDFLARE&quot;&gt;&lt;a href=&quot;#使用CLOUDFLARE&quot; class=&quot;headerlink&quot; title=&quot;使用CLOUDFLARE&quot;&gt;&lt;/a&gt;使用CLOUDFLARE&lt;/h1&gt;&lt;p&gt;这里使用&lt;a href=&quot;http://www.CLOUDFLARE.com&quot;&gt;CLOUDFLARE&lt;/a&gt;来提供&lt;code&gt;HTTPS&lt;/code&gt;服务。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;在其官网进行注册，按照提示添加好自己的域名即可。&lt;/li&gt;
+&lt;li&gt;之后需要在自己域名的提供商处修改&lt;code&gt;DNS服务器&lt;/code&gt;，我是在万网购买的修改后如下图：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd1a4cfd0.jpg&quot; alt=&quot;1.jpg&quot;&gt;&lt;br&gt;其中的&lt;code&gt;DNS服务器地址&lt;/code&gt;由&lt;code&gt;CLOUDFLARE&lt;/code&gt;是提供的。&lt;br&gt;修改完成之后通常需要等待一段时间才能生效。&lt;/li&gt;
+&lt;li&gt;接着在&lt;code&gt;CLOUDFLARE&lt;/code&gt;配置&lt;code&gt;DNS&lt;/code&gt;解析：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd4913c2b.jpg&quot; alt=&quot;DNS解析.jpg&quot;&gt;&lt;br&gt;点击&lt;code&gt;CLOUDFLARE&lt;/code&gt;顶部的&lt;code&gt;DNS&lt;/code&gt;进行如我上图中的配置，和之前的配置没有什么区别。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;等待一段时间之后发现使用&lt;code&gt;HTTP&lt;/code&gt;,&lt;code&gt;HTTPS&lt;/code&gt;都能访问，但是最好还是能在访问&lt;code&gt;HTTP&lt;/code&gt;的时候能强制跳转到&lt;code&gt;HTTPS&lt;/code&gt;.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;在&lt;code&gt;CLOUDFLARE&lt;/code&gt;菜单栏点击&lt;code&gt;page-rules&lt;/code&gt;之后新建一个&lt;code&gt;page rule&lt;/code&gt;：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd73a9f9d.jpg&quot; alt=&quot;强制https.jpg&quot;&gt;&lt;br&gt;这样整个网站的请求都会强制到请求到&lt;code&gt;HTTPS&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+    
+    </summary>
+    
+      <category term="科普" scheme="http://crossoverjie.top/categories/%E7%A7%91%E6%99%AE/"/>
+    
+    
+      <category term="HTTP" scheme="http://crossoverjie.top/tags/HTTP/"/>
+    
+      <category term="HTTPS" scheme="http://crossoverjie.top/tags/HTTPS/"/>
+    
+  </entry>
+  
+  <entry>
     <title>SSM(十三) 将dubbo暴露出HTTP服务</title>
     <link href="http://crossoverjie.top/2017/05/07/SSM13/"/>
     <id>http://crossoverjie.top/2017/05/07/SSM13/</id>
@@ -1627,61 +1682,6 @@
       <category term="dubbo" scheme="http://crossoverjie.top/tags/dubbo/"/>
     
       <category term="HTTP" scheme="http://crossoverjie.top/tags/HTTP/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>科普-为自己的博客免费加上小绿锁</title>
-    <link href="http://crossoverjie.top/2017/05/07/https/"/>
-    <id>http://crossoverjie.top/2017/05/07/https/</id>
-    <published>2017-05-06T17:01:54.000Z</published>
-    <updated>2017-05-07T08:40:47.000Z</updated>
-    
-    <content type="html"><![CDATA[<p><img src="https://ooo.0o0.ooo/2017/05/07/590edced5545e.jpg" alt="https.jpg"></p>
-<p>在如今的<code>HTTPS</code>大当其道的情况下自己的博客要是还没有用上。作为互联网的螺丝钉(<code>码农</code>)岂不是很没面子。</p>
-<h1 id="使用CLOUDFLARE"><a href="#使用CLOUDFLARE" class="headerlink" title="使用CLOUDFLARE"></a>使用CLOUDFLARE</h1><p>这里使用<a href="http://www.CLOUDFLARE.com" target="_blank" rel="external">CLOUDFLARE</a>来提供<code>HTTPS</code>服务。</p>
-<ul>
-<li>在其官网进行注册，按照提示添加好自己的域名即可。</li>
-<li>之后需要在自己域名的提供商处修改<code>DNS服务器</code>，我是在万网购买的修改后如下图：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd1a4cfd0.jpg" alt="1.jpg"><br>其中的<code>DNS服务器地址</code>由<code>CLOUDFLARE</code>是提供的。<br>修改完成之后通常需要等待一段时间才能生效。</li>
-<li>接着在<code>CLOUDFLARE</code>配置<code>DNS</code>解析：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd4913c2b.jpg" alt="DNS解析.jpg"><br>点击<code>CLOUDFLARE</code>顶部的<code>DNS</code>进行如我上图中的配置，和之前的配置没有什么区别。</li>
-</ul>
-<p>等待一段时间之后发现使用<code>HTTP</code>,<code>HTTPS</code>都能访问，但是最好还是能在访问<code>HTTP</code>的时候能强制跳转到<code>HTTPS</code>.</p>
-<ul>
-<li>在<code>CLOUDFLARE</code>菜单栏点击<code>page-rules</code>之后新建一个<code>page rule</code>：<br><img src="https://ooo.0o0.ooo/2017/05/07/590edd73a9f9d.jpg" alt="强制https.jpg"><br>这样整个网站的请求都会强制到请求到<code>HTTPS</code>.</li>
-</ul>
-<a id="more"></a>
-<h1 id="主题配置"><a href="#主题配置" class="headerlink" title="主题配置"></a>主题配置</h1><p>由于我才用的是<code>Hexo</code>中的<code>Next</code>主题，其中配置了<code>CNZZ</code>站长统计。其中配置的<code>CNZZ</code>统计JS是才用的<code>HTTP</code>。导致在首页的时候<code>chrome</code>一直提示感叹号。<br>修改站点<code>themes/next/layout/_scripts/third-party/analytics</code>目录下的<code>cnzz-analytics.swig</code>文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&#123;% if theme.cnzz_siteid %&#125;</div><div class="line"></div><div class="line">  &lt;div style=&quot;display: none;&quot;&gt;</div><div class="line">    &lt;script src=&quot;https://s6.cnzz.com/stat.php?id=&#123;&#123; theme.cnzz_siteid &#125;&#125;&amp;web_id=&#123;&#123; theme.cnzz_siteid &#125;&#125;&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;</div><div class="line">  &lt;/div&gt;</div><div class="line"></div><div class="line">&#123;% endif %&#125;</div></pre></td></tr></table></figure></p>
-<p>之后再进行构建的时候就会使用<code>HTTPS</code>.</p>
-<blockquote>
-<p>值得注意一点的是之后文章中所使用的图片都要用<code>HTTPS</code>的地址了，不然<code>chrome</code>会提示感叹号。</p>
-<p>个人博客地址：<a href="http://crossoverjie.top">http://crossoverjie.top</a>。</p>
-<p>GitHub地址：<a href="https://github.com/crossoverJie" target="_blank" rel="external">https://github.com/crossoverJie</a>。</p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edced5545e.jpg&quot; alt=&quot;https.jpg&quot;&gt;&lt;/p&gt;
-&lt;p&gt;在如今的&lt;code&gt;HTTPS&lt;/code&gt;大当其道的情况下自己的博客要是还没有用上。作为互联网的螺丝钉(&lt;code&gt;码农&lt;/code&gt;)岂不是很没面子。&lt;/p&gt;
-&lt;h1 id=&quot;使用CLOUDFLARE&quot;&gt;&lt;a href=&quot;#使用CLOUDFLARE&quot; class=&quot;headerlink&quot; title=&quot;使用CLOUDFLARE&quot;&gt;&lt;/a&gt;使用CLOUDFLARE&lt;/h1&gt;&lt;p&gt;这里使用&lt;a href=&quot;http://www.CLOUDFLARE.com&quot;&gt;CLOUDFLARE&lt;/a&gt;来提供&lt;code&gt;HTTPS&lt;/code&gt;服务。&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;在其官网进行注册，按照提示添加好自己的域名即可。&lt;/li&gt;
-&lt;li&gt;之后需要在自己域名的提供商处修改&lt;code&gt;DNS服务器&lt;/code&gt;，我是在万网购买的修改后如下图：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd1a4cfd0.jpg&quot; alt=&quot;1.jpg&quot;&gt;&lt;br&gt;其中的&lt;code&gt;DNS服务器地址&lt;/code&gt;由&lt;code&gt;CLOUDFLARE&lt;/code&gt;是提供的。&lt;br&gt;修改完成之后通常需要等待一段时间才能生效。&lt;/li&gt;
-&lt;li&gt;接着在&lt;code&gt;CLOUDFLARE&lt;/code&gt;配置&lt;code&gt;DNS&lt;/code&gt;解析：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd4913c2b.jpg&quot; alt=&quot;DNS解析.jpg&quot;&gt;&lt;br&gt;点击&lt;code&gt;CLOUDFLARE&lt;/code&gt;顶部的&lt;code&gt;DNS&lt;/code&gt;进行如我上图中的配置，和之前的配置没有什么区别。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;等待一段时间之后发现使用&lt;code&gt;HTTP&lt;/code&gt;,&lt;code&gt;HTTPS&lt;/code&gt;都能访问，但是最好还是能在访问&lt;code&gt;HTTP&lt;/code&gt;的时候能强制跳转到&lt;code&gt;HTTPS&lt;/code&gt;.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;在&lt;code&gt;CLOUDFLARE&lt;/code&gt;菜单栏点击&lt;code&gt;page-rules&lt;/code&gt;之后新建一个&lt;code&gt;page rule&lt;/code&gt;：&lt;br&gt;&lt;img src=&quot;https://ooo.0o0.ooo/2017/05/07/590edd73a9f9d.jpg&quot; alt=&quot;强制https.jpg&quot;&gt;&lt;br&gt;这样整个网站的请求都会强制到请求到&lt;code&gt;HTTPS&lt;/code&gt;.&lt;/li&gt;
-&lt;/ul&gt;
-    
-    </summary>
-    
-      <category term="科普" scheme="http://crossoverjie.top/categories/%E7%A7%91%E6%99%AE/"/>
-    
-    
-      <category term="HTTP" scheme="http://crossoverjie.top/tags/HTTP/"/>
-    
-      <category term="HTTPS" scheme="http://crossoverjie.top/tags/HTTPS/"/>
     
   </entry>
   
