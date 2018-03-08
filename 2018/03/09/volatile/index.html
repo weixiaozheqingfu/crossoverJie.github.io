@@ -91,7 +91,7 @@
 内存可见性由于 Java 内存模型(JMM)规定，所有的变量都存放在主内存中，而每个线程都有着自己的工作内存(高速缓存)。
 线程在工作时，需要将主内存中的数据拷贝到工作内存中。这样对数据的任何操作都是基于工作内存(效率提高)，并且不能直接操作主内存以及其他线程工作内存中的数据，之后再将">
 <meta property="og:type" content="article">
-<meta property="og:title" content="你应该知道的 volatile">
+<meta property="og:title" content="你应该知道的 volatile 关键字">
 <meta property="og:url" content="http://crossoverjie.top/2018/03/09/volatile/index.html">
 <meta property="og:site_name" content="crossoverJie's Blog">
 <meta property="og:description" content="前言不管是在面试还是实际开发中 volatile 都是一个应该掌握的技能。
@@ -100,9 +100,9 @@
 线程在工作时，需要将主内存中的数据拷贝到工作内存中。这样对数据的任何操作都是基于工作内存(效率提高)，并且不能直接操作主内存以及其他线程工作内存中的数据，之后再将">
 <meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNc79gy1fp5xm7uykoj30v90kugng.jpg">
 <meta property="og:image" content="https://ws2.sinaimg.cn/large/006tKfTcly1fmouu3fpokj31ae0osjt1.jpg">
-<meta property="og:updated_time" content="2018-03-08T17:40:22.000Z">
+<meta property="og:updated_time" content="2018-03-08T17:42:16.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="你应该知道的 volatile">
+<meta name="twitter:title" content="你应该知道的 volatile 关键字">
 <meta name="twitter:description" content="前言不管是在面试还是实际开发中 volatile 都是一个应该掌握的技能。
 首先来看看为什么会出现这个关键字。
 内存可见性由于 Java 内存模型(JMM)规定，所有的变量都存放在主内存中，而每个线程都有着自己的工作内存(高速缓存)。
@@ -130,7 +130,7 @@
 
   <link rel="canonical" href="http://crossoverjie.top/2018/03/09/volatile/"/>
 
-  <title> 你应该知道的 volatile | crossoverJie's Blog </title>
+  <title> 你应该知道的 volatile 关键字 | crossoverJie's Blog </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="en">
@@ -309,7 +309,7 @@
             
             
               
-                你应该知道的 volatile
+                你应该知道的 volatile 关键字
               
             
           </h1>
@@ -362,7 +362,7 @@
 
           
           
-             <span id="/2018/03/09/volatile/" class="leancloud_visitors" data-flag-title="你应该知道的 volatile">
+             <span id="/2018/03/09/volatile/" class="leancloud_visitors" data-flag-title="你应该知道的 volatile 关键字">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -449,6 +449,10 @@
 <p>加上 <code>volatile</code> 是为了让以上的三步操作顺序执行，反之有可能第二步在第三步之前被执行就有可能某个线程拿到的单例对象是还没有初始化的，以致于报错。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p><code>volatile</code> 在 <code>Java</code> 并发中用的很多，比如像 <code>Atomic</code> 包中的 <code>value</code>、以及 <code>AbstractQueuedLongSynchronizer</code> 中的 <code>state</code> 都是被定义为 <code>volatile</code> 来用于保证内存可见性。</p>
 <p>将这块理解透彻对我们编写并发程序时可以提供很大帮助。</p>
+<h2 id="号外"><a href="#号外" class="headerlink" title="号外"></a>号外</h2><p>最近在总结一些 Java 相关的知识点，感兴趣的朋友可以一起维护。</p>
+<blockquote>
+<p>地址: <a href="https://github.com/crossoverJie/Java-Interview" target="_blank" rel="external">https://github.com/crossoverJie/Java-Interview</a></p>
+</blockquote>
 
       
     </div>
@@ -709,7 +713,7 @@
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内存可见性"><span class="nav-number">2.</span> <span class="nav-text">内存可见性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#内存可见性的应用"><span class="nav-number">2.1.</span> <span class="nav-text">内存可见性的应用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#指令重排"><span class="nav-number">3.</span> <span class="nav-text">指令重排</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#指令重排的的应用"><span class="nav-number">3.1.</span> <span class="nav-text">指令重排的的应用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内存可见性"><span class="nav-number">2.</span> <span class="nav-text">内存可见性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#内存可见性的应用"><span class="nav-number">2.1.</span> <span class="nav-text">内存可见性的应用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#指令重排"><span class="nav-number">3.</span> <span class="nav-text">指令重排</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#指令重排的的应用"><span class="nav-number">3.1.</span> <span class="nav-text">指令重排的的应用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#号外"><span class="nav-number">5.</span> <span class="nav-text">号外</span></a></li></ol></div>
             
           </div>
         </section>
@@ -846,7 +850,7 @@
     <script type="text/javascript">
       var disqus_shortname = 'crossoverjie';
       var disqus_identifier = '2018/03/09/volatile/';
-      var disqus_title = "你应该知道的 volatile";
+      var disqus_title = "你应该知道的 volatile 关键字";
       var disqus_url = 'http://crossoverjie.top/2018/03/09/volatile/';
 
       function run_disqus_script(disqus_script){
