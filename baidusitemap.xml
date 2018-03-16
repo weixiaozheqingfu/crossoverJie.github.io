@@ -4,6 +4,30 @@
 
     
   <url>
+    <loc>http://crossoverjie.top/2018/03/16/java-senior/thread-communication/</loc>
+    <lastmod>2018-03-16T12:52:25.000Z</lastmod>
+    <data>
+        <display>
+        <title>深入理解线程通信</title>
+        <pubTime>2018-03-16T12:10:36.000Z</pubTime>
+        
+        <tag>Java</tag>
+         
+        <tag>Thread</tag>
+         
+        <tag>concurrent</tag>
+         
+         
+           
+             
+              <breadCrumb title="Java 进阶" url="http://crossoverjie.top/categories/Java-%E8%BF%9B%E9%98%B6/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://crossoverjie.top/2018/03/09/volatile/</loc>
     <lastmod>2018-03-08T17:42:16.000Z</lastmod>
     <data>
