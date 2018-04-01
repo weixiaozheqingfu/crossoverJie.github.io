@@ -4,8 +4,28 @@
 
     
   <url>
+    <loc>http://crossoverjie.top/2018/03/29/distributed-lock/distributed-lock-redis/</loc>
+    <lastmod>2018-04-01T14:10:38.000Z</lastmod>
+    <data>
+        <display>
+        <title>基于 Redis 的分布式锁</title>
+        <pubTime>2018-03-29T12:10:36.000Z</pubTime>
+        
+        <tag>Redis</tag>
+         
+         
+           
+             
+              <breadCrumb title="分布式锁" url="http://crossoverjie.top/categories/%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://crossoverjie.top/2018/03/21/spring/spring-bean-lifecycle/</loc>
-    <lastmod>2018-03-21T01:29:43.000Z</lastmod>
+    <lastmod>2018-03-21T14:21:54.000Z</lastmod>
     <data>
         <display>
         <title>Spring Bean 生命周期</title>
