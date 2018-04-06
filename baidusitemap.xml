@@ -4,6 +4,27 @@
 
     
   <url>
+    <loc>http://crossoverjie.top/2018/04/07/algorithm/LRU-cache/</loc>
+    <lastmod>2018-04-06T18:45:22.000Z</lastmod>
+    <data>
+        <display>
+        <title>动手实现一个 LRU cache</title>
+        <pubTime>2018-04-06T17:01:36.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="算法" url="http://crossoverjie.top/categories/%E7%AE%97%E6%B3%95/"/>
+          
+             
+              <breadCrumb title="LRU cache" url="http://crossoverjie.top/categories/%E7%AE%97%E6%B3%95/LRU-cache/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://crossoverjie.top/2018/03/29/distributed-lock/distributed-lock-redis/</loc>
     <lastmod>2018-04-01T14:10:38.000Z</lastmod>
     <data>
