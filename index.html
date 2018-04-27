@@ -407,7 +407,7 @@
 <p>普通方法也可使用:</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@CommonLimit</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doSomething</span><span class="params">()</span></span>&#123;&#125;</div></pre></td></tr></table></figure>
 <p>会在调用达到阈值时抛出异常。</p>
-<p>为了模拟并发，在 <a href="https://github.com/crossoverJie/springboot-cloud/blob/master/sbc-user/user/src/main/java/com/crossoverJie/sbcuser/controller/UserController.java#L72-L91">User</a> 应用中开启了 10 个线程调用 Order 接口(也可使用专业的并发测试工具 JMeter 等)。</p>
+<p>为了模拟并发，在 <a href="https://github.com/crossoverJie/springboot-cloud/blob/master/sbc-user/user/src/main/java/com/crossoverJie/sbcuser/controller/UserController.java#L72-L91">User</a> 应用中开启了 10 个线程调用 Order(<strong>限流次数为5</strong>) 接口(也可使用专业的并发测试工具 JMeter 等)。</p>
           <div class="post-more-link text-center">
             <a class="btn" href="/2018/04/28/sbc/sbc7-Distributed-Limit/#more" rel="contents">
               Read more &raquo;
