@@ -408,11 +408,6 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@CommonLimit</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doSomething</span><span class="params">()</span></span>&#123;&#125;</div></pre></td></tr></table></figure>
 <p>会在调用达到阈值时抛出异常。</p>
 <p>为了模拟并发，在 <a href="https://github.com/crossoverJie/springboot-cloud/blob/master/sbc-user/user/src/main/java/com/crossoverJie/sbcuser/controller/UserController.java#L72-L91">User</a> 应用中开启了 10 个线程进行调用(也可使用专业的并发测试工具 JMeter 等)。</p>
-<blockquote>
-<p>为了验证分布式效果启动了两个 Order 应用。</p>
-</blockquote>
-<p><img src="https://ws1.sinaimg.cn/large/006tKfTcly1fqrnxt2l8lj313x09rwfm.jpg" alt=""></p>
-<p>效果如下：<br><img src="https://ws1.sinaimg.cn/large/006tKfTcly1fqrlvvj8cbj31kw0f1wws.jpg" alt=""></p>
           <div class="post-more-link text-center">
             <a class="btn" href="/2018/04/28/sbc/sbc7-Distributed-Limit/#more" rel="contents">
               Read more &raquo;
