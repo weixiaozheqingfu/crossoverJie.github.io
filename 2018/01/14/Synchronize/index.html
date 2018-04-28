@@ -108,7 +108,7 @@
 具体实现是在编译之后在同步方法调用前加入一个 monitor.enter 指令，在退出方法和异">
 <meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcly1fngjnyotvcj30z00jpn0d.jpg">
 <meta property="og:image" content="https://ws2.sinaimg.cn/large/006tNc79ly1fn27fkl07jj31e80hyn0n.jpg">
-<meta property="og:updated_time" content="2018-01-21T14:46:08.000Z">
+<meta property="og:updated_time" content="2018-04-28T13:39:12.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Synchronize 关键字原理">
 <meta name="twitter:description" content="众所周知 Synchronize 关键字是解决并发问题常用解决方案，有以下三种使用方式:
@@ -427,7 +427,8 @@
 <p>如果是则说明当前线程拥有锁对象的锁，可以直接进入同步块。</p>
 <p>不是则说明有其他线程抢占了锁，如果存在多个线程同时竞争一把锁，<strong>轻量锁就会膨胀为重量锁</strong>。</p>
 <h4 id="解锁"><a href="#解锁" class="headerlink" title="解锁"></a>解锁</h4><p>轻量锁的解锁过程也是利用 <code>CAS</code> 来实现的，会尝试锁记录替换回锁对象的 <code>Mark Word</code> 。如果替换成功则说明整个同步操作完成，失败则说明有其他线程尝试获取锁，这时就会唤醒被挂起的线程(此时已经膨胀为<code>重量锁</code>)</p>
-<p>轻量锁能提升性能的原因是：认为大多数锁在整个同步周期都不存在竞争，所以使用 <code>CAS</code> 比使用互斥开销更少。但如果锁竞争激烈，轻量锁就不但有互斥的开销，还有 <code>CAS</code> 的开销，甚至比重量锁更慢。</p>
+<p>轻量锁能提升性能的原因：</p>
+<p>认为大多数锁在整个同步周期都不存在竞争，所以使用 <code>CAS</code> 比使用互斥开销更少。但如果锁竞争激烈，轻量锁就不但有互斥的开销，还有 <code>CAS</code> 的开销，甚至比重量锁更慢。</p>
 <h3 id="偏向锁"><a href="#偏向锁" class="headerlink" title="偏向锁"></a>偏向锁</h3><p>为了进一步的降低获取锁的代价，<code>JDK1.6</code> 之后还引入了偏向锁。</p>
 <p>偏向锁的特征是:锁不存在多线程竞争，并且应由一个线程多次获得锁。</p>
 <p>当线程访问同步块时，会使用 <code>CAS</code> 将线程 ID 更新到锁对象的 <code>Mark Word</code> 中，如果更新成功则获得偏向锁，并且之后每次进入这个对象锁相关的同步块时都不需要再次获取锁了。</p>
