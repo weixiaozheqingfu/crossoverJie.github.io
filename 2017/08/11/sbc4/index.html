@@ -102,7 +102,7 @@
 <meta property="og:image" content="https://i.loli.net/2017/08/11/598c905caa8cb.png">
 <meta property="og:image" content="https://i.loli.net/2017/08/11/598c91f2a33af.gif">
 <meta property="og:image" content="https://i.loli.net/2017/08/11/598c960f8983f.jpg">
-<meta property="og:updated_time" content="2018-04-28T13:02:21.000Z">
+<meta property="og:updated_time" content="2018-04-28T13:08:30.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="sbc(四)应用限流">
 <meta name="twitter:description" content="前言
@@ -424,7 +424,7 @@
 <p>使用<code>RateLimiter</code>有几个值得注意的地方:</p>
 <p>允许<code>先消费，后付款</code>，意思就是它可以来一个请求的时候一次性取走几个或者是剩下所有的令牌甚至多取，但是后面的请求就得为上一次请求买单，它需要等待桶中的令牌补齐之后才能继续获取令牌。</p>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>针对于单个应用的限流 <code>RateLimiter</code> 够用了，如果是分布式环境可以借助 <code>Redis</code> 来完成。</p>
-<p>最近也对了一个，可以<a href="https://crossoverjie.top/2018/04/28/sbc/sbc7-Distributed-Limit/">参考</a>。</p>
+<p>最近也怼了一个，可以<a href="https://crossoverjie.top/2018/04/28/sbc/sbc7-Distributed-Limit/">参考</a>。</p>
 <blockquote>
 <p>项目：<a href="https://github.com/crossoverJie/springboot-cloud" target="_blank" rel="external">https://github.com/crossoverJie/springboot-cloud</a></p>
 <p>博客：<a href="http://crossoverjie.top">http://crossoverjie.top</a>。</p>
