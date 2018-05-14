@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://crossoverjie.top/"/>
-  <updated>2018-05-14T10:49:50.000Z</updated>
+  <updated>2018-05-14T15:16:54.000Z</updated>
   <id>http://crossoverjie.top/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://crossoverjie.top/2018/05/15/skill/1Kstar/"/>
     <id>http://crossoverjie.top/2018/05/15/skill/1Kstar/</id>
     <published>2018-05-14T17:00:44.000Z</published>
-    <updated>2018-05-14T10:49:50.000Z</updated>
+    <updated>2018-05-14T15:16:54.000Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://i.loli.net/2018/05/14/5af935ddc27e1.jpg" alt="alarm-clock-art-background-1037993.jpg"></p>
 <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>首先标题党一下，其实这篇文章主要是记录我的第二个过 <code>1K star</code> 的项目 <a href="https://github.com/crossoverJie/Java-Interview" target="_blank" rel="external">Java-Interview</a>，顺便分享下其中的过程及经验。</p>
@@ -53,8 +53,11 @@
 <blockquote>
 <p>切记不要什么东西都往 README.MD 中写，保持一个简洁的文档可以加分哦。</p>
 </blockquote>
+<p>当然也可以在首页加入一些徽章如：</p>
+<p><a href="https://travis-ci.org/crossoverJie/distributed-redis-tool" target="_blank" rel="external"><img src="https://travis-ci.org/crossoverJie/distributed-redis-tool.svg?branch=master" alt="Build Status"></a><br><a href="https://codecov.io/gh/crossoverJie/distributed-redis-tool" target="_blank" rel="external"><img src="https://codecov.io/gh/crossoverJie/distributed-redis-tool/branch/master/graph/badge.svg" alt="codecov"></a><br><a href="https://maven-badges.herokuapp.com/maven-central/top.crossoverjie.opensource/distributed-redis-tool/" target="_blank" rel="external"><img src="https://maven-badges.herokuapp.com/maven-central/top.crossoverjie.opensource/distributed-redis-tool/badge.svg" alt="Maven Central"></a><br><a href="https://juejin.im/post/5ae3d08b6fb9a07a9e4cf71c" target="_blank" rel="external"><img src="https://badge.juejin.im/entry/5ae3d0c56fb9a07aae14ea59/likes.svg?style=flat-square" alt=""></a></p>
+<p>也能起到一些积极作用。</p>
 <h1 id="积极推荐"><a href="#积极推荐" class="headerlink" title="积极推荐"></a>积极推荐</h1><p>代码质量这个就不多说了，这应该是最基本的要求。</p>
-<p>俗话说：，酒香不怕巷子深。</p>
+<p>俗话说：酒香不怕巷子深。</p>
 <p>但对于做开源项目来说就不太适应了，当你幸辛苦苦做了一个自认为很不错的项目，结果一年过去了都无人问津，这不免会有点打击积极性。</p>
 <p>所以适当的自我推荐就很有必要了。</p>
 <p><img src="https://i.loli.net/2018/05/14/5af94d4c99929.png" alt="7D819139-647F-43E3-9DB2-AB80A3E6BC7B.png"></p>
