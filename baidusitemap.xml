@@ -4,8 +4,32 @@
 
     
   <url>
+    <loc>http://crossoverjie.top/2018/05/24/netty/Netty(1)TCP-Heartbeat/</loc>
+    <lastmod>2018-05-27T18:22:00.000Z</lastmod>
+    <data>
+        <display>
+        <title>Netty(一) SpringBoot 整合长连接心跳机制</title>
+        <pubTime>2018-05-23T17:02:54.000Z</pubTime>
+        
+        <tag>SpringBoot</tag>
+         
+        <tag>TCP</tag>
+         
+        <tag>Heartbeat</tag>
+         
+         
+           
+             
+              <breadCrumb title="Netty" url="http://crossoverjie.top/categories/Netty/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://crossoverjie.top/2018/05/15/skill/1Kstar/</loc>
-    <lastmod>2018-05-14T16:17:42.000Z</lastmod>
+    <lastmod>2018-05-14T16:26:25.000Z</lastmod>
     <data>
         <display>
         <title>1K star+ 的项目是如何炼成的？</title>
