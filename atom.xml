@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://crossoverjie.top/"/>
-  <updated>2018-05-27T18:27:44.000Z</updated>
+  <updated>2018-05-27T18:30:39.000Z</updated>
   <id>http://crossoverjie.top/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://crossoverjie.top/2018/05/24/netty/Netty(1)TCP-Heartbeat/"/>
     <id>http://crossoverjie.top/2018/05/24/netty/Netty(1)TCP-Heartbeat/</id>
     <published>2018-05-23T17:02:54.000Z</published>
-    <updated>2018-05-27T18:27:44.000Z</updated>
+    <updated>2018-05-27T18:30:39.000Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://i.loli.net/2018/05/25/5b0774828db53.jpeg" alt="photo-1522204657746-fccce0824cfd.jpeg"></p>
 <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>Netty 是一个高性能的 NIO 网络框架，本文基于 SpringBoot 以常见的心跳机制来认识 Netty。</p>
@@ -31,7 +31,7 @@
 <li>服务端可以主动 push 消息到客户端。</li>
 <li>基于 SpringBoot 监控，可以查看实时连接以及各种应用信息。</li>
 </ul>
-<p>是效果如下：</p>
+<p>效果如下：</p>
 <p><img src="https://crossoverjie.top/uploads/netty-Heartbeat.gif" alt="show"></p>
 <a id="more"></a>
 <h1 id="IdleStateHandler"><a href="#IdleStateHandler" class="headerlink" title="IdleStateHandler"></a>IdleStateHandler</h1><p>Netty 可以使用 IdleStateHandler 来实现连接管理，当连接空闲时间太长（没有发送、接收消息）时则会触发一个事件，我们便可在该事件中实现心跳机制。</p>
@@ -160,7 +160,7 @@
 &lt;li&gt;服务端可以主动 push 消息到客户端。&lt;/li&gt;
 &lt;li&gt;基于 SpringBoot 监控，可以查看实时连接以及各种应用信息。&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;是效果如下：&lt;/p&gt;
+&lt;p&gt;效果如下：&lt;/p&gt;
 &lt;p&gt;&lt;img src=&quot;https://crossoverjie.top/uploads/netty-Heartbeat.gif&quot; alt=&quot;show&quot;&gt;&lt;/p&gt;
     
     </summary>
