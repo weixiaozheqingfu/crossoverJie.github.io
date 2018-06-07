@@ -1,0 +1,1119 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Distributed Lock,Distributed Limited," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="crossoverJie's Blog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="前言之前在做 秒杀架构实践 时有提到对 distributed-redis-tool 的一次小升级，但是没有细说。
+其实主要原因是：
+
+秒杀时我做压测：由于集成了这个限流组件，并发又比较大，所以导致连接、断开 Redis 非常频繁。最终导致获取不了 Redis connection 的异常。
+
+池化技术这就是一个典型的对稀缺资源使用不善导致的。
+何为稀缺资源？常见的有：
+
+线程
+数据库连接
+网络">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式工具的一次小升级">
+<meta property="og:url" content="http://crossoverjie.top/2018/06/07/distributed-lock/distributed-lock-redis-update/index.html">
+<meta property="og:site_name" content="crossoverJie's Blog">
+<meta property="og:description" content="前言之前在做 秒杀架构实践 时有提到对 distributed-redis-tool 的一次小升级，但是没有细说。
+其实主要原因是：
+
+秒杀时我做压测：由于集成了这个限流组件，并发又比较大，所以导致连接、断开 Redis 非常频繁。最终导致获取不了 Redis connection 的异常。
+
+池化技术这就是一个典型的对稀缺资源使用不善导致的。
+何为稀缺资源？常见的有：
+
+线程
+数据库连接
+网络">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNc79ly1fs2s4f0jf4j31g80ytn6i.jpg">
+<meta property="og:updated_time" content="2018-06-07T12:38:26.460Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="分布式工具的一次小升级">
+<meta name="twitter:description" content="前言之前在做 秒杀架构实践 时有提到对 distributed-redis-tool 的一次小升级，但是没有细说。
+其实主要原因是：
+
+秒杀时我做压测：由于集成了这个限流组件，并发又比较大，所以导致连接、断开 Redis 非常频繁。最终导致获取不了 Redis connection 的异常。
+
+池化技术这就是一个典型的对稀缺资源使用不善导致的。
+何为稀缺资源？常见的有：
+
+线程
+数据库连接
+网络">
+<meta name="twitter:image" content="https://ws4.sinaimg.cn/large/006tNc79ly1fs2s4f0jf4j31g80ytn6i.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 555390,
+      author: '博主大大'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://crossoverjie.top/2018/06/07/distributed-lock/distributed-lock-redis-update/"/>
+
+  <title> 分布式工具的一次小升级 | crossoverJie's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s6.cnzz.com/stat.php?id=1259025147&web_id=1259025147" type="text/javascript"></script>
+  </div>
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">crossoverJie's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">baller</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photo">
+          <a href="/favourite" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-photo"></i> <br />
+            
+            photo
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                分布式工具的一次小升级
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2018-06-07T22:20:46+08:00" content="2018-06-07">
+              2018-06-07
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Distributed-Tools/" itemprop="url" rel="index">
+                    <span itemprop="name">Distributed Tools</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2018/06/07/distributed-lock/distributed-lock-redis-update/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/06/07/distributed-lock/distributed-lock-redis-update/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/06/07/distributed-lock/distributed-lock-redis-update/" class="leancloud_visitors" data-flag-title="分布式工具的一次小升级">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">visitors </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+              &nbsp; | &nbsp;
+              <span class="page-pv">本文总阅读量
+              <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+              </span>
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://ws4.sinaimg.cn/large/006tNc79ly1fs2s4f0jf4j31g80ytn6i.jpg" alt=""></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>之前在做 <a href="https://crossoverjie.top/2018/05/07/ssm/SSM18-seconds-kill/#distributed-redis-tool-%E2%AC%86%EF%B8%8Fv1-0-3">秒杀架构实践</a> 时有提到对 <a href="https://github.com/crossoverJie/distributed-redis-tool" target="_blank" rel="external">distributed-redis-tool</a> 的一次小升级，但是没有细说。</p>
+<p>其实主要原因是：</p>
+<blockquote>
+<p>秒杀时我做压测：由于集成了这个限流组件，并发又比较大，所以导致连接、断开 Redis 非常频繁。<br>最终导致获取不了 Redis connection 的异常。</p>
+</blockquote>
+<h2 id="池化技术"><a href="#池化技术" class="headerlink" title="池化技术"></a>池化技术</h2><p>这就是一个典型的对稀缺资源使用不善导致的。</p>
+<p>何为稀缺资源？常见的有：</p>
+<ul>
+<li>线程</li>
+<li>数据库连接</li>
+<li>网络连接等</li>
+</ul>
+<p>这些资源都有共同的特点：<strong>创建销毁成本较高</strong>。</p>
+<a id="more"></a>
+<p>这里涉及到的 Redis 连接也属于该类资源。</p>
+<p>我们希望将这些稀有资源管理起来放到一个池子里，当需要时就从中获取，用完就放回去，不够用时就等待（或返回）。</p>
+<p>这样我们只需要初始化并维护好这个池子，就能避免频繁的创建、销毁这些资源（也有资源长期未使用需要缩容的情况）。</p>
+<p>通常我们称这项姿势为池化技术，如常见的：</p>
+<ul>
+<li>线程池</li>
+<li>各种资源的连接池等。</li>
+</ul>
+<p>为此我将使用到 Redis 的 <a href="https://crossoverjie.top/%2F2018%2F03%2F29%2Fdistributed-lock%2Fdistributed-lock-redis%2F">分布式锁</a>、<a href="https://crossoverjie.top/2018/04/28/sbc/sbc7-Distributed-Limit/">分布式限流</a> 都升级为利用连接池来获取 Redis 的连接。</p>
+<p>这里以<a href="https://github.com/crossoverJie/distributed-redis-tool#distributed-lock" target="_blank" rel="external">分布式锁</a>为例：</p>
+<p>将使用的 api 修改为：</p>
+<p>原有：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Configuration</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RedisLockConfig</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Bean</span></div><div class="line">    <span class="function"><span class="keyword">public</span> RedisLock <span class="title">build</span><span class="params">()</span></span>&#123;</div><div class="line">        <span class="comment">//Need to get Redis connection </span></div><div class="line">        RedisLock redisLock = <span class="keyword">new</span> RedisLock() ;</div><div class="line">        HostAndPort hostAndPort = <span class="keyword">new</span> HostAndPort(<span class="string">"127.0.0.1"</span>,<span class="number">7000</span>) ;</div><div class="line">        JedisCluster jedisCluster = <span class="keyword">new</span> JedisCluster(hostAndPort) ;</div><div class="line">        RedisLock redisLock = <span class="keyword">new</span> RedisLock.Builder(jedisCluster)</div><div class="line">                .lockPrefix(<span class="string">"lock_test"</span>)</div><div class="line">                .sleepTime(<span class="number">100</span>)</div><div class="line">                .build();</div><div class="line">                </div><div class="line">        <span class="keyword">return</span> redisLock ;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>现在：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Configuration</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RedisLockConfig</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> Logger logger = LoggerFactory.getLogger(RedisLockConfig.class);</div><div class="line">    </div><div class="line">    </div><div class="line">    <span class="meta">@Autowired</span></div><div class="line">    <span class="keyword">private</span> JedisConnectionFactory jedisConnectionFactory;</div><div class="line">    </div><div class="line">    <span class="meta">@Bean</span></div><div class="line">    <span class="function"><span class="keyword">public</span> RedisLock <span class="title">build</span><span class="params">()</span> </span>&#123;</div><div class="line">        RedisLock redisLock = <span class="keyword">new</span> RedisLock.Builder(jedisConnectionFactory,RedisToolsConstant.SINGLE)</div><div class="line">                .lockPrefix(<span class="string">"lock_"</span>)</div><div class="line">                .sleepTime(<span class="number">100</span>)</div><div class="line">                .build();</div><div class="line"></div><div class="line">        <span class="keyword">return</span> redisLock;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>将以前的 Jedis 修改为 <code>JedisConnectionFactory</code>，后续的 Redis 连接就可通过这个对象获取。</p>
+<p>并且显示的传入使用 RedisCluster 还是单机的 Redis。</p>
+<p>所以在真正操作 Redis 时需要修改：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">tryLock</span><span class="params">(String key, String request)</span> </span>&#123;</div><div class="line">    <span class="comment">//get connection</span></div><div class="line">    Object connection = getConnection();</div><div class="line">    String result ;</div><div class="line">    <span class="keyword">if</span> (connection <span class="keyword">instanceof</span> Jedis)&#123;</div><div class="line">        result =  ((Jedis) connection).set(lockPrefix + key, request, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, <span class="number">10</span> * TIME);</div><div class="line">        ((Jedis) connection).close();</div><div class="line">    &#125;<span class="keyword">else</span> &#123;</div><div class="line">        result = ((JedisCluster) connection).set(lockPrefix + key, request, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, <span class="number">10</span> * TIME);</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            ((JedisCluster) connection).close();</div><div class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">            logger.error(<span class="string">"IOException"</span>,e);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (LOCK_MSG.equals(result)) &#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//获取连接</span></div><div class="line"><span class="function"><span class="keyword">private</span> Object <span class="title">getConnection</span><span class="params">()</span> </span>&#123;</div><div class="line">    Object connection ;</div><div class="line">    <span class="keyword">if</span> (type == RedisToolsConstant.SINGLE)&#123;</div><div class="line">        RedisConnection redisConnection = jedisConnectionFactory.getConnection();</div><div class="line">        connection = redisConnection.getNativeConnection();</div><div class="line">    &#125;<span class="keyword">else</span> &#123;</div><div class="line">        RedisClusterConnection clusterConnection = jedisConnectionFactory.getClusterConnection();</div><div class="line">        connection = clusterConnection.getNativeConnection() ;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> connection;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>最大的改变就是将原有操作 Redis 的对象（<code>T extends JedisCommands</code>）改为从连接池中获取。</p>
+<p>由于使用了 <code>org.springframework.data.redis.connection.jedis.JedisConnectionFactory</code> 作为 Redis 连接池。</p>
+<p>所以需要再使用时构件好这个对象：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">JedisPoolConfig config = <span class="keyword">new</span> JedisPoolConfig();</div><div class="line">config.setMaxIdle(<span class="number">10</span>);</div><div class="line">config.setMaxTotal(<span class="number">300</span>);</div><div class="line">config.setMaxWaitMillis(<span class="number">10000</span>);</div><div class="line">config.setTestOnBorrow(<span class="keyword">true</span>);</div><div class="line">config.setTestOnReturn(<span class="keyword">true</span>);</div><div class="line"></div><div class="line">RedisClusterConfiguration redisClusterConfiguration = <span class="keyword">new</span> RedisClusterConfiguration();</div><div class="line">redisClusterConfiguration.addClusterNode(<span class="keyword">new</span> RedisNode(<span class="string">"10.19.13.51"</span>, <span class="number">7000</span>));</div><div class="line"></div><div class="line"><span class="comment">//单机</span></div><div class="line">JedisConnectionFactory jedisConnectionFactory = <span class="keyword">new</span> JedisConnectionFactory(config);</div><div class="line"></div><div class="line"><span class="comment">//集群</span></div><div class="line"><span class="comment">//JedisConnectionFactory jedisConnectionFactory = new JedisConnectionFactory(redisClusterConfiguration) ;</span></div><div class="line">jedisConnectionFactory.setHostName(<span class="string">"47.98.194.60"</span>);</div><div class="line">jedisConnectionFactory.setPort(<span class="number">6379</span>);</div><div class="line">jedisConnectionFactory.setPassword(<span class="string">""</span>);</div><div class="line">jedisConnectionFactory.setTimeout(<span class="number">100000</span>);</div><div class="line">jedisConnectionFactory.afterPropertiesSet();</div><div class="line"><span class="comment">//jedisConnectionFactory.setShardInfo(new JedisShardInfo("47.98.194.60", 6379));</span></div><div class="line"><span class="comment">//JedisCluster jedisCluster = new JedisCluster(hostAndPort);</span></div><div class="line"></div><div class="line">HostAndPort hostAndPort = <span class="keyword">new</span> HostAndPort(<span class="string">"10.19.13.51"</span>, <span class="number">7000</span>);</div><div class="line">JedisCluster jedisCluster = <span class="keyword">new</span> JedisCluster(hostAndPort);</div><div class="line">redisLock = <span class="keyword">new</span> RedisLock.Builder(jedisConnectionFactory, RedisToolsConstant.SINGLE)</div><div class="line">        .lockPrefix(<span class="string">"lock_"</span>)</div><div class="line">        .sleepTime(<span class="number">100</span>)</div><div class="line">        .build();</div></pre></td></tr></table></figure>
+<p>看起比较麻烦，需要构建对象的较多。</p>
+<p>但整合 Spring 使用时就要清晰许多。</p>
+<h2 id="配合-Spring"><a href="#配合-Spring" class="headerlink" title="配合 Spring"></a>配合 Spring</h2><p>Spring 很大的一个作用就是帮我们管理对象，所以像上文那些看似很复杂的对象都可以交由它来管理：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="comment">&lt;!-- jedis 配置 --&gt;</span></div><div class="line"> <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"JedispoolConfig"</span> <span class="attr">class</span>=<span class="string">"redis.clients.jedis.JedisPoolConfig"</span>&gt;</span></div><div class="line">     <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"maxIdle"</span> <span class="attr">value</span>=<span class="string">"$&#123;redis.maxIdle&#125;"</span>/&gt;</span></div><div class="line">     <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"maxTotal"</span> <span class="attr">value</span>=<span class="string">"$&#123;redis.maxTotal&#125;"</span>/&gt;</span></div><div class="line">     <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"maxWaitMillis"</span> <span class="attr">value</span>=<span class="string">"$&#123;redis.maxWait&#125;"</span>/&gt;</span></div><div class="line">     <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"testOnBorrow"</span> <span class="attr">value</span>=<span class="string">"$&#123;redis.testOnBorrow&#125;"</span>/&gt;</span></div><div class="line">     <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"testOnReturn"</span> <span class="attr">value</span>=<span class="string">"$&#123;redis.testOnBorrow&#125;"</span>/&gt;</span></div><div class="line"> <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></div><div class="line"> <span class="comment">&lt;!-- redis服务器中心 --&gt;</span></div><div class="line"> <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"connectionFactory"</span> <span class="attr">class</span>=<span class="string">"org.springframework.data.redis.connection.jedis.JedisConnectionFactory"</span>&gt;</span></div><div class="line">     <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"poolConfig"</span> <span class="attr">ref</span>=<span class="string">"JedispoolConfig"</span>/&gt;</span></div><div class="line">     <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"port"</span> <span class="attr">value</span>=<span class="string">"$&#123;redis.port&#125;"</span>/&gt;</span></div><div class="line">     <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"hostName"</span> <span class="attr">value</span>=<span class="string">"$&#123;redis.host&#125;"</span>/&gt;</span></div><div class="line">     <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"password"</span> <span class="attr">value</span>=<span class="string">"$&#123;redis.password&#125;"</span>/&gt;</span></div><div class="line">     <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"timeout"</span> <span class="attr">value</span>=<span class="string">"$&#123;redis.timeout&#125;"</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></div><div class="line"> <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></div><div class="line"> <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"redisTemplate"</span> <span class="attr">class</span>=<span class="string">"org.springframework.data.redis.core.RedisTemplate"</span>&gt;</span></div><div class="line">     <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"connectionFactory"</span> <span class="attr">ref</span>=<span class="string">"connectionFactory"</span>/&gt;</span></div><div class="line">     <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"keySerializer"</span>&gt;</span></div><div class="line">         <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"org.springframework.data.redis.serializer.StringRedisSerializer"</span>/&gt;</span></div><div class="line">     <span class="tag">&lt;/<span class="name">property</span>&gt;</span></div><div class="line">     <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"valueSerializer"</span>&gt;</span></div><div class="line">         <span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">"org.springframework.data.redis.serializer.StringRedisSerializer"</span>/&gt;</span></div><div class="line">     <span class="tag">&lt;/<span class="name">property</span>&gt;</span></div><div class="line"> <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>这个其实没多少好说的，就算是换成 SpringBoot 也是创建 <code>JedispoolConfig,connectionFactory,redisTemplate</code> 这些 bean 即可。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>换为连接池之后再进行压测自然没有出现获取不了 Redis 连接的异常（并发达到一定的量也会出错）说明更新是很有必要的。</p>
+<p>推荐有用到该组件的朋友都升级下，也欢迎提出 Issues 和 PR。</p>
+<p>项目地址：</p>
+<p><a href="https://github.com/crossoverJie/distributed-redis-tool" target="_blank" rel="external">https://github.com/crossoverJie/distributed-redis-tool</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+<div id="wechat_subscriber" style="display: block； padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/uploads/weixin.png" alt="crossoverJie wechat" style="width: 200px; max-width: 100%;"/>
+    <div>我很有眼光！</div>
+</div>
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>就是有钱。。</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/weixin-reward-image.jpg" alt="crossoverJie WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/alipay-reward-image.jpg" alt="crossoverJie Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Distributed-Lock/" rel="tag">#Distributed Lock</a>
+          
+            <a href="/tags/Distributed-Limited/" rel="tag">#Distributed Limited</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/05/24/netty/Netty(1)TCP-Heartbeat/" rel="next" title="Netty(一) SpringBoot 整合长连接心跳机制">
+                <i class="fa fa-chevron-left"></i> Netty(一) SpringBoot 整合长连接心跳机制
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  <p>热评文章</p>
+  <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/crossoverjie.jpg"
+               alt="crossoverJie" />
+          <p class="site-author-name" itemprop="name">crossoverJie</p>
+          <p class="site-description motion-element" itemprop="description">You never know what you can do till you try.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">54</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">19</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">61</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/crossoverJie" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.jianshu.com/users/e2d07947c112/latest_articles" target="_blank" title="简书">
+                  
+                    <i class="fa fa-fw fa-book"></i>
+                  
+                  简书
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://juejin.im/user/576d4aaf7db2a20054ea4544" target="_blank" title="掘金">
+                  
+                    <i class="fa fa-fw fa-bookmark"></i>
+                  
+                  掘金
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://wuchong.me" title="Jark's Blog" target="_blank">Jark's Blog</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://tengj.top" title="嘟嘟独立博客" target="_blank">嘟嘟独立博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://yemengying.com/" title="Giraffe Home" target="_blank">Giraffe Home</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://blog.jamespan.me/" title="潘小鶸(ruò)" target="_blank">潘小鶸(ruò)</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://fangjian0423.github.io/" title="Format's Notes" target="_blank">Format's Notes</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://yuzhouwan.com/" title="Benedict Jin" target="_blank">Benedict Jin</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#池化技术"><span class="nav-number">2.</span> <span class="nav-text">池化技术</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#配合-Spring"><span class="nav-number">3.</span> <span class="nav-text">配合 Spring</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">crossoverJie</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv"><i class="fa fa-user"></i><span class="busuanzi-value" id="busuanzi_value_site_uv"></span>人数</span>
+  
+
+  
+    <span class="site-pv">您是第<span class="busuanzi-value" id="busuanzi_value_site_pv"></span>位童鞋</span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'crossoverjie';
+      var disqus_identifier = '2018/06/07/distributed-lock/distributed-lock-redis-update/';
+      var disqus_title = "分布式工具的一次小升级";
+      var disqus_url = 'http://crossoverjie.top/2018/06/07/distributed-lock/distributed-lock-redis-update/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';                
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+                            
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').mousedown(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("Qv6ckEtL1pe3PJD10qoOLKtg-gzGzoHsz", "NXiHFodQfmI8oxkK6IThhjrF");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+<script type="text/javascript" src="/js/src/particle.js" count="50" zindex="-2" opacity="1" color="0,104,183"></script>
+</body>
+</html>

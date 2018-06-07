@@ -299,6 +299,150 @@
             
               
                 
+                <a class="post-title-link" href="/2018/06/07/distributed-lock/distributed-lock-redis-update/" itemprop="url">
+                  分布式工具的一次小升级
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2018-06-07T22:20:46+08:00" content="2018-06-07">
+              2018-06-07
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Distributed-Tools/" itemprop="url" rel="index">
+                    <span itemprop="name">Distributed Tools</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2018/06/07/distributed-lock/distributed-lock-redis-update/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/06/07/distributed-lock/distributed-lock-redis-update/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/06/07/distributed-lock/distributed-lock-redis-update/" class="leancloud_visitors" data-flag-title="分布式工具的一次小升级">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">visitors </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p><img src="https://ws4.sinaimg.cn/large/006tNc79ly1fs2s4f0jf4j31g80ytn6i.jpg" alt=""></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>之前在做 <a href="https://crossoverjie.top/2018/05/07/ssm/SSM18-seconds-kill/#distributed-redis-tool-%E2%AC%86%EF%B8%8Fv1-0-3">秒杀架构实践</a> 时有提到对 <a href="https://github.com/crossoverJie/distributed-redis-tool">distributed-redis-tool</a> 的一次小升级，但是没有细说。</p>
+<p>其实主要原因是：</p>
+<blockquote>
+<p>秒杀时我做压测：由于集成了这个限流组件，并发又比较大，所以导致连接、断开 Redis 非常频繁。<br>最终导致获取不了 Redis connection 的异常。</p>
+</blockquote>
+<h2 id="池化技术"><a href="#池化技术" class="headerlink" title="池化技术"></a>池化技术</h2><p>这就是一个典型的对稀缺资源使用不善导致的。</p>
+<p>何为稀缺资源？常见的有：</p>
+<ul>
+<li>线程</li>
+<li>数据库连接</li>
+<li>网络连接等</li>
+</ul>
+<p>这些资源都有共同的特点：<strong>创建销毁成本较高</strong>。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2018/06/07/distributed-lock/distributed-lock-redis-update/#more" rel="contents">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2018/05/24/netty/Netty(1)TCP-Heartbeat/" itemprop="url">
                   Netty(一) SpringBoot 整合长连接心跳机制
                 </a>
@@ -1606,151 +1750,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2018/03/09/volatile/" itemprop="url">
-                  你应该知道的 volatile 关键字
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">Posted on</span>
-            <time itemprop="dateCreated" datetime="2018-03-09T02:00:36+08:00" content="2018-03-09">
-              2018-03-09
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/Java-进阶/" itemprop="url" rel="index">
-                    <span itemprop="name">Java 进阶</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2018/03/09/volatile/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/03/09/volatile/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-             <span id="/2018/03/09/volatile/" class="leancloud_visitors" data-flag-title="你应该知道的 volatile 关键字">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">visitors </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p><img src="https://ws3.sinaimg.cn/large/006tNc79gy1fp5xm7uykoj30v90kugng.jpg" alt=""></p>
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>不管是在面试还是实际开发中 <code>volatile</code> 都是一个应该掌握的技能。</p>
-<p>首先来看看为什么会出现这个关键字。</p>
-<h2 id="内存可见性"><a href="#内存可见性" class="headerlink" title="内存可见性"></a>内存可见性</h2><p>由于 <code>Java</code> 内存模型(<code>JMM</code>)规定，所有的变量都存放在主内存中，而每个线程都有着自己的工作内存(高速缓存)。</p>
-<p>线程在工作时，需要将主内存中的数据拷贝到工作内存中。这样对数据的任何操作都是基于工作内存(效率提高)，并且不能直接操作主内存以及其他线程工作内存中的数据，之后再将更新之后的数据刷新到主内存中。</p>
-<blockquote>
-<p>这里所提到的主内存可以简单认为是<strong>堆内存</strong>，而工作内存则可以认为是<strong>栈内存</strong>。</p>
-</blockquote>
-<p>如下图所示：</p>
-<p><img src="https://ws2.sinaimg.cn/large/006tKfTcly1fmouu3fpokj31ae0osjt1.jpg" alt=""></p>
-<p>所以在并发运行时可能会出现线程 B 所读取到的数据是线程 A 更新之前的数据。</p>
-<p>显然这肯定是会出问题的，因此 <code>volatile</code> 的作用出现了：</p>
-<blockquote>
-<p>当一个变量被 <code>volatile</code> 修饰时，任何线程对它的写操作都会立即刷新到主内存中，并且会强制让缓存了该变量的线程中的数据清空，必须从主内存重新读取最新数据。</p>
-</blockquote>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2018/03/09/volatile/#more" rel="contents">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1796,7 +1795,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">53</span>
+              <span class="site-state-item-count">54</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -1813,7 +1812,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">60</span>
+                <span class="site-state-item-count">61</span>
                 <span class="site-state-item-name">tags</span>
               </a>
             </div>
