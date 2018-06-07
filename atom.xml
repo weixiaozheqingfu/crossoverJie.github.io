@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://crossoverjie.top/"/>
-  <updated>2018-06-07T12:38:26.460Z</updated>
+  <updated>2018-06-07T12:45:12.511Z</updated>
   <id>http://crossoverjie.top/</id>
   
   <author>
@@ -16,11 +16,11 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>分布式工具的一次小升级</title>
+    <title>分布式工具的一次小升级⏫</title>
     <link href="http://crossoverjie.top/2018/06/07/distributed-lock/distributed-lock-redis-update/"/>
     <id>http://crossoverjie.top/2018/06/07/distributed-lock/distributed-lock-redis-update/</id>
     <published>2018-06-07T14:20:46.000Z</published>
-    <updated>2018-06-07T12:38:26.460Z</updated>
+    <updated>2018-06-07T12:45:12.511Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://ws4.sinaimg.cn/large/006tNc79ly1fs2s4f0jf4j31g80ytn6i.jpg" alt=""></p>
 <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>之前在做 <a href="https://crossoverjie.top/2018/05/07/ssm/SSM18-seconds-kill/#distributed-redis-tool-%E2%AC%86%EF%B8%8Fv1-0-3">秒杀架构实践</a> 时有提到对 <a href="https://github.com/crossoverJie/distributed-redis-tool" target="_blank" rel="external">distributed-redis-tool</a> 的一次小升级，但是没有细说。</p>
