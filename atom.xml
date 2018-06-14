@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://crossoverjie.top/"/>
-  <updated>2018-06-12T18:10:07.568Z</updated>
+  <updated>2018-06-12T18:16:39.762Z</updated>
   <id>http://crossoverjie.top/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://crossoverjie.top/2018/06/13/guava/guava-cache/"/>
     <id>http://crossoverjie.top/2018/06/13/guava/guava-cache/</id>
     <published>2018-06-12T17:20:42.000Z</published>
-    <updated>2018-06-12T18:10:07.568Z</updated>
+    <updated>2018-06-12T18:16:39.762Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://i.loli.net/2018/06/12/5b1fea79e07cb.jpeg" alt="1.jpeg"></p>
 <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Google 出的 <a href="https://github.com/google/guava" target="_blank" rel="external">Guava</a> 是 Java 核心增强的库，应用非常广泛。</p>
