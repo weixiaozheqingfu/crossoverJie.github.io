@@ -502,8 +502,8 @@
       </categories>
       <tags>
         <tag>Java</tag>
-        <tag>CXF</tag>
         <tag>IDEA</tag>
+        <tag>CXF</tag>
       </tags>
   </entry>
   <entry>
@@ -541,10 +541,10 @@
       </categories>
       <tags>
         <tag>Java</tag>
-        <tag>IDEA</tag>
         <tag>Spring</tag>
         <tag>SpringMVC</tag>
         <tag>Mybatis</tag>
+        <tag>IDEA</tag>
       </tags>
   </entry>
   <entry>
