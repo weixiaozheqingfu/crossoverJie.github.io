@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://crossoverjie.top/about/index.html</loc>
+    
+    <lastmod>2018-07-01T17:22:01.364Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://crossoverjie.top/2018/06/21/personal/Interview-experience/</loc>
     
     <lastmod>2018-06-24T15:04:27.387Z</lastmod>
@@ -131,13 +138,6 @@
     <loc>http://crossoverjie.top/2018/01/25/ReentrantLock/</loc>
     
     <lastmod>2018-01-26T07:38:08.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://crossoverjie.top/about/index.html</loc>
-    
-    <lastmod>2018-01-20T04:13:46.000Z</lastmod>
     
   </url>
   
