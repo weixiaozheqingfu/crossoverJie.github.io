@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://crossoverjie.top/"/>
-  <updated>2018-07-03T16:49:59.957Z</updated>
+  <updated>2018-07-03T16:58:22.849Z</updated>
   <id>http://crossoverjie.top/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://crossoverjie.top/2018/07/04/netty/Netty(2)Thread-model/"/>
     <id>http://crossoverjie.top/2018/07/04/netty/Netty(2)Thread-model/</id>
     <published>2018-07-03T17:01:14.000Z</published>
-    <updated>2018-07-03T16:49:59.957Z</updated>
+    <updated>2018-07-03T16:58:22.849Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://ws1.sinaimg.cn/large/006tNc79gy1fsx42fcwsxj312v0ocjve.jpg" alt=""></p>
 <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在之前的 <a href="http://t.cn/Rd7He1Z" target="_blank" rel="external">SpringBoot 整合长连接心跳机制</a> 一文中认识了 Netty。</p>
@@ -85,6 +85,7 @@
 <p>这就是一个博弈的过程，想要做到一个尽量高效的应用是需要不断磨合试错的。</p>
 <p>上文相关的代码：</p>
 <p><a href="https://github.com/crossoverJie/netty-action" target="_blank" rel="external">https://github.com/crossoverJie/netty-action</a></p>
+<p><strong>欢迎关注公众号一起交流：</strong></p>
 ]]></content>
     
     <summary type="html">
