@@ -4,6 +4,32 @@
 
     
   <url>
+    <loc>http://crossoverjie.top/2018/07/08/java-senior/JVM-Troubleshoot/</loc>
+    <lastmod>2018-07-08T08:26:52.616Z</lastmod>
+    <data>
+        <display>
+        <title>一次线上排查所引发的思考</title>
+        <pubTime>2018-07-08T11:10:36.000Z</pubTime>
+        
+        <tag>Java</tag>
+         
+        <tag>Thread</tag>
+         
+        <tag>concurrent</tag>
+         
+        <tag>JVM</tag>
+         
+         
+           
+             
+              <breadCrumb title="Java 进阶" url="http://crossoverjie.top/categories/Java-%E8%BF%9B%E9%98%B6/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://crossoverjie.top/2018/07/04/netty/Netty(2)Thread-model/</loc>
     <lastmod>2018-07-03T16:58:22.849Z</lastmod>
     <data>

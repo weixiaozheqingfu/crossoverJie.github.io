@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://crossoverjie.top/"/>
-  <updated>2018-07-03T16:58:22.849Z</updated>
+  <updated>2018-07-08T08:26:52.616Z</updated>
   <id>http://crossoverjie.top/</id>
   
   <author>
@@ -14,6 +14,131 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>一次线上排查所引发的思考</title>
+    <link href="http://crossoverjie.top/2018/07/08/java-senior/JVM-Troubleshoot/"/>
+    <id>http://crossoverjie.top/2018/07/08/java-senior/JVM-Troubleshoot/</id>
+    <published>2018-07-08T11:10:36.000Z</published>
+    <updated>2018-07-08T08:26:52.616Z</updated>
+    
+    <content type="html"><![CDATA[<p><img src="https://ws1.sinaimg.cn/large/006tNc79gy1ft2j8cuv3tj31kw0vy7wh.jpg" alt=""></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>之前或多或少分享过一些<a href="https://github.com/crossoverJie/Java-Interview/blob/master/MD/MemoryAllocation.md" target="_blank" rel="external">内存模型</a>、<a href="https://crossoverjie.top/2018/01/18/newObject/">对象创建</a>之类的内容，其实大部分人看完都是懵懵懂懂，也不知道这些的实际意义。</p>
+<p>直到有一天你会碰到线上奇奇怪怪的问题，如：</p>
+<ul>
+<li>线程执行一个任务迟迟没有返回，应用假死。</li>
+<li>接口响应缓慢，甚至请求超时。</li>
+<li>CPU 高负载运行。</li>
+</ul>
+<p>这类问题并不像一个空指针、数组越界这样明显好查，这时就需要刚才提到的内存模型、对象创建、线程等相关知识结合在一起来排查问题了。</p>
+<p>正好这次借助之前的一次生产问题来聊聊如何排查和解决问题。</p>
+<h2 id="生产现象"><a href="#生产现象" class="headerlink" title="生产现象"></a>生产现象</h2><p>首先看看问题的背景吧：</p>
+<p>我这其实是一个定时任务，在固定的时间会开启 N 个线程并发的从 Redis 中获取数据进行运算。</p>
+<p><strong>业务逻辑非常简单，但应用一般涉及到多线程之后再简单的事情都要小心对待。</strong></p>
+<p>果不其然这次就出问题了。</p>
+<p>现象:原本只需要执行几分钟的任务执行了几个小时都没退出。翻遍了所有的日志都没找到异常。</p>
+<p>于是便开始定位问题之路。</p>
+<a id="more"></a>
+<h3 id="定位问题"><a href="#定位问题" class="headerlink" title="定位问题"></a>定位问题</h3><p>既然没办法直接从日志中发现异常，那就只能看看应用到底在干嘛了。</p>
+<p>最常见的工具就是 JDK 自带的那一套。</p>
+<p>这次我使用了 <code>jstack</code> 来查看线程的执行情况，它的作用其实就是 dump 当前的线程堆栈。</p>
+<p>当然在 dump 之前是需要知道我应用的 pid 的，可以使用 <code>jps -v</code> 这样的方式列出所有的 Java 进程。</p>
+<p>当然如果知道关键字的话直接使用 <code>ps aux|grep java</code> 也是可以的。</p>
+<p>拿到 <code>pid=1523</code> 了之后就可以利用 <code>jstack 1523 &gt; 1523.log</code> 这样的方式将 dump 文件输出到日志文件中。</p>
+<p>如果应用简单不复杂，线程这些也比较少其实可以直接打开查看。</p>
+<p>但复杂的应用导出来的日志文件也比较大还是建议用专业的分析工具。</p>
+<p>我这里的日志比较少直接打开就可以了。</p>
+<p>因为我清楚知道应用中开启的线程名称，所以直接根据线程名就可以在日志中找到相关的堆栈：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNc79gy1ft2fd0q5hhj30sn0cz0yn.jpg" alt=""></p>
+<blockquote>
+<p>所以通常建议大家线程名字给的有意义，在排查问题时很有必要。</p>
+</blockquote>
+<p>其实其他几个线程都和这里的堆栈类似，很明显的看出都是在做 Redis 连接。</p>
+<p>于是我登录 Redis 查看了当前的连接数，发现已经非常高了。</p>
+<p>这样 Redis 的响应自然也就变慢了。</p>
+<p>接着利用 <code>jps -v</code> 列出了当前所以在跑的 Java 进程，果不其然有好几个应用都在查询 Redis，而且都是并发连接，问题自然就找到了。</p>
+<h3 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h3><blockquote>
+<p>所以问题的主要原因是：大量的应用并发查询 Redis，导致 Redis 的性能降低。</p>
+</blockquote>
+<p>既然找到了问题，那如何解决呢？</p>
+<ul>
+<li>减少同时查询 Redis 的应用，分开时段降低 Redis 的压力。</li>
+<li>将 Redis 复制几个集群，各个应用分开查询。但是这样会涉及到数据的同步等运维操作，或者由程序了进行同步也会增加复杂度。</li>
+</ul>
+<p>目前我们选择的是第一个方案，效果很明显。</p>
+<h2 id="本地模拟"><a href="#本地模拟" class="headerlink" title="本地模拟"></a>本地模拟</h2><p>上文介绍的是线程相关问题，现在来分析下内存的问题。</p>
+<p>以这个类为例：</p>
+<p><a href="https://github.com/crossoverJie/Java-Interview/blob/master/src/main/java/com/crossoverjie/oom/heap/HeapOOM.java" target="_blank" rel="external">https://github.com/crossoverJie/Java-Interview/blob/master/src/main/java/com/crossoverjie/oom/heap/HeapOOM.java</a></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HeapOOM</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">        List&lt;String&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;(<span class="number">10</span>) ;</div><div class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>)&#123;</div><div class="line">            list.add(<span class="string">"1"</span>) ;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>启动参数如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">-Xms20m</div><div class="line">-Xmx20m</div><div class="line">-XX:+HeapDumpOnOutOfMemoryError</div><div class="line">-XX:HeapDumpPath=/Users/xx/Documents</div></pre></td></tr></table></figure>
+<p>为了更快的突出内存问题将堆的最大内存固定在 20M，同时在 JVM 出现 OOM 的时候自动 dump 内存到 <code>/Users/xx/Documents</code>(不配路径则会生成在当前目录)。</p>
+<p>执行之后果不其然出现了异常：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNc79gy1ft2g4f80rfj30mc064tag.jpg" alt=""></p>
+<p>同时对应的内存 dump 文件也生成了。</p>
+<h3 id="内存分析"><a href="#内存分析" class="headerlink" title="内存分析"></a>内存分析</h3><p>这时就需要相应的工具进行分析了，最常用的自然就是 MAT 了。</p>
+<p>我试了一个在线工具也不错（文件大了就不适合了）：</p>
+<p><a href="http://heaphero.io/index.jsp" target="_blank" rel="external">http://heaphero.io/index.jsp</a></p>
+<p>上传刚才生成的内存文件之后：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNc79gy1ft2gb4p08tj31460ojade.jpg" alt=""></p>
+<p>因为是内存溢出，所以主要观察下大对象：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNc79gy1ft2gbw5g3pj30zx0g4wge.jpg" alt=""></p>
+<p>也有相应提示，这个很有可能就是内存溢出的对象，点进去之后：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNc79gy1ft2gcmd00lj30kz0bjmyo.jpg" alt=""></p>
+<p>看到这个堆栈其实就很明显了：</p>
+<p>在向 ArrayList 中不停的写入数据时，会导致频繁的扩容也就是数组复制这些过程，最终达到 20M 的上限导致内存溢出了。</p>
+<h2 id="更多建议"><a href="#更多建议" class="headerlink" title="更多建议"></a>更多建议</h2><p>上文说过，一旦使用了多线程，那就要格外小心。</p>
+<p>以下是一些日常建议：</p>
+<ul>
+<li>尽量不要在线程中做大量耗时的网络操作，如查询数据库（可以的话在一开始就将数据从从 DB 中查出准备好）。</li>
+<li>尽可能的减少多线程竞争锁。可以将数据分段，各个线程分别读取。</li>
+<li>多利用 <code>CAS+自旋</code> 的方式更新数据，减少锁的使用。</li>
+<li>应用中加上 <code>-XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp</code> 参数，在内存溢出时至少可以拿到内存日志。</li>
+<li>线程池监控。如线程池大小、队列大小、最大线程数等数据，可提前做好预估。</li>
+<li>JVM 监控，可以看到堆内存的涨幅趋势，GC 曲线等数据，也可以提前做好准备。</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>线上问题定位需要综合技能，所以是需要一些基础技能。如线程、内存模型、Linux 等。</p>
+<p>当然这些问题没有实操过都是纸上谈兵；如果第一次碰到线上问题，不要慌张，反而应该庆幸解决之后你又会习得一项技能。</p>
+<h2 id="号外"><a href="#号外" class="headerlink" title="号外"></a>号外</h2><p>最近在总结一些 Java 相关的知识点，感兴趣的朋友可以一起维护。</p>
+<blockquote>
+<p>地址: <a href="https://github.com/crossoverJie/Java-Interview" target="_blank" rel="external">https://github.com/crossoverJie/Java-Interview</a></p>
+</blockquote>
+<p><strong>欢迎关注公众号一起交流：</strong></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;img src=&quot;https://ws1.sinaimg.cn/large/006tNc79gy1ft2j8cuv3tj31kw0vy7wh.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;之前或多或少分享过一些&lt;a href=&quot;https://github.com/crossoverJie/Java-Interview/blob/master/MD/MemoryAllocation.md&quot;&gt;内存模型&lt;/a&gt;、&lt;a href=&quot;https://crossoverjie.top/2018/01/18/newObject/&quot;&gt;对象创建&lt;/a&gt;之类的内容，其实大部分人看完都是懵懵懂懂，也不知道这些的实际意义。&lt;/p&gt;
+&lt;p&gt;直到有一天你会碰到线上奇奇怪怪的问题，如：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;线程执行一个任务迟迟没有返回，应用假死。&lt;/li&gt;
+&lt;li&gt;接口响应缓慢，甚至请求超时。&lt;/li&gt;
+&lt;li&gt;CPU 高负载运行。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这类问题并不像一个空指针、数组越界这样明显好查，这时就需要刚才提到的内存模型、对象创建、线程等相关知识结合在一起来排查问题了。&lt;/p&gt;
+&lt;p&gt;正好这次借助之前的一次生产问题来聊聊如何排查和解决问题。&lt;/p&gt;
+&lt;h2 id=&quot;生产现象&quot;&gt;&lt;a href=&quot;#生产现象&quot; class=&quot;headerlink&quot; title=&quot;生产现象&quot;&gt;&lt;/a&gt;生产现象&lt;/h2&gt;&lt;p&gt;首先看看问题的背景吧：&lt;/p&gt;
+&lt;p&gt;我这其实是一个定时任务，在固定的时间会开启 N 个线程并发的从 Redis 中获取数据进行运算。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;业务逻辑非常简单，但应用一般涉及到多线程之后再简单的事情都要小心对待。&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;果不其然这次就出问题了。&lt;/p&gt;
+&lt;p&gt;现象:原本只需要执行几分钟的任务执行了几个小时都没退出。翻遍了所有的日志都没找到异常。&lt;/p&gt;
+&lt;p&gt;于是便开始定位问题之路。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Java 进阶" scheme="http://crossoverjie.top/categories/Java-%E8%BF%9B%E9%98%B6/"/>
+    
+    
+      <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
+    
+      <category term="Thread" scheme="http://crossoverjie.top/tags/Thread/"/>
+    
+      <category term="concurrent" scheme="http://crossoverjie.top/tags/concurrent/"/>
+    
+      <category term="JVM" scheme="http://crossoverjie.top/tags/JVM/"/>
+    
+  </entry>
   
   <entry>
     <title>Netty(二) 从线程模型的角度看 Netty 为什么是高性能的？</title>
@@ -2192,65 +2317,6 @@
       <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
     
       <category term="synchronize" scheme="http://crossoverjie.top/tags/synchronize/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>一致 Hash 算法分析</title>
-    <link href="http://crossoverjie.top/2018/01/08/Consistent-Hash/"/>
-    <id>http://crossoverjie.top/2018/01/08/Consistent-Hash/</id>
-    <published>2018-01-07T18:01:36.000Z</published>
-    <updated>2018-01-07T18:16:11.000Z</updated>
-    
-    <content type="html"><![CDATA[<p><img src="https://ws3.sinaimg.cn/large/006tNc79gy1fn8l7h65v6j30v90kujsd.jpg" alt=""></p>
-<p>当我们在做数据库分库分表或者是分布式缓存时，不可避免的都会遇到一个问题:</p>
-<p>如何将数据均匀的分散到各个节点中，并且尽量的在加减节点时能使受影响的数据最少。</p>
-<h2 id="Hash-取模"><a href="#Hash-取模" class="headerlink" title="Hash 取模"></a>Hash 取模</h2><p>随机放置就不说了，会带来很多问题。通常最容易想到的方案就是 <code>hash 取模</code>了。</p>
-<p>可以将传入的 Key 按照 <code>index = hash(key) % N</code> 这样来计算出需要存放的节点。其中 hash 函数是一个将字符串转换为正整数的哈希映射方法，N 就是节点的数量。</p>
-<p>这样可以满足数据的均匀分配，但是这个算法的容错性和扩展性都较差。</p>
-<p>比如增加或删除了一个节点时，所有的 Key 都需要重新计算，显然这样成本较高，为此需要一个算法满足分布均匀同时也要有良好的容错性和拓展性。</p>
-<a id="more"></a>
-<h2 id="一致-Hash-算法"><a href="#一致-Hash-算法" class="headerlink" title="一致 Hash 算法"></a>一致 Hash 算法</h2><p>一致 Hash 算法是将所有的哈希值构成了一个环，其范围在 <code>0 ~ 2^32-1</code>。如下图：</p>
-<p><img src="https://ws1.sinaimg.cn/large/006tNc79gy1fn8kbmd4ncj30ad08y3yn.jpg" alt=""></p>
-<p>之后将各个节点散列到这个环上，可以用节点的 IP、hostname 这样的唯一性字段作为 Key 进行 <code>hash(key)</code>，散列之后如下：</p>
-<p><img src="https://ws3.sinaimg.cn/large/006tNc79gy1fn8kf72uwuj30a40a70t5.jpg" alt=""></p>
-<p>之后需要将数据定位到对应的节点上，使用同样的 <code>hash 函数</code> 将 Key 也映射到这个环上。</p>
-<p><img src="https://ws3.sinaimg.cn/large/006tNc79gy1fn8kj9kd4oj30ax0aomxq.jpg" alt=""></p>
-<p>这样按照顺时针方向就可以把 k1 定位到 <code>N1节点</code>，k2 定位到 <code>N3节点</code>，k3 定位到 <code>N2节点</code>。</p>
-<h3 id="容错性"><a href="#容错性" class="headerlink" title="容错性"></a>容错性</h3><p>这时假设 N1 宕机了：</p>
-<p><img src="https://ws3.sinaimg.cn/large/006tNc79gy1fn8kl9pp06j30a409waaj.jpg" alt=""></p>
-<p>依然根据顺时针方向，k2 和 k3 保持不变，只有 k1 被重新映射到了 N3。这样就很好的保证了容错性，当一个节点宕机时只会影响到少少部分的数据。</p>
-<h3 id="拓展性"><a href="#拓展性" class="headerlink" title="拓展性"></a>拓展性</h3><p>当新增一个节点时:</p>
-<p><img src="https://ws1.sinaimg.cn/large/006tNc79gy1fn8kp1fc9xj30ca0abt9c.jpg" alt=""></p>
-<p>在 N2 和 N3 之间新增了一个节点 N4 ，这时会发现受印象的数据只有 k3，其余数据也是保持不变，所以这样也很好的保证了拓展性。</p>
-<h2 id="虚拟节点"><a href="#虚拟节点" class="headerlink" title="虚拟节点"></a>虚拟节点</h2><p>到目前为止该算法依然也有点问题:</p>
-<p>当节点较少时会出现数据分布不均匀的情况：</p>
-<p><img src="https://ws2.sinaimg.cn/large/006tNc79gy1fn8krttekbj30c10a5dg5.jpg" alt=""></p>
-<p>这样会导致大部分数据都在 N1 节点，只有少量的数据在 N2 节点。</p>
-<p>为了解决这个问题，一致哈希算法引入了虚拟节点。将每一个节点都进行多次 hash，生成多个节点放置在环上称为虚拟节点:</p>
-<p><img src="https://ws2.sinaimg.cn/large/006tNc79gy1fn8ktzuswkj30ae0abdgb.jpg" alt=""></p>
-<p>计算时可以在 IP 后加上编号来生成哈希值。</p>
-<p>这样只需要在原有的基础上多一步由虚拟节点映射到实际节点的步骤即可让少量节点也能满足均匀性。</p>
-<h2 id="号外"><a href="#号外" class="headerlink" title="号外"></a>号外</h2><p>最近在总结一些 Java 相关的知识点，感兴趣的朋友可以一起维护。</p>
-<blockquote>
-<p>地址: <a href="https://github.com/crossoverJie/Java-Interview" target="_blank" rel="external">https://github.com/crossoverJie/Java-Interview</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;&lt;img src=&quot;https://ws3.sinaimg.cn/large/006tNc79gy1fn8l7h65v6j30v90kujsd.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;当我们在做数据库分库分表或者是分布式缓存时，不可避免的都会遇到一个问题:&lt;/p&gt;
-&lt;p&gt;如何将数据均匀的分散到各个节点中，并且尽量的在加减节点时能使受影响的数据最少。&lt;/p&gt;
-&lt;h2 id=&quot;Hash-取模&quot;&gt;&lt;a href=&quot;#Hash-取模&quot; class=&quot;headerlink&quot; title=&quot;Hash 取模&quot;&gt;&lt;/a&gt;Hash 取模&lt;/h2&gt;&lt;p&gt;随机放置就不说了，会带来很多问题。通常最容易想到的方案就是 &lt;code&gt;hash 取模&lt;/code&gt;了。&lt;/p&gt;
-&lt;p&gt;可以将传入的 Key 按照 &lt;code&gt;index = hash(key) % N&lt;/code&gt; 这样来计算出需要存放的节点。其中 hash 函数是一个将字符串转换为正整数的哈希映射方法，N 就是节点的数量。&lt;/p&gt;
-&lt;p&gt;这样可以满足数据的均匀分配，但是这个算法的容错性和扩展性都较差。&lt;/p&gt;
-&lt;p&gt;比如增加或删除了一个节点时，所有的 Key 都需要重新计算，显然这样成本较高，为此需要一个算法满足分布均匀同时也要有良好的容错性和拓展性。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="算法" scheme="http://crossoverjie.top/categories/%E7%AE%97%E6%B3%95/"/>
-    
     
   </entry>
   
