@@ -2244,18 +2244,18 @@
   </entry>
   
   <entry>
-    <title>Synchronize 关键字原理</title>
+    <title>synchronized 关键字原理</title>
     <link href="http://crossoverjie.top/2018/01/14/Synchronize/"/>
     <id>http://crossoverjie.top/2018/01/14/Synchronize/</id>
     <published>2018-01-14T14:13:22.000Z</published>
-    <updated>2018-04-28T13:39:12.000Z</updated>
+    <updated>2018-07-12T14:24:56.300Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://ws1.sinaimg.cn/large/006tKfTcly1fngjnyotvcj30z00jpn0d.jpg" alt=""></p>
-<p>众所周知 <code>Synchronize</code> 关键字是解决并发问题常用解决方案，有以下三种使用方式:</p>
+<p>众所周知 <code>synchronized</code> 关键字是解决并发问题常用解决方案，有以下三种使用方式:</p>
 <ul>
 <li>同步普通方法，锁的是当前对象。</li>
 <li>同步静态方法，锁的是当前 <code>Class</code> 对象。</li>
-<li>同步块，锁的是 <code>{}</code> 中的对象。</li>
+<li>同步块，锁的是 <code>()</code> 中的对象。</li>
 </ul>
 <p>实现原理：<br><code>JVM</code> 是通过进入、退出对象监视器( <code>Monitor</code> )来实现对方法、同步块的同步的。</p>
 <p>具体实现是在编译之后在同步方法调用前加入一个 <code>monitor.enter</code> 指令，在退出方法和异常处插入 <code>monitor.exit</code> 的指令。</p>
@@ -2269,7 +2269,7 @@
 <p>使用 <code>javap -c Synchronize</code> 可以查看编译之后的具体信息。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">public class com.crossoverjie.synchronize.Synchronize &#123;</div><div class="line">  public com.crossoverjie.synchronize.Synchronize();</div><div class="line">    Code:</div><div class="line">       0: aload_0</div><div class="line">       1: invokespecial #1                  // Method java/lang/Object.&quot;&lt;init&gt;&quot;:()V</div><div class="line">       4: return</div><div class="line"></div><div class="line">  public static void main(java.lang.String[]);</div><div class="line">    Code:</div><div class="line">       0: ldc           #2                  // class com/crossoverjie/synchronize/Synchronize</div><div class="line">       2: dup</div><div class="line">       3: astore_1</div><div class="line">       **4: monitorenter**</div><div class="line">       5: getstatic     #3                  // Field java/lang/System.out:Ljava/io/PrintStream;</div><div class="line">       8: ldc           #4                  // String Synchronize</div><div class="line">      10: invokevirtual #5                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V</div><div class="line">      13: aload_1</div><div class="line">      **14: monitorexit**</div><div class="line">      15: goto          23</div><div class="line">      18: astore_2</div><div class="line">      19: aload_1</div><div class="line">      20: monitorexit</div><div class="line">      21: aload_2</div><div class="line">      22: athrow</div><div class="line">      23: return</div><div class="line">    Exception table:</div><div class="line">       from    to  target type</div><div class="line">           5    15    18   any</div><div class="line">          18    21    18   any</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>可以看到在同步块的入口和出口分别有 <code>monitorenter,monitorexit</code><br>指令。</p>
-<h2 id="锁优化"><a href="#锁优化" class="headerlink" title="锁优化"></a>锁优化</h2><p><code>synchronize</code>  很多都称之为重量锁，<code>JDK1.6</code> 中对 <code>synchronize</code> 进行了各种优化，为了能减少获取和释放锁带来的消耗引入了<code>偏向锁</code>和<code>轻量锁</code>。</p>
+<h2 id="锁优化"><a href="#锁优化" class="headerlink" title="锁优化"></a>锁优化</h2><p><code>synchronized</code>  很多都称之为重量锁，<code>JDK1.6</code> 中对 <code>synchronized</code> 进行了各种优化，为了能减少获取和释放锁带来的消耗引入了<code>偏向锁</code>和<code>轻量锁</code>。</p>
 <h3 id="轻量锁"><a href="#轻量锁" class="headerlink" title="轻量锁"></a>轻量锁</h3><p>当代码进入同步块时，如果同步对象为无锁状态时，当前线程会在栈帧中创建一个锁记录(<code>Lock Record</code>)区域，同时将锁对象的对象头中 <code>Mark Word</code> 拷贝到锁记录中，再尝试使用 <code>CAS</code> 将 <code>Mark Word</code> 更新为指向锁记录的指针。</p>
 <p>如果更新<strong>成功</strong>，当前线程就获得了锁。</p>
 <p>如果更新<strong>失败</strong> <code>JVM</code> 会先检查锁对象的 <code>Mark Word</code> 是否指向当前线程的锁记录。</p>
@@ -2287,6 +2287,7 @@
 <blockquote>
 <p>如果某个锁自旋很少成功获得，那么下一次就会减少自旋。</p>
 </blockquote>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>synchronized 现在已经不像以前那么重了，拿 1.8 中的 ConcurrentHashMap 就可以看出，里面大量的使用了 synchronized 来进行同步。</p>
 <h2 id="号外"><a href="#号外" class="headerlink" title="号外"></a>号外</h2><p>最近在总结一些 Java 相关的知识点，感兴趣的朋友可以一起维护。</p>
 <blockquote>
 <p>地址: <a href="https://github.com/crossoverJie/Java-Interview" target="_blank" rel="external">https://github.com/crossoverJie/Java-Interview</a></p>
@@ -2296,11 +2297,11 @@
     <summary type="html">
     
       &lt;p&gt;&lt;img src=&quot;https://ws1.sinaimg.cn/large/006tKfTcly1fngjnyotvcj30z00jpn0d.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;众所周知 &lt;code&gt;Synchronize&lt;/code&gt; 关键字是解决并发问题常用解决方案，有以下三种使用方式:&lt;/p&gt;
+&lt;p&gt;众所周知 &lt;code&gt;synchronized&lt;/code&gt; 关键字是解决并发问题常用解决方案，有以下三种使用方式:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;同步普通方法，锁的是当前对象。&lt;/li&gt;
 &lt;li&gt;同步静态方法，锁的是当前 &lt;code&gt;Class&lt;/code&gt; 对象。&lt;/li&gt;
-&lt;li&gt;同步块，锁的是 &lt;code&gt;{}&lt;/code&gt; 中的对象。&lt;/li&gt;
+&lt;li&gt;同步块，锁的是 &lt;code&gt;()&lt;/code&gt; 中的对象。&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;实现原理：&lt;br&gt;&lt;code&gt;JVM&lt;/code&gt; 是通过进入、退出对象监视器( &lt;code&gt;Monitor&lt;/code&gt; )来实现对方法、同步块的同步的。&lt;/p&gt;
 &lt;p&gt;具体实现是在编译之后在同步方法调用前加入一个 &lt;code&gt;monitor.enter&lt;/code&gt; 指令，在退出方法和异常处插入 &lt;code&gt;monitor.exit&lt;/code&gt; 的指令。&lt;/p&gt;

@@ -1602,7 +1602,7 @@
               
                 
                 <a class="post-title-link" href="/2018/01/14/Synchronize/" itemprop="url">
-                  Synchronize 关键字原理
+                  synchronized 关键字原理
                 </a>
               
             
@@ -1656,7 +1656,7 @@
 
           
           
-             <span id="/2018/01/14/Synchronize/" class="leancloud_visitors" data-flag-title="Synchronize 关键字原理">
+             <span id="/2018/01/14/Synchronize/" class="leancloud_visitors" data-flag-title="synchronized 关键字原理">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -1680,11 +1680,11 @@
       
         
           <p><img src="https://ws1.sinaimg.cn/large/006tKfTcly1fngjnyotvcj30z00jpn0d.jpg" alt=""></p>
-<p>众所周知 <code>Synchronize</code> 关键字是解决并发问题常用解决方案，有以下三种使用方式:</p>
+<p>众所周知 <code>synchronized</code> 关键字是解决并发问题常用解决方案，有以下三种使用方式:</p>
 <ul>
 <li>同步普通方法，锁的是当前对象。</li>
 <li>同步静态方法，锁的是当前 <code>Class</code> 对象。</li>
-<li>同步块，锁的是 <code>{}</code> 中的对象。</li>
+<li>同步块，锁的是 <code>()</code> 中的对象。</li>
 </ul>
 <p>实现原理：<br><code>JVM</code> 是通过进入、退出对象监视器( <code>Monitor</code> )来实现对方法、同步块的同步的。</p>
 <p>具体实现是在编译之后在同步方法调用前加入一个 <code>monitor.enter</code> 指令，在退出方法和异常处插入 <code>monitor.exit</code> 的指令。</p>
