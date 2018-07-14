@@ -471,7 +471,7 @@
     <link href="http://crossoverjie.top/2018/06/13/guava/guava-cache/"/>
     <id>http://crossoverjie.top/2018/06/13/guava/guava-cache/</id>
     <published>2018-06-12T17:20:42.000Z</published>
-    <updated>2018-06-12T18:16:39.762Z</updated>
+    <updated>2018-07-14T10:47:43.952Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://i.loli.net/2018/06/12/5b1fea79e07cb.jpeg" alt="1.jpeg"></p>
 <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Google 出的 <a href="https://github.com/google/guava" target="_blank" rel="external">Guava</a> 是 Java 核心增强的库，应用非常广泛。</p>
@@ -532,7 +532,7 @@
 <p>接着往下跟到：</p>
 <p><img src="https://i.loli.net/2018/06/13/5b1fffc88c3e6.png" alt="3.png"></p>
 <p>2761 行，根据方法名称可以看出是判断当前的 Entry 是否过期，该 entry 就是通过 key 查询到的。</p>
-<p><img src="https://i.loli.net/2018/06/13/5b2000baab838.png" alt="4.png"></p>
+<p><img src="https://ws2.sinaimg.cn/large/006tNc79gy1ft9l0mx77rj30zk0a1tat.jpg" alt=""></p>
 <p>这里就很明显的看出是根据根据构建时指定的过期方式来判断当前 key 是否过期了。</p>
 <p><img src="https://i.loli.net/2018/06/13/5b20017f32ff0.png" alt="5.png"></p>
 <p>如果过期就往下走，尝试进行过期删除（需要加锁，后面会具体讨论）。</p>
