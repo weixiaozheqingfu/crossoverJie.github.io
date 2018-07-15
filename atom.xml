@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://crossoverjie.top/"/>
-  <updated>2018-07-15T17:10:15.099Z</updated>
+  <updated>2018-07-15T17:16:35.904Z</updated>
   <id>http://crossoverjie.top/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://crossoverjie.top/2018/07/16/guava/guava-cache-2/"/>
     <id>http://crossoverjie.top/2018/07/16/guava/guava-cache-2/</id>
     <published>2018-07-15T17:20:42.000Z</published>
-    <updated>2018-07-15T17:10:15.099Z</updated>
+    <updated>2018-07-15T17:16:35.904Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1ftampuql43j31kw0vy7wh.jpg" alt=""></p>
 <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在上文「<a href="https://crossoverjie.top/2018/06/13/guava/guava-cache/">Guava 源码分析（Cache 原理）</a>」中分析了 <code>Guava Cache</code> 的相关原理。</p>
@@ -76,21 +76,21 @@
 <p>具有强引用和弱引用的不同实现。</p>
 <p>key 也是相同的道理：</p>
 <p><img src="https://ws2.sinaimg.cn/large/006tKfTcgy1ftattls2uzj30w005eq4t.jpg" alt=""></p>
-<p>这样当使用这样的构造方式时，弱引用的 key 和 value 都会被垃圾回收。</p>
+<p>当使用这样的构造方式时，弱引用的 key 和 value 都会被垃圾回收。</p>
 <p>当然我们也可以显式的回收：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * Discards any cached value for key &#123;@code key&#125;.</div><div class="line"> * 单个回收</div><div class="line"> */</div><div class="line">void invalidate(Object key);</div><div class="line"></div><div class="line">/**</div><div class="line"> * Discards any cached values for keys &#123;@code keys&#125;.</div><div class="line"> *</div><div class="line"> * @since 11.0</div><div class="line"> */</div><div class="line">void invalidateAll(Iterable&lt;?&gt; keys);</div><div class="line"></div><div class="line">/**</div><div class="line"> * Discards all entries in the cache.</div><div class="line"> */</div><div class="line">void invalidateAll();</div></pre></td></tr></table></figure>
 <h3 id="回调"><a href="#回调" class="headerlink" title="回调"></a>回调</h3><p>改造了之前的例子：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">loadingCache = CacheBuilder.newBuilder()</div><div class="line">        .expireAfterWrite(<span class="number">2</span>, TimeUnit.SECONDS)</div><div class="line">        .removalListener(<span class="keyword">new</span> RemovalListener&lt;Object, Object&gt;() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onRemoval</span><span class="params">(RemovalNotification&lt;Object, Object&gt; notification)</span> </span>&#123;</div><div class="line">                LOGGER.info(<span class="string">"删除原因=&#123;&#125;，删除 key=&#123;&#125;,删除 value=&#123;&#125;"</span>,notification.getCause(),notification.getKey(),notification.getValue());</div><div class="line">            &#125;</div><div class="line">        &#125;)</div><div class="line">        .build(<span class="keyword">new</span> CacheLoader&lt;Integer, AtomicLong&gt;() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> AtomicLong <span class="title">load</span><span class="params">(Integer key)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">                <span class="keyword">return</span> <span class="keyword">new</span> AtomicLong(<span class="number">0</span>);</div><div class="line">            &#125;</div><div class="line">        &#125;);</div></pre></td></tr></table></figure>
 <p>执行结果：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">2018-07-15 20:41:07.433 [main] INFO  c.crossoverjie.guava.CacheLoaderTest - 当前缓存值=0,缓存大小=1</div><div class="line">2018-07-15 20:41:07.442 [main] INFO  c.crossoverjie.guava.CacheLoaderTest - 缓存的所有内容=&#123;1000=0&#125;</div><div class="line">2018-07-15 20:41:07.443 [main] INFO  c.crossoverjie.guava.CacheLoaderTest - job running times=10</div><div class="line">2018-07-15 20:41:10.461 [main] INFO  c.crossoverjie.guava.CacheLoaderTest - 删除原因=EXPIRED，删除 key=1000,删除 value=1</div><div class="line">2018-07-15 20:41:10.462 [main] INFO  c.crossoverjie.guava.CacheLoaderTest - 当前缓存值=0,缓存大小=1</div><div class="line">2018-07-15 20:41:10.462 [main] INFO  c.crossoverjie.guava.CacheLoaderTest - 缓存的所有内容=&#123;1000=0&#125;</div></pre></td></tr></table></figure>
-<p>可以看出当缓存被删除的时候会回调我们定义的函数，并告知删除原因。</p>
+<p>可以看出当缓存被删除的时候会回调我们自定义的函数，并告知删除原因。</p>
 <p>那么 Guava 是如何实现的呢？</p>
 <p><img src="https://ws3.sinaimg.cn/large/006tKfTcgy1ftau23uj5aj30mp08odh8.jpg" alt=""></p>
 <p>根据 LocalCache 中的 <code>getLiveValue()</code> 中判断缓存过期时，跟着这里的调用关系就会一直跟到：</p>
 <p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1ftau4ed7dcj30rm0a5acd.jpg" alt=""></p>
 <p><code>removeValueFromChain()</code> 中的：</p>
 <p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1ftau5ywcojj30rs0750u9.jpg" alt=""></p>
-<p><code>enqueueNotification()</code> 方法会将回收的缓存（包含了 key，value）以及回收原因包装成之前定义的事件接口加入到一个本地队列中。</p>
+<p><code>enqueueNotification()</code> 方法会将回收的缓存（包含了 key，value）以及回收原因包装成之前定义的事件接口加入到一个<strong>本地队列</strong>中。</p>
 <p><img src="https://ws4.sinaimg.cn/large/006tKfTcgy1ftau7hpijrj30sl06wtaf.jpg" alt=""></p>
 <p>这样一看也没有回调我们初始化时候的事件啊。</p>
 <p>不过用过队列的同学应该能猜出，既然这里写入队列，那就肯定就有消费。</p>
@@ -98,7 +98,7 @@
 <p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1ftau9rwgacj30ti0hswio.jpg" alt=""></p>
 <p>在 finally 中执行了 <code>postReadCleanup()</code> 方法；其实在这里面就是对刚才的队列进行了消费：</p>
 <p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1ftaubaco48j30lw0513zi.jpg" alt=""></p>
-<p>一直跟进来就会发现这里消费了队列，将之前包装好的移除消息调用了我们定义的事件，这样就完成了一次事件回调。</p>
+<p>一直跟进来就会发现这里消费了队列，将之前包装好的移除消息调用了我们自定义的事件，这样就完成了一次事件回调。</p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>以上所有源码：</p>
 <p><a href="https://github.com/crossoverJie/Java-Interview/blob/master/src/main/java/com/crossoverjie/guava/callback/Main.java" target="_blank" rel="external">https://github.com/crossoverJie/Java-Interview/blob/master/src/main/java/com/crossoverjie/guava/callback/Main.java</a></p>
 <p>通过分析 Guava 的源码可以让我们学习到顶级的设计及实现方式，甚至自己也能尝试编写。</p>
