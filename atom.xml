@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://crossoverjie.top/"/>
-  <updated>2018-07-08T08:29:46.830Z</updated>
+  <updated>2018-07-15T16:01:53.955Z</updated>
   <id>http://crossoverjie.top/</id>
   
   <author>
@@ -14,6 +14,121 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Guava 源码分析（Cache 原理【二阶段】）</title>
+    <link href="http://crossoverjie.top/2018/07/16/guava/guava-cache-2/"/>
+    <id>http://crossoverjie.top/2018/07/16/guava/guava-cache-2/</id>
+    <published>2018-07-15T17:20:42.000Z</published>
+    <updated>2018-07-15T16:01:53.955Z</updated>
+    
+    <content type="html"><![CDATA[<p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1ftampuql43j31kw0vy7wh.jpg" alt=""></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在上文「<a href="https://crossoverjie.top/2018/06/13/guava/guava-cache/">Guava 源码分析（Cache 原理）</a>」中分析了 <code>Guava Cache</code> 的相关原理。</p>
+<p>在文末提到了<strong>回收机制、移除时间通知</strong>等内容，许多朋友也挺感兴趣，这次就这两个内容再来分析分析。</p>
+<blockquote>
+<p>在开始之前先补习下 Java 自带的两个特性，Guava 中都有具体的应用。</p>
+</blockquote>
+<h2 id="Java-中的引用"><a href="#Java-中的引用" class="headerlink" title="Java 中的引用"></a>Java 中的引用</h2><p>首先是 Java 中的<strong>引用</strong>。</p>
+<p>在之前分享过 JVM 是根据<a href="https://github.com/crossoverJie/Java-Interview/blob/master/MD/GarbageCollection.md#%E5%8F%AF%E8%BE%BE%E6%80%A7%E5%88%86%E6%9E%90%E7%AE%97%E6%B3%95" target="_blank" rel="external">可达性分析算法</a>找出需要回收的对象，判断对象的存活状态都和<code>引用</code>有关。</p>
+<p>在 JDK1.2 之前这点设计的非常简单：一个对象的状态只有<strong>引用</strong>和<strong>没被引用</strong>两种区别。</p>
+<a id="more"></a>
+<p>这样的划分对垃圾回收不是很友好，因为总有一些对象的状态处于这两之间。</p>
+<p>因此 1.2 之后新增了四种状态用于更细粒度的划分引用关系：</p>
+<ul>
+<li>强引用（Strong Reference）:这种对象最为常见，比如 <strong><code>A a = new A();</code></strong>这就是典型的强引用；这样的强引用关系是不能被垃圾回收的。</li>
+<li>软引用（Soft Reference）:这样的引用表明一些有用但不是必要的对象，在将发生垃圾回收之前是需要将这样的对象再次回收。</li>
+<li>弱引用（Weak Reference）:这是一种比软引用还弱的引用关系，也是存放非必须的对象。当垃圾回收时，无论当前内存是否足够，这样的对象都会被回收。</li>
+<li>虚引用（Phantom Reference）:这是一种最弱的引用关系，甚至没法通过引用来获取对象，它唯一的作用就是在被回收时可以获得通知。</li>
+</ul>
+<h2 id="事件回调"><a href="#事件回调" class="headerlink" title="事件回调"></a>事件回调</h2><p>事件回调其实是一种常见的设计模式，比如之前讲过的 <a href="https://crossoverjie.top/categories/Netty/">Netty</a> 就使用了这样的设计。</p>
+<p>这里采用一个 demo，试下如下功能：</p>
+<ul>
+<li>Caller 向 Notifier 提问。</li>
+<li>提问方式是异步，接着做其他事情。</li>
+<li>Notifier 收到问题执行计算然后回调 Caller 告知结果。</li>
+</ul>
+<p>在 Java 中利用接口来实现回调，所以需要定义一个接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">CallBackListener</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 回调通知函数</div><div class="line">     * <span class="doctag">@param</span> msg</div><div class="line">     */</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">callBackNotify</span><span class="params">(String msg)</span> </span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>Caller 中调用 Notifier 执行提问，调用时将接口传递过去：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Caller</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> Logger LOGGER = LoggerFactory.getLogger(Caller.class);</div><div class="line"></div><div class="line">    <span class="keyword">private</span> CallBackListener callBackListener ;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> Notifier notifier ;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> String question ;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 使用</div><div class="line">     */</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">call</span><span class="params">()</span></span>&#123;</div><div class="line"></div><div class="line">        LOGGER.info(<span class="string">"开始提问"</span>);</div><div class="line"></div><div class="line">		<span class="comment">//新建线程，达到异步效果 </span></div><div class="line">        <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">                <span class="keyword">try</span> &#123;</div><div class="line">                    notifier.execute(Caller.<span class="keyword">this</span>,question);</div><div class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</div><div class="line">                    e.printStackTrace();</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;).start();</div><div class="line"></div><div class="line">        LOGGER.info(<span class="string">"提问完毕，我去干其他事了"</span>);</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="comment">//隐藏 getter/setter</span></div><div class="line">    </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>Notifier 收到提问，执行计算（耗时操作），最后做出响应（回调接口，告诉 Caller 结果）。</p>
+<p>模拟执行：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">    Notifier notifier = <span class="keyword">new</span> Notifier() ;</div><div class="line"></div><div class="line">    Caller caller = <span class="keyword">new</span> Caller() ;</div><div class="line">    caller.setNotifier(notifier) ;</div><div class="line">    caller.setQuestion(<span class="string">"你在哪儿！"</span>);</div><div class="line">    caller.setCallBackListener(<span class="keyword">new</span> CallBackListener() &#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">callBackNotify</span><span class="params">(String msg)</span> </span>&#123;</div><div class="line">            LOGGER.info(<span class="string">"回复=【&#123;&#125;】"</span> ,msg);</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line"></div><div class="line">    caller.call();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>最后执行结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">2018-07-15 19:52:11.105 [main] INFO  c.crossoverjie.guava.callback.Caller - 开始提问</div><div class="line">2018-07-15 19:52:11.118 [main] INFO  c.crossoverjie.guava.callback.Caller - 提问完毕，我去干其他事了</div><div class="line">2018-07-15 19:52:11.117 [Thread-0] INFO  c.c.guava.callback.Notifier - 收到消息=【你在哪儿！】</div><div class="line">2018-07-15 19:52:11.121 [Thread-0] INFO  c.c.guava.callback.Notifier - 等待响应中。。。。。</div><div class="line">2018-07-15 19:52:13.124 [Thread-0] INFO  com.crossoverjie.guava.callback.Main - 回复=【我在北京！】</div></pre></td></tr></table></figure>
+<p>这样一个模拟的异步事件回调就完成了。</p>
+<h2 id="Guava-的用法"><a href="#Guava-的用法" class="headerlink" title="Guava 的用法"></a>Guava 的用法</h2><p>Guava 就是利用了上文的两个特性来实现了<strong>引用回收</strong>及<strong>移除通知</strong>。</p>
+<h3 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h3><p>可以在初始化缓存时利用：</p>
+<ul>
+<li>CacheBuilder.weakKeys()</li>
+<li>CacheBuilder.weakValues()</li>
+<li>CacheBuilder.softValues()</li>
+</ul>
+<p>来自定义键和值的引用关系。</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcgy1ftatngp76aj30n20h6gpn.jpg" alt=""></p>
+<p>在上文的分析中可以看出 Cache 中的 <code>ReferenceEntry</code> 是类似于 HashMap 的 Entry 存放数据的。</p>
+<p>来看看 ReferenceEntry 的定义：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div></pre></td><td class="code"><pre><div class="line">  <span class="class"><span class="keyword">interface</span> <span class="title">ReferenceEntry</span>&lt;<span class="title">K</span>, <span class="title">V</span>&gt; </span>&#123;</div><div class="line">    <span class="comment">/**</span></div><div class="line">     * Returns the value reference from this entry.</div><div class="line">     */</div><div class="line">    <span class="function">ValueReference&lt;K, V&gt; <span class="title">getValueReference</span><span class="params">()</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * Sets the value reference for this entry.</div><div class="line">     */</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setValueReference</span><span class="params">(ValueReference&lt;K, V&gt; valueReference)</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * Returns the next entry in the chain.</div><div class="line">     */</div><div class="line">    <span class="meta">@Nullable</span></div><div class="line">    <span class="function">ReferenceEntry&lt;K, V&gt; <span class="title">getNext</span><span class="params">()</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * Returns the entry's hash.</div><div class="line">     */</div><div class="line">    <span class="function"><span class="keyword">int</span> <span class="title">getHash</span><span class="params">()</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * Returns the key for this entry.</div><div class="line">     */</div><div class="line">    <span class="meta">@Nullable</span></div><div class="line">    <span class="function">K <span class="title">getKey</span><span class="params">()</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">/*</span></div><div class="line">     * Used by entries that use access order. Access entries are maintained in a doubly-linked list.</div><div class="line">     * New entries are added at the tail of the list at write time; stale entries are expired from</div><div class="line">     * the head of the list.</div><div class="line">     */</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * Returns the time that this entry was last accessed, in ns.</div><div class="line">     */</div><div class="line">    <span class="function"><span class="keyword">long</span> <span class="title">getAccessTime</span><span class="params">()</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * Sets the entry access time in ns.</div><div class="line">     */</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setAccessTime</span><span class="params">(<span class="keyword">long</span> time)</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>包含了很多常用的操作，如值引用、键引用、访问时间等。</p>
+<p>根据 <code>ValueReference&lt;K, V&gt; getValueReference();</code> 的实现：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1ftatsg5jfvj30vg059wg9.jpg" alt=""></p>
+<p>具有强引用和弱引用的不同实现。</p>
+<p>key 也是相同的道理：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcgy1ftattls2uzj30w005eq4t.jpg" alt=""></p>
+<p>这样当使用这样的构造方式时，弱引用的 key 和 value 都会被垃圾回收。</p>
+<p>当然我们也可以显式的回收：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * Discards any cached value for key &#123;@code key&#125;.</div><div class="line"> * 单个回收</div><div class="line"> */</div><div class="line">void invalidate(Object key);</div><div class="line"></div><div class="line">/**</div><div class="line"> * Discards any cached values for keys &#123;@code keys&#125;.</div><div class="line"> *</div><div class="line"> * @since 11.0</div><div class="line"> */</div><div class="line">void invalidateAll(Iterable&lt;?&gt; keys);</div><div class="line"></div><div class="line">/**</div><div class="line"> * Discards all entries in the cache.</div><div class="line"> */</div><div class="line">void invalidateAll();</div></pre></td></tr></table></figure>
+<h3 id="回调"><a href="#回调" class="headerlink" title="回调"></a>回调</h3><p>改造了之前的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">loadingCache = CacheBuilder.newBuilder()</div><div class="line">        .expireAfterWrite(<span class="number">2</span>, TimeUnit.SECONDS)</div><div class="line">        .removalListener(<span class="keyword">new</span> RemovalListener&lt;Object, Object&gt;() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onRemoval</span><span class="params">(RemovalNotification&lt;Object, Object&gt; notification)</span> </span>&#123;</div><div class="line">                LOGGER.info(<span class="string">"删除原因=&#123;&#125;，删除 key=&#123;&#125;,删除 value=&#123;&#125;"</span>,notification.getCause(),notification.getKey(),notification.getValue());</div><div class="line">            &#125;</div><div class="line">        &#125;)</div><div class="line">        .build(<span class="keyword">new</span> CacheLoader&lt;Integer, AtomicLong&gt;() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> AtomicLong <span class="title">load</span><span class="params">(Integer key)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">                <span class="keyword">return</span> <span class="keyword">new</span> AtomicLong(<span class="number">0</span>);</div><div class="line">            &#125;</div><div class="line">        &#125;);</div></pre></td></tr></table></figure>
+<p>执行结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">2018-07-15 20:41:07.433 [main] INFO  c.crossoverjie.guava.CacheLoaderTest - 当前缓存值=0,缓存大小=1</div><div class="line">2018-07-15 20:41:07.442 [main] INFO  c.crossoverjie.guava.CacheLoaderTest - 缓存的所有内容=&#123;1000=0&#125;</div><div class="line">2018-07-15 20:41:07.443 [main] INFO  c.crossoverjie.guava.CacheLoaderTest - job running times=10</div><div class="line">2018-07-15 20:41:10.461 [main] INFO  c.crossoverjie.guava.CacheLoaderTest - 删除原因=EXPIRED，删除 key=1000,删除 value=1</div><div class="line">2018-07-15 20:41:10.462 [main] INFO  c.crossoverjie.guava.CacheLoaderTest - 当前缓存值=0,缓存大小=1</div><div class="line">2018-07-15 20:41:10.462 [main] INFO  c.crossoverjie.guava.CacheLoaderTest - 缓存的所有内容=&#123;1000=0&#125;</div></pre></td></tr></table></figure>
+<p>可以看出当缓存被删除的时候会回调我们定义的函数，并告知删除原因。</p>
+<p>那么 Guava 是如何实现的呢？</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tKfTcgy1ftau23uj5aj30mp08odh8.jpg" alt=""></p>
+<p>根据 LocalCache 中的 <code>getLiveValue()</code> 中判断缓存过期时，跟着这里的调用关系就会一直跟到：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1ftau4ed7dcj30rm0a5acd.jpg" alt=""></p>
+<p><code>removeValueFromChain()</code> 中的：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1ftau5ywcojj30rs0750u9.jpg" alt=""></p>
+<p><code>enqueueNotification()</code> 方法会将回收的缓存（包含了 key，value）以及回收原因包装成之前定义的事件接口加入到一个本地队列中。</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tKfTcgy1ftau7hpijrj30sl06wtaf.jpg" alt=""></p>
+<p>这样一看也没有回调我们初始化时候的事件啊。</p>
+<p>不过用过队列的同学应该能猜出，既然这里写入队列，那就肯定就有消费。</p>
+<p>我们回到获取缓存的地方：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1ftau9rwgacj30ti0hswio.jpg" alt=""></p>
+<p>在 finally 中执行了 <code>postReadCleanup()</code> 方法；其实在这里面就是对刚才的队列进行了消费：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1ftaubaco48j30lw0513zi.jpg" alt=""></p>
+<p>一直跟进来就会发现这里消费了队列，将之前包装好的移除消息调用了我们定义的事件，这样就完成了一次事件回调。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>以上所有源码：</p>
+<p><a href="https://github.com/crossoverJie/Java-Interview/blob/master/src/main/java/com/crossoverjie/guava/callback/Main.java" target="_blank" rel="external">https://github.com/crossoverJie/Java-Interview/blob/master/src/main/java/com/crossoverjie/guava/callback/Main.java</a></p>
+<p>通过分析 Guava 的源码可以让我们学习到顶级的设计及实现方式，甚至自己也能尝试编写。</p>
+<p>Guava 里还有很多强大的增强实现，值得我们再好好研究。</p>
+<h2 id="号外"><a href="#号外" class="headerlink" title="号外"></a>号外</h2><p>最近在总结一些 Java 相关的知识点，感兴趣的朋友可以一起维护。</p>
+<blockquote>
+<p>地址: <a href="https://github.com/crossoverJie/Java-Interview" target="_blank" rel="external">https://github.com/crossoverJie/Java-Interview</a></p>
+</blockquote>
+<p><strong>欢迎关注公众号一起交流：</strong></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;img src=&quot;https://ws1.sinaimg.cn/large/006tKfTcgy1ftampuql43j31kw0vy7wh.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;在上文「&lt;a href=&quot;https://crossoverjie.top/2018/06/13/guava/guava-cache/&quot;&gt;Guava 源码分析（Cache 原理）&lt;/a&gt;」中分析了 &lt;code&gt;Guava Cache&lt;/code&gt; 的相关原理。&lt;/p&gt;
+&lt;p&gt;在文末提到了&lt;strong&gt;回收机制、移除时间通知&lt;/strong&gt;等内容，许多朋友也挺感兴趣，这次就这两个内容再来分析分析。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;在开始之前先补习下 Java 自带的两个特性，Guava 中都有具体的应用。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;Java-中的引用&quot;&gt;&lt;a href=&quot;#Java-中的引用&quot; class=&quot;headerlink&quot; title=&quot;Java 中的引用&quot;&gt;&lt;/a&gt;Java 中的引用&lt;/h2&gt;&lt;p&gt;首先是 Java 中的&lt;strong&gt;引用&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;在之前分享过 JVM 是根据&lt;a href=&quot;https://github.com/crossoverJie/Java-Interview/blob/master/MD/GarbageCollection.md#%E5%8F%AF%E8%BE%BE%E6%80%A7%E5%88%86%E6%9E%90%E7%AE%97%E6%B3%95&quot;&gt;可达性分析算法&lt;/a&gt;找出需要回收的对象，判断对象的存活状态都和&lt;code&gt;引用&lt;/code&gt;有关。&lt;/p&gt;
+&lt;p&gt;在 JDK1.2 之前这点设计的非常简单：一个对象的状态只有&lt;strong&gt;引用&lt;/strong&gt;和&lt;strong&gt;没被引用&lt;/strong&gt;两种区别。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Guava" scheme="http://crossoverjie.top/categories/Guava/"/>
+    
+    
+      <category term="Cache" scheme="http://crossoverjie.top/tags/Cache/"/>
+    
+  </entry>
   
   <entry>
     <title>一次线上问题排查所引发的思考</title>
@@ -2240,84 +2355,6 @@
     
       <category term="Java 进阶" scheme="http://crossoverjie.top/categories/Java-%E8%BF%9B%E9%98%B6/"/>
     
-    
-  </entry>
-  
-  <entry>
-    <title>synchronized 关键字原理</title>
-    <link href="http://crossoverjie.top/2018/01/14/Synchronize/"/>
-    <id>http://crossoverjie.top/2018/01/14/Synchronize/</id>
-    <published>2018-01-14T14:13:22.000Z</published>
-    <updated>2018-07-12T14:24:56.300Z</updated>
-    
-    <content type="html"><![CDATA[<p><img src="https://ws1.sinaimg.cn/large/006tKfTcly1fngjnyotvcj30z00jpn0d.jpg" alt=""></p>
-<p>众所周知 <code>synchronized</code> 关键字是解决并发问题常用解决方案，有以下三种使用方式:</p>
-<ul>
-<li>同步普通方法，锁的是当前对象。</li>
-<li>同步静态方法，锁的是当前 <code>Class</code> 对象。</li>
-<li>同步块，锁的是 <code>()</code> 中的对象。</li>
-</ul>
-<p>实现原理：<br><code>JVM</code> 是通过进入、退出对象监视器( <code>Monitor</code> )来实现对方法、同步块的同步的。</p>
-<p>具体实现是在编译之后在同步方法调用前加入一个 <code>monitor.enter</code> 指令，在退出方法和异常处插入 <code>monitor.exit</code> 的指令。</p>
-<p>其本质就是对一个对象监视器( <code>Monitor</code> )进行获取，而这个获取过程具有排他性从而达到了同一时刻只能一个线程访问的目的。</p>
-<p>而对于没有获取到锁的线程将会阻塞到方法入口处，直到获取锁的线程 <code>monitor.exit</code> 之后才能尝试继续获取锁。</p>
-<p>流程图如下:</p>
-<p><img src="https://ws2.sinaimg.cn/large/006tNc79ly1fn27fkl07jj31e80hyn0n.jpg" alt=""></p>
-<a id="more"></a>
-<p>通过一段代码来演示:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">    <span class="keyword">synchronized</span> (Synchronize.class)&#123;</div><div class="line">        System.out.println(<span class="string">"Synchronize"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>使用 <code>javap -c Synchronize</code> 可以查看编译之后的具体信息。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">public class com.crossoverjie.synchronize.Synchronize &#123;</div><div class="line">  public com.crossoverjie.synchronize.Synchronize();</div><div class="line">    Code:</div><div class="line">       0: aload_0</div><div class="line">       1: invokespecial #1                  // Method java/lang/Object.&quot;&lt;init&gt;&quot;:()V</div><div class="line">       4: return</div><div class="line"></div><div class="line">  public static void main(java.lang.String[]);</div><div class="line">    Code:</div><div class="line">       0: ldc           #2                  // class com/crossoverjie/synchronize/Synchronize</div><div class="line">       2: dup</div><div class="line">       3: astore_1</div><div class="line">       **4: monitorenter**</div><div class="line">       5: getstatic     #3                  // Field java/lang/System.out:Ljava/io/PrintStream;</div><div class="line">       8: ldc           #4                  // String Synchronize</div><div class="line">      10: invokevirtual #5                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V</div><div class="line">      13: aload_1</div><div class="line">      **14: monitorexit**</div><div class="line">      15: goto          23</div><div class="line">      18: astore_2</div><div class="line">      19: aload_1</div><div class="line">      20: monitorexit</div><div class="line">      21: aload_2</div><div class="line">      22: athrow</div><div class="line">      23: return</div><div class="line">    Exception table:</div><div class="line">       from    to  target type</div><div class="line">           5    15    18   any</div><div class="line">          18    21    18   any</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>可以看到在同步块的入口和出口分别有 <code>monitorenter,monitorexit</code><br>指令。</p>
-<h2 id="锁优化"><a href="#锁优化" class="headerlink" title="锁优化"></a>锁优化</h2><p><code>synchronized</code>  很多都称之为重量锁，<code>JDK1.6</code> 中对 <code>synchronized</code> 进行了各种优化，为了能减少获取和释放锁带来的消耗引入了<code>偏向锁</code>和<code>轻量锁</code>。</p>
-<h3 id="轻量锁"><a href="#轻量锁" class="headerlink" title="轻量锁"></a>轻量锁</h3><p>当代码进入同步块时，如果同步对象为无锁状态时，当前线程会在栈帧中创建一个锁记录(<code>Lock Record</code>)区域，同时将锁对象的对象头中 <code>Mark Word</code> 拷贝到锁记录中，再尝试使用 <code>CAS</code> 将 <code>Mark Word</code> 更新为指向锁记录的指针。</p>
-<p>如果更新<strong>成功</strong>，当前线程就获得了锁。</p>
-<p>如果更新<strong>失败</strong> <code>JVM</code> 会先检查锁对象的 <code>Mark Word</code> 是否指向当前线程的锁记录。</p>
-<p>如果是则说明当前线程拥有锁对象的锁，可以直接进入同步块。</p>
-<p>不是则说明有其他线程抢占了锁，如果存在多个线程同时竞争一把锁，<strong>轻量锁就会膨胀为重量锁</strong>。</p>
-<h4 id="解锁"><a href="#解锁" class="headerlink" title="解锁"></a>解锁</h4><p>轻量锁的解锁过程也是利用 <code>CAS</code> 来实现的，会尝试锁记录替换回锁对象的 <code>Mark Word</code> 。如果替换成功则说明整个同步操作完成，失败则说明有其他线程尝试获取锁，这时就会唤醒被挂起的线程(此时已经膨胀为<code>重量锁</code>)</p>
-<p>轻量锁能提升性能的原因：</p>
-<p>认为大多数锁在整个同步周期都不存在竞争，所以使用 <code>CAS</code> 比使用互斥开销更少。但如果锁竞争激烈，轻量锁就不但有互斥的开销，还有 <code>CAS</code> 的开销，甚至比重量锁更慢。</p>
-<h3 id="偏向锁"><a href="#偏向锁" class="headerlink" title="偏向锁"></a>偏向锁</h3><p>为了进一步的降低获取锁的代价，<code>JDK1.6</code> 之后还引入了偏向锁。</p>
-<p>偏向锁的特征是:锁不存在多线程竞争，并且应由一个线程多次获得锁。</p>
-<p>当线程访问同步块时，会使用 <code>CAS</code> 将线程 ID 更新到锁对象的 <code>Mark Word</code> 中，如果更新成功则获得偏向锁，并且之后每次进入这个对象锁相关的同步块时都不需要再次获取锁了。</p>
-<h4 id="释放锁"><a href="#释放锁" class="headerlink" title="释放锁"></a>释放锁</h4><p>当有另外一个线程获取这个锁时，持有偏向锁的线程就会释放锁，释放时会等待全局安全点(这一时刻没有字节码运行)，接着会暂停拥有偏向锁的线程，根据锁对象目前是否被锁来判定将对象头中的 <code>Mark Word</code> 设置为无锁或者是轻量锁状态。</p>
-<p>偏向锁可以提高带有同步却没有竞争的程序性能，但如果程序中大多数锁都存在竞争时，那偏向锁就起不到太大作用。可以使用 <code>-XX:-userBiasedLocking=false</code> 来关闭偏向锁，并默认进入轻量锁。</p>
-<h3 id="其他优化"><a href="#其他优化" class="headerlink" title="其他优化"></a>其他优化</h3><h4 id="适应性自旋"><a href="#适应性自旋" class="headerlink" title="适应性自旋"></a>适应性自旋</h4><p>在使用 <code>CAS</code> 时，如果操作失败，<code>CAS</code> 会自旋再次尝试。由于自旋是需要消耗 <code>CPU</code> 资源的，所以如果长期自旋就白白浪费了 <code>CPU</code>。<code>JDK1.6</code>加入了适应性自旋:</p>
-<blockquote>
-<p>如果某个锁自旋很少成功获得，那么下一次就会减少自旋。</p>
-</blockquote>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>synchronized 现在已经不像以前那么重了，拿 1.8 中的 ConcurrentHashMap 就可以看出，里面大量的使用了 synchronized 来进行同步。</p>
-<h2 id="号外"><a href="#号外" class="headerlink" title="号外"></a>号外</h2><p>最近在总结一些 Java 相关的知识点，感兴趣的朋友可以一起维护。</p>
-<blockquote>
-<p>地址: <a href="https://github.com/crossoverJie/Java-Interview" target="_blank" rel="external">https://github.com/crossoverJie/Java-Interview</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;&lt;img src=&quot;https://ws1.sinaimg.cn/large/006tKfTcly1fngjnyotvcj30z00jpn0d.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;众所周知 &lt;code&gt;synchronized&lt;/code&gt; 关键字是解决并发问题常用解决方案，有以下三种使用方式:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;同步普通方法，锁的是当前对象。&lt;/li&gt;
-&lt;li&gt;同步静态方法，锁的是当前 &lt;code&gt;Class&lt;/code&gt; 对象。&lt;/li&gt;
-&lt;li&gt;同步块，锁的是 &lt;code&gt;()&lt;/code&gt; 中的对象。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;实现原理：&lt;br&gt;&lt;code&gt;JVM&lt;/code&gt; 是通过进入、退出对象监视器( &lt;code&gt;Monitor&lt;/code&gt; )来实现对方法、同步块的同步的。&lt;/p&gt;
-&lt;p&gt;具体实现是在编译之后在同步方法调用前加入一个 &lt;code&gt;monitor.enter&lt;/code&gt; 指令，在退出方法和异常处插入 &lt;code&gt;monitor.exit&lt;/code&gt; 的指令。&lt;/p&gt;
-&lt;p&gt;其本质就是对一个对象监视器( &lt;code&gt;Monitor&lt;/code&gt; )进行获取，而这个获取过程具有排他性从而达到了同一时刻只能一个线程访问的目的。&lt;/p&gt;
-&lt;p&gt;而对于没有获取到锁的线程将会阻塞到方法入口处，直到获取锁的线程 &lt;code&gt;monitor.exit&lt;/code&gt; 之后才能尝试继续获取锁。&lt;/p&gt;
-&lt;p&gt;流程图如下:&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;https://ws2.sinaimg.cn/large/006tNc79ly1fn27fkl07jj31e80hyn0n.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Java 进阶" scheme="http://crossoverjie.top/categories/Java-%E8%BF%9B%E9%98%B6/"/>
-    
-    
-      <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
-    
-      <category term="synchronize" scheme="http://crossoverjie.top/tags/synchronize/"/>
     
   </entry>
   
