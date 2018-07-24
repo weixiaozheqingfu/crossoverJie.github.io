@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://crossoverjie.top/"/>
-  <updated>2018-07-22T16:37:43.898Z</updated>
+  <updated>2018-07-24T05:22:32.413Z</updated>
   <id>http://crossoverjie.top/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://crossoverjie.top/2018/07/23/java-senior/ConcurrentHashMap/"/>
     <id>http://crossoverjie.top/2018/07/23/java-senior/ConcurrentHashMap/</id>
     <published>2018-07-22T17:10:16.000Z</published>
-    <updated>2018-07-22T16:37:43.898Z</updated>
+    <updated>2018-07-24T05:22:32.413Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://ws1.sinaimg.cn/large/006tNc79gy1fthz5oibm0j31kw11xu0g.jpg" alt=""></p>
 <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Map 这样的 <code>Key Value</code> 在软件开发中是非常经典的结构，常用于在内存中存放数据。</p>
@@ -133,7 +133,7 @@
 <p><code>强烈建议</code>使用第一种 EntrySet 进行遍历。</p>
 <p>第一种可以把 key value 同时取出，第二种还得需要通过 key 取一次 value，效率较低。</p>
 <blockquote>
-<p>简单总结下 HashMap：无论是 1.7 还是 1.8 其实都能看出 JDK 没有对它做任何的同步操作，所以并发会出问题，甚至出现死循环导致系统不可用。</p>
+<p>简单总结下 HashMap：无论是 1.7 还是 1.8 其实都能看出 JDK 没有对它做任何的同步操作，所以并发会出问题，甚至 1.7 中出现死循环导致系统不可用（1.8 已经修复死循环问题）。</p>
 </blockquote>
 <p>因此 JDK 推出了专项专用的 ConcurrentHashMap ，该类位于 <code>java.util.concurrent</code> 包下，专门用于解决并发问题。</p>
 <blockquote>
