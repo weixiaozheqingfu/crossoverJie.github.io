@@ -4,6 +4,56 @@
 
     
   <url>
+    <loc>http://crossoverjie.top/2018/07/29/java-senior/ThreadPool/</loc>
+    <lastmod>2018-07-29T07:11:35.719Z</lastmod>
+    <data>
+        <display>
+        <title>如何优雅的使用和理解线程池</title>
+        <pubTime>2018-07-28T18:00:16.000Z</pubTime>
+        
+        <tag>Java</tag>
+         
+        <tag>SpringBoot</tag>
+         
+        <tag>ThreadPool</tag>
+         
+        <tag>Hystirx</tag>
+         
+         
+           
+             
+              <breadCrumb title="Java 进阶" url="http://crossoverjie.top/categories/Java-%E8%BF%9B%E9%98%B6/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://crossoverjie.top/2018/03/09/volatile/</loc>
+    <lastmod>2018-07-24T07:58:55.228Z</lastmod>
+    <data>
+        <display>
+        <title>你应该知道的 volatile 关键字</title>
+        <pubTime>2018-03-08T18:00:36.000Z</pubTime>
+        
+        <tag>Java</tag>
+         
+        <tag>volatile</tag>
+         
+        <tag>concurrent</tag>
+         
+         
+           
+             
+              <breadCrumb title="Java 进阶" url="http://crossoverjie.top/categories/Java-%E8%BF%9B%E9%98%B6/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://crossoverjie.top/2018/07/23/java-senior/ConcurrentHashMap/</loc>
     <lastmod>2018-07-24T05:22:32.413Z</lastmod>
     <data>
@@ -434,30 +484,6 @@
         <tag>Java</tag>
          
         <tag>Thread</tag>
-         
-        <tag>concurrent</tag>
-         
-         
-           
-             
-              <breadCrumb title="Java 进阶" url="http://crossoverjie.top/categories/Java-%E8%BF%9B%E9%98%B6/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://crossoverjie.top/2018/03/09/volatile/</loc>
-    <lastmod>2018-03-08T17:42:16.000Z</lastmod>
-    <data>
-        <display>
-        <title>你应该知道的 volatile 关键字</title>
-        <pubTime>2018-03-08T18:00:36.000Z</pubTime>
-        
-        <tag>Java</tag>
-         
-        <tag>volatile</tag>
          
         <tag>concurrent</tag>
          
