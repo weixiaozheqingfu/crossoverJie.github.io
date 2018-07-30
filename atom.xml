@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://crossoverjie.top/"/>
-  <updated>2018-07-29T07:27:32.523Z</updated>
+  <updated>2018-07-29T07:32:28.954Z</updated>
   <id>http://crossoverjie.top/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://crossoverjie.top/2018/07/29/java-senior/ThreadPool/"/>
     <id>http://crossoverjie.top/2018/07/29/java-senior/ThreadPool/</id>
     <published>2018-07-28T18:00:16.000Z</published>
-    <updated>2018-07-29T07:27:32.523Z</updated>
+    <updated>2018-07-29T07:32:28.954Z</updated>
     
     <content type="html"><![CDATA[<p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1ftpwh3a2szj31kw11xh84.jpg" alt=""></p>
 <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>平时接触过多线程开发的童鞋应该都或多或少了解过线程池，之前发布的《阿里巴巴 Java 手册》里也有一条：</p>
