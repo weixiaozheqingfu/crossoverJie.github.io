@@ -676,9 +676,9 @@
     
       <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
     
-      <category term="Thread" scheme="http://crossoverjie.top/tags/Thread/"/>
-    
       <category term="concurrent" scheme="http://crossoverjie.top/tags/concurrent/"/>
+    
+      <category term="Thread" scheme="http://crossoverjie.top/tags/Thread/"/>
     
       <category term="JVM" scheme="http://crossoverjie.top/tags/JVM/"/>
     
@@ -2434,9 +2434,9 @@
     
       <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
     
-      <category term="Thread" scheme="http://crossoverjie.top/tags/Thread/"/>
-    
       <category term="concurrent" scheme="http://crossoverjie.top/tags/concurrent/"/>
+    
+      <category term="Thread" scheme="http://crossoverjie.top/tags/Thread/"/>
     
   </entry>
   
