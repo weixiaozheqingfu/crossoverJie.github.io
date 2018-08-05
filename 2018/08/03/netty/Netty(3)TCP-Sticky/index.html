@@ -1,0 +1,1243 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="拆包,粘包,protobuf," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="crossoverJie's Blog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="前言记得前段时间我们生产上的一个网关出现了故障。
+这个网关逻辑非常简单，就是接收客户端的请求然后解析报文最后发送短信。
+但这个请求并不是常见的 HTTP ，而是利用 Netty 自定义的协议。
+
+有个前提是：网关是需要读取一段完整的报文才能进行后面的逻辑。
+
+问题是有天突然发现网关解析报文出错，查看了客户端的发送日志也没发现问题，最后通过日志发现收到了许多不完整的报文，有些还多了。
+于是想会不会">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Netty(三) 什么是 TCP 拆、粘包？如何解决？">
+<meta property="og:url" content="http://crossoverjie.top/2018/08/03/netty/Netty(3)TCP-Sticky/index.html">
+<meta property="og:site_name" content="crossoverJie's Blog">
+<meta property="og:description" content="前言记得前段时间我们生产上的一个网关出现了故障。
+这个网关逻辑非常简单，就是接收客户端的请求然后解析报文最后发送短信。
+但这个请求并不是常见的 HTTP ，而是利用 Netty 自定义的协议。
+
+有个前提是：网关是需要读取一段完整的报文才能进行后面的逻辑。
+
+问题是有天突然发现网关解析报文出错，查看了客户端的发送日志也没发现问题，最后通过日志发现收到了许多不完整的报文，有些还多了。
+于是想会不会">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tKfTcgy1ftuojmzbvxj31kw11xqbq.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNc79ly1ftvolpj17fj30iw09lmyf.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tNc79gy1ftvtsbmk0kj30wi058q36.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tNc79gy1ftvtt58yn6j30vs0603yr.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tNc79gy1ftvtu9t208j30vw0ay755.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/0069RVTdly1ftxiwdq2zdj31he0dqacr.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0069RVTdly1ftxixp7kkaj31kw0cb7e1.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0069RVTdly1ftxp52302uj31i00bagny.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/0069RVTdly1ftxp3fzejlj31cq0ekdp7.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/0069RVTdly1ftxpq4xn0hj31jg12wgvm.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tKfTcgy1ftynyufs9kj30lk01owgb.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tKfTcgy1ftyo0733gxj308d01v3z8.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/006tKfTcgy1ftz0bo7ffuj30qx0co40a.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/006tKfTcgy1ftz0csu6njj31e802jgmo.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcgy1ftz0d5ts80j31a502v74l.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tKfTcgy1ftz0gpj7tuj30qx06lta6.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tKfTcgy1ftz0k997gtj30oh09tq5d.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/006tKfTcgy1ftz0tvd2ntj31ek0a8dlt.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/006tKfTcgy1ftz0zjeasxj319r09rwkh.jpg">
+<meta property="og:updated_time" content="2018-08-05T15:06:23.219Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Netty(三) 什么是 TCP 拆、粘包？如何解决？">
+<meta name="twitter:description" content="前言记得前段时间我们生产上的一个网关出现了故障。
+这个网关逻辑非常简单，就是接收客户端的请求然后解析报文最后发送短信。
+但这个请求并不是常见的 HTTP ，而是利用 Netty 自定义的协议。
+
+有个前提是：网关是需要读取一段完整的报文才能进行后面的逻辑。
+
+问题是有天突然发现网关解析报文出错，查看了客户端的发送日志也没发现问题，最后通过日志发现收到了许多不完整的报文，有些还多了。
+于是想会不会">
+<meta name="twitter:image" content="https://ws3.sinaimg.cn/large/006tKfTcgy1ftuojmzbvxj31kw11xqbq.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 555390,
+      author: 'crossoverJie'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://crossoverjie.top/2018/08/03/netty/Netty(3)TCP-Sticky/"/>
+
+  <title> Netty(三) 什么是 TCP 拆、粘包？如何解决？ | crossoverJie's Blog </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+  <div style="display: none;">
+    <script src="https://s6.cnzz.com/stat.php?id=1259025147&web_id=1259025147" type="text/javascript"></script>
+  </div>
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">crossoverJie's Blog</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">baller</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-photo">
+          <a href="/favourite" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-photo"></i> <br />
+            
+            photo
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="#" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            Search
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Netty(三) 什么是 TCP 拆、粘包？如何解决？
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">Posted on</span>
+            <time itemprop="dateCreated" datetime="2018-08-03T00:01:14+08:00" content="2018-08-03">
+              2018-08-03
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Netty/" itemprop="url" rel="index">
+                    <span itemprop="name">Netty</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2018/08/03/netty/Netty(3)TCP-Sticky/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2018/08/03/netty/Netty(3)TCP-Sticky/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2018/08/03/netty/Netty(3)TCP-Sticky/" class="leancloud_visitors" data-flag-title="Netty(三) 什么是 TCP 拆、粘包？如何解决？">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">visitors </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+              &nbsp; | &nbsp;
+              <span class="page-pv">本文总阅读量
+              <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+              </span>
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><img src="https://ws3.sinaimg.cn/large/006tKfTcgy1ftuojmzbvxj31kw11xqbq.jpg" alt=""></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>记得前段时间我们生产上的一个网关出现了故障。</p>
+<p>这个网关逻辑非常简单，就是接收客户端的请求然后解析报文最后发送短信。</p>
+<p>但这个请求并不是常见的 HTTP ，而是利用 Netty 自定义的协议。</p>
+<blockquote>
+<p>有个前提是：网关是需要读取一段完整的报文才能进行后面的逻辑。</p>
+</blockquote>
+<p>问题是有天突然发现网关解析报文出错，查看了客户端的发送日志也没发现问题，最后通过日志发现收到了许多<strong>不完整的报文</strong>，有些还多了。</p>
+<p>于是想会不会是 TCP 拆、粘包带来的问题，最后利用 Netty 自带的拆包工具解决了该问题。</p>
+<p>这便有了此文。</p>
+<a id="more"></a>
+<h3 id="TCP-协议"><a href="#TCP-协议" class="headerlink" title="TCP 协议"></a>TCP 协议</h3><p>问题虽然解决了，但还是得想想原因，为啥会这样？打破砂锅问到底才是一个靠谱的程序员。</p>
+<p>这就得从 TCP 这个协议说起了。</p>
+<p>TCP 是一个面向字节流的协议，它是性质是流式的，所以它并没有分段。就像水流一样，你没法知道什么时候开始，什么时候结束。</p>
+<p>所以他会根据当前的套接字缓冲区的情况进行拆包或是粘包。</p>
+<p>下图展示了一个 TCP 协议传输的过程：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNc79ly1ftvolpj17fj30iw09lmyf.jpg" alt=""></p>
+<p>发送端的字节流都会先传入缓冲区，再通过网络传入到接收端的缓冲区中，最终由接收端获取。</p>
+<p>当我们发送两个完整包到接收端的时候：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNc79gy1ftvtsbmk0kj30wi058q36.jpg" alt=""></p>
+<p>正常情况会接收到两个完整的报文。</p>
+<hr>
+<p>但也有以下的情况：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNc79gy1ftvtt58yn6j30vs0603yr.jpg" alt=""></p>
+<p>接收到的是一个报文，它是由发送的两个报文组成的，这样对于应用程序来说就很难处理了（这样称为粘包）。</p>
+<hr>
+<p><img src="https://ws4.sinaimg.cn/large/006tNc79gy1ftvtu9t208j30vw0ay755.jpg" alt=""></p>
+<p>还有可能出现上面这样的虽然收到了两个包，但是里面的内容却是互相包含，对于应用来说依然无法解析（拆包）。</p>
+<p>对于这样的问题只能通过上层的应用来解决，常见的方式有：</p>
+<ul>
+<li>在报文末尾增加换行符表明一条完整的消息，这样在接收端可以根据这个换行符来判断消息是否完整。</li>
+<li>将消息分为消息头、消息体。可以在消息头中声明消息的长度，根据这个长度来获取报文（比如 808 协议）。</li>
+<li>规定好报文长度，不足的空位补齐，取的时候按照长度截取即可。</li>
+</ul>
+<p>以上的这些方式我们在 Netty 的 pipline 中里加入对应的解码器都可以手动实现。</p>
+<p>但其实 Netty 已经帮我们做好了，完全可以开箱即用。</p>
+<p>比如：</p>
+<ul>
+<li><code>LineBasedFrameDecoder</code> 可以基于换行符解决。</li>
+<li><code>DelimiterBasedFrameDecoder</code>可基于分隔符解决。</li>
+<li><code>FixedLengthFrameDecoder</code>可指定长度解决。</li>
+</ul>
+<h2 id="字符串拆、粘包"><a href="#字符串拆、粘包" class="headerlink" title="字符串拆、粘包"></a>字符串拆、粘包</h2><p>下面来模拟一下最简单的字符串传输。</p>
+<p>还是在之前的</p>
+<p><a href="https://github.com/crossoverJie/netty-action" target="_blank" rel="external">https://github.com/crossoverJie/netty-action</a></p>
+<p>进行演示。</p>
+<p>在 Netty 客户端中加了一个入口可以循环发送 100 条字符串报文到接收端：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * 向服务端发消息 字符串</div><div class="line"> * <span class="doctag">@param</span> stringReqVO</div><div class="line"> * <span class="doctag">@return</span></div><div class="line"> */</div><div class="line"><span class="meta">@ApiOperation</span>(<span class="string">"客户端发送消息，字符串"</span>)</div><div class="line"><span class="meta">@RequestMapping</span>(value = <span class="string">"sendStringMsg"</span>, method = RequestMethod.POST)</div><div class="line"><span class="meta">@ResponseBody</span></div><div class="line"><span class="function"><span class="keyword">public</span> BaseResponse&lt;NULLBody&gt; <span class="title">sendStringMsg</span><span class="params">(@RequestBody StringReqVO stringReqVO)</span></span>&#123;</div><div class="line">    BaseResponse&lt;NULLBody&gt; res = <span class="keyword">new</span> BaseResponse();</div><div class="line"></div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">100</span>; i++) &#123;</div><div class="line">        heartbeatClient.sendStringMsg(stringReqVO.getMsg()) ;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// 利用 actuator 来自增</span></div><div class="line">    counterService.increment(Constants.COUNTER_CLIENT_PUSH_COUNT);</div><div class="line"></div><div class="line">    SendMsgResVO sendMsgResVO = <span class="keyword">new</span> SendMsgResVO() ;</div><div class="line">    sendMsgResVO.setMsg(<span class="string">"OK"</span>) ;</div><div class="line">    res.setCode(StatusEnum.SUCCESS.getCode()) ;</div><div class="line">    res.setMessage(StatusEnum.SUCCESS.getMessage()) ;</div><div class="line">    <span class="keyword">return</span> res ;</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"> * 发送消息字符串</div><div class="line"> *</div><div class="line"> * <span class="doctag">@param</span> msg</div><div class="line"> */</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendStringMsg</span><span class="params">(String msg)</span> </span>&#123;</div><div class="line">    ByteBuf message = Unpooled.buffer(msg.getBytes().length) ;</div><div class="line">    message.writeBytes(msg.getBytes()) ;</div><div class="line">    ChannelFuture future = channel.writeAndFlush(message);</div><div class="line">    future.addListener((ChannelFutureListener) channelFuture -&gt;</div><div class="line">            LOGGER.info(<span class="string">"客户端手动发消息成功=&#123;&#125;"</span>, msg));</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>服务端直接打印即可：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">channelRead0</span><span class="params">(ChannelHandlerContext ctx, String msg)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">    LOGGER.info(<span class="string">"收到msg=&#123;&#125;"</span>, msg);</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>顺便提一下，这里加的有一个字符串的解码器：<code>.addLast(new StringDecoder())</code> 其实就是把消息解析为字符串。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">decode</span><span class="params">(ChannelHandlerContext ctx, ByteBuf msg, List&lt;Object&gt; out)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">    out.add(msg.toString(charset));</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在 Swagger 中调用了客户端的接口用于给服务端发送了 100 次消息：</p>
+<p><img src="https://ws3.sinaimg.cn/large/0069RVTdly1ftxiwdq2zdj31he0dqacr.jpg" alt=""></p>
+<p>正常情况下接收端应该打印 100 次 <code>hello</code> 才对，但是查看日志会发现：</p>
+<p><img src="https://ws1.sinaimg.cn/large/0069RVTdly1ftxixp7kkaj31kw0cb7e1.jpg" alt=""></p>
+<p>收到的内容有完整的、多的、少的、拼接的；这也就对应了上面提到的拆包、粘包。</p>
+<p>该怎么解决呢？这便可采用之前提到的 <code>LineBasedFrameDecoder</code> 利用换行符解决。</p>
+<h3 id="利用-LineBasedFrameDecoder-解决问题"><a href="#利用-LineBasedFrameDecoder-解决问题" class="headerlink" title="利用 LineBasedFrameDecoder 解决问题"></a>利用 LineBasedFrameDecoder 解决问题</h3><p><code>LineBasedFrameDecoder</code> 解码器使用非常简单，只需要在 pipline 链条上添加即可。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//字符串解析,换行防拆包</span></div><div class="line">.addLast(<span class="keyword">new</span> LineBasedFrameDecoder(<span class="number">1024</span>))</div><div class="line">.addLast(<span class="keyword">new</span> StringDecoder())</div></pre></td></tr></table></figure>
+<p>构造函数中传入了 1024 是指报的长度最大不超过这个值，具体可以看下文的源码分析。</p>
+<p>然后我们再进行一次测试看看结果：</p>
+<blockquote>
+<p>注意，由于 LineBasedFrameDecoder 解码器是通过换行符来判断的，所以在发送时，一条完整的消息需要加上 <code>\n</code>。</p>
+</blockquote>
+<p><img src="https://ws1.sinaimg.cn/large/0069RVTdly1ftxp52302uj31i00bagny.jpg" alt=""></p>
+<p>最终的结果：<br><img src="https://ws1.sinaimg.cn/large/0069RVTdly1ftxp3fzejlj31cq0ekdp7.jpg" alt=""></p>
+<p>仔细观察日志，发现确实没有一条被拆、粘包。</p>
+<h3 id="LineBasedFrameDecoder-的原理"><a href="#LineBasedFrameDecoder-的原理" class="headerlink" title="LineBasedFrameDecoder 的原理"></a>LineBasedFrameDecoder 的原理</h3><p>目的达到了，来看看它的实现原理：</p>
+<p><img src="https://ws4.sinaimg.cn/large/0069RVTdly1ftxpq4xn0hj31jg12wgvm.jpg" alt=""></p>
+<ol>
+<li>第一步主要就是 <code>findEndOfLine</code> 方法去找到当前报文中是否存在分隔符，存在就会返回分隔符所在的位置。</li>
+<li>判断是否需要丢弃，默认为 false ，第一次走这个逻辑（下文会判断是否需要改为 true）。</li>
+<li>如果报文中存在换行符，就会将数据截取到那个位置。</li>
+<li>如果不存在换行符（有可能是拆包、粘包），就看当前报文的长度是否大于预设的长度。大于则需要缓存这个报文长度，并将 discarding 设为 true。</li>
+<li>如果是需要丢弃时，判断是否找到了换行符，存在则需要丢弃掉之前记录的长度然后截取数据。</li>
+<li>如果没有找到换行符，则将之前缓存的报文长度进行累加，用于下次抛弃。</li>
+</ol>
+<p>从这个逻辑中可以看出就是寻找报文中是否包含换行符，并进行相应的截取。</p>
+<p>由于是通过缓冲区读取的，所以即使这次没有换行符的数据，只要下一次的报文存在换行符，上一轮的数据也不会丢。</p>
+<h2 id="高效的编码方式-Google-Protocol"><a href="#高效的编码方式-Google-Protocol" class="headerlink" title="高效的编码方式 Google Protocol"></a>高效的编码方式 Google Protocol</h2><p>上面提到的其实就是在解码中进行操作，我们也可以自定义自己的拆、粘包工具。</p>
+<p>编解码的主要目的就是为了可以编码成字节流用于在网络中传输、持久化存储。</p>
+<p>Java 中也可以实现 Serializable 接口来实现序列化，但由于它性能等原因在一些 RPC 调用中用的很少。</p>
+<p>而 <code>Google Protocol</code> 则是一个高效的序列化框架，下面来演示在 Netty 中如何使用。</p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>首先第一步自然是安装：</p>
+<p>在<a href="https://github.com/google/protobuf/releases/tag/v3.6.1" target="_blank" rel="external">官网</a>下载对应的包。</p>
+<p>本地配置环境变量：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcgy1ftynyufs9kj30lk01owgb.jpg" alt=""></p>
+<p>当执行 <code>protoc --version</code> 出现以下结果表明安装成功：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcgy1ftyo0733gxj308d01v3z8.jpg" alt=""></p>
+<h3 id="定义自己的协议格式"><a href="#定义自己的协议格式" class="headerlink" title="定义自己的协议格式"></a>定义自己的协议格式</h3><p>接着是需要按照官方要求的语法定义自己的协议格式。</p>
+<p>比如我这里需要定义一个输入输出的报文格式：</p>
+<p>BaseRequestProto.proto:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">syntax = <span class="string">"proto2"</span>;</div><div class="line"></div><div class="line"><span class="keyword">package</span> protocol;</div><div class="line"></div><div class="line">option java_package = <span class="string">"com.crossoverjie.netty.action.protocol"</span>;</div><div class="line">option java_outer_classname = <span class="string">"BaseRequestProto"</span>;</div><div class="line"></div><div class="line">message RequestProtocol &#123;</div><div class="line">  required int32 requestId = <span class="number">2</span>;</div><div class="line">  required string reqMsg = <span class="number">1</span>;</div><div class="line">  </div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>BaseResponseProto.proto:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">syntax = <span class="string">"proto2"</span>;</div><div class="line"></div><div class="line"><span class="keyword">package</span> protocol;</div><div class="line"></div><div class="line">option java_package = <span class="string">"com.crossoverjie.netty.action.protocol"</span>;</div><div class="line">option java_outer_classname = <span class="string">"BaseResponseProto"</span>;</div><div class="line"></div><div class="line">message ResponseProtocol &#123;</div><div class="line">  required int32 responseId = <span class="number">2</span>;</div><div class="line">  required string resMsg = <span class="number">1</span>;</div><div class="line">  </div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>再通过</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">protoc --java_out=/dev BaseRequestProto.proto BaseResponseProto.proto</div></pre></td></tr></table></figure>
+<p>protoc 命令将刚才定义的协议格式转换为 Java 代码，并生成在 <code>/dev</code> 目录。</p>
+<p>只需要将生成的代码拷贝到我们的项目中，同时引入依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.google.protobuf<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>protobuf-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>3.4.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>利用 Protocol 的编解码也非常简单：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProtocolUtil</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InvalidProtocolBufferException </span>&#123;</div><div class="line">        BaseRequestProto.RequestProtocol protocol = BaseRequestProto.RequestProtocol.newBuilder()</div><div class="line">                .setRequestId(<span class="number">123</span>)</div><div class="line">                .setReqMsg(<span class="string">"你好啊"</span>)</div><div class="line">                .build();</div><div class="line"></div><div class="line">        <span class="keyword">byte</span>[] encode = encode(protocol);</div><div class="line"></div><div class="line">        BaseRequestProto.RequestProtocol parseFrom = decode(encode);</div><div class="line"></div><div class="line">        System.out.println(protocol.toString());</div><div class="line">        System.out.println(protocol.toString().equals(parseFrom.toString()));</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 编码</div><div class="line">     * <span class="doctag">@param</span> protocol</div><div class="line">     * <span class="doctag">@return</span></div><div class="line">     */</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">byte</span>[] encode(BaseRequestProto.RequestProtocol protocol)&#123;</div><div class="line">        <span class="keyword">return</span> protocol.toByteArray() ;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 解码</div><div class="line">     * <span class="doctag">@param</span> bytes</div><div class="line">     * <span class="doctag">@return</span></div><div class="line">     * <span class="doctag">@throws</span> InvalidProtocolBufferException</div><div class="line">     */</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> BaseRequestProto.<span class="function">RequestProtocol <span class="title">decode</span><span class="params">(<span class="keyword">byte</span>[] bytes)</span> <span class="keyword">throws</span> InvalidProtocolBufferException </span>&#123;</div><div class="line">        <span class="keyword">return</span> BaseRequestProto.RequestProtocol.parseFrom(bytes);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>利用 <code>BaseRequestProto</code> 来做一个演示，先编码再解码最后比较最终的结果是否相同。答案肯定是一致的。</p>
+<p>利用 protoc 命令生成的 Java 文件里已经帮我们把编解码全部都封装好了，只需要简单调用就行了。</p>
+<p>可以看出 Protocol 创建对象使用的是构建者模式，对使用者来说清晰易读，更多关于构建器的内容可以参考<a href="https://crossoverjie.top/2018/04/28/sbc/sbc7-Distributed-Limit/#Builder-%E6%9E%84%E5%BB%BA%E5%99%A8">这里</a>。</p>
+<p>更多关于 <code>Google Protocol</code> 内容请查看<a href="https://developers.google.com/protocol-buffers/docs/javatutorial" target="_blank" rel="external">官方开发文档</a>。</p>
+<h3 id="结合-Netty"><a href="#结合-Netty" class="headerlink" title="结合 Netty"></a>结合 Netty</h3><p>Netty 已经自带了对 Google protobuf 的编解码器，也是只需要在 pipline 中添加即可。</p>
+<p>server 端：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// google Protobuf 编解码</span></div><div class="line">.addLast(<span class="keyword">new</span> ProtobufDecoder(BaseRequestProto.RequestProtocol.getDefaultInstance()))</div><div class="line">.addLast(<span class="keyword">new</span> ProtobufEncoder())</div><div class="line">``` </div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line">客户端：</div><div class="line"></div><div class="line">```java</div><div class="line"><span class="comment">// google Protobuf 编解码</span></div><div class="line"></div><div class="line">.addLast(<span class="keyword">new</span> ProtobufDecoder(BaseResponseProto.ResponseProtocol.getDefaultInstance()))</div><div class="line"></div><div class="line">.addLast(<span class="keyword">new</span> ProtobufEncoder())</div></pre></td></tr></table></figure>
+<blockquote>
+<p>稍微注意的是，在构建 ProtobufDecoder 时需要显式指定解码器需要解码成什么类型。</p>
+</blockquote>
+<p>我这里服务端接收的是 BaseRequestProto，客户端收到的是服务端响应的 BaseResponseProto 所以就设置了对应的实例。</p>
+<p>同样的提供了一个接口向服务端发送消息，当服务端收到了一个特殊指令时也会向客户端返回内容：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">channelRead0</span><span class="params">(ChannelHandlerContext ctx, BaseRequestProto.RequestProtocol msg)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">    LOGGER.info(<span class="string">"收到msg=&#123;&#125;"</span>, msg.getReqMsg());</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (<span class="number">999</span> == msg.getRequestId())&#123;</div><div class="line">        BaseResponseProto.ResponseProtocol responseProtocol = BaseResponseProto.ResponseProtocol.newBuilder()</div><div class="line">                .setResponseId(<span class="number">1000</span>)</div><div class="line">                .setResMsg(<span class="string">"服务端响应"</span>)</div><div class="line">                .build();</div><div class="line">        ctx.writeAndFlush(responseProtocol) ;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在 swagger 中调用相关接口：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tKfTcgy1ftz0bo7ffuj30qx0co40a.jpg" alt=""></p>
+<p>在日志可以看到服务端收到了消息，同时客户端也收到了返回：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tKfTcgy1ftz0csu6njj31e802jgmo.jpg" alt=""></p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1ftz0d5ts80j31a502v74l.jpg" alt=""></p>
+<p>虽说 Netty 封装了 Google Protobuf 相关的编解码工具，其实查看它的编码工具就会发现也是利用上文提到的 api 实现的。</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcgy1ftz0gpj7tuj30qx06lta6.jpg" alt=""></p>
+<h3 id="Protocol-拆、粘包"><a href="#Protocol-拆、粘包" class="headerlink" title="Protocol 拆、粘包"></a>Protocol 拆、粘包</h3><p>Google Protocol 的使用确实非常简单，但还是有值的注意的地方，比如它依然会有拆、粘包问题。</p>
+<p>不妨模拟一下：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcgy1ftz0k997gtj30oh09tq5d.jpg" alt=""></p>
+<p>连续发送 100 次消息看服务端收到的怎么样：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1ftz0tvd2ntj31ek0a8dlt.jpg" alt=""></p>
+<p>会发现服务端在解码的时候报错，其实就是被拆、粘包了。</p>
+<p>这点 Netty 自然也考虑到了，所以已经提供了相关的工具。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//拆包解码</span></div><div class="line">.addLast(<span class="keyword">new</span> ProtobufVarint32FrameDecoder())</div><div class="line">.addLast(<span class="keyword">new</span> ProtobufVarint32LengthFieldPrepender())</div></pre></td></tr></table></figure>
+<p>只需要在服务端和客户端加上这两个编解码工具即可，再来发送一百次试试。</p>
+<p>查看日志发现没有出现一次异常，100 条信息全部都接收到了。</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcgy1ftz0zjeasxj319r09rwkh.jpg" alt=""></p>
+<p>这个编解码工具可以简单理解为是在消息体中加了一个 32 位长度的整形字段，用于表明当前消息长度。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>网络这块同样是计算机的基础，由于近期在做相关的工作所以接触的比较多，也算是给大学补课了。</p>
+<p>后面会接着更新 Netty 相关的内容，最后会产出一个高性能的 HTTP 以及 RPC 框架，敬请期待。</p>
+<p>上文相关的代码：</p>
+<p><a href="https://github.com/crossoverJie/netty-action" target="_blank" rel="external">https://github.com/crossoverJie/netty-action</a></p>
+<h2 id="号外"><a href="#号外" class="headerlink" title="号外"></a>号外</h2><p>最近在总结一些 Java 相关的知识点，感兴趣的朋友可以一起维护。</p>
+<blockquote>
+<p>地址: <a href="https://github.com/crossoverJie/Java-Interview" target="_blank" rel="external">https://github.com/crossoverJie/Java-Interview</a></p>
+</blockquote>
+<p><strong>欢迎关注公众号一起交流：</strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+<div id="wechat_subscriber" style="display: block； padding: 10px 0; margin: 20px auto; width: 100%; text-align: center">
+    <img id="wechat_subscriber_qcode" src="/uploads/weixin.png" alt="crossoverJie wechat" style="width: 200px; max-width: 100%;"/>
+    <div>我很有眼光！</div>
+</div>
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>就是有钱。。</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/weixin-reward-image.jpg" alt="crossoverJie WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/alipay-reward-image.jpg" alt="crossoverJie Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/拆包/" rel="tag">#拆包</a>
+          
+            <a href="/tags/粘包/" rel="tag">#粘包</a>
+          
+            <a href="/tags/protobuf/" rel="tag">#protobuf</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/07/29/java-senior/ThreadPool/" rel="next" title="如何优雅的使用和理解线程池">
+                <i class="fa fa-chevron-left"></i> 如何优雅的使用和理解线程池
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  <p>热评文章</p>
+  <div class="ds-top-threads" data-range="weekly" data-num-items="4"></div>
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/crossoverjie.jpg"
+               alt="crossoverJie" />
+          <p class="site-author-name" itemprop="name">crossoverJie</p>
+          <p class="site-description motion-element" itemprop="description">You never know what you can do till you try.</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">63</span>
+              <span class="site-state-item-name">posts</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-name">categories</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">71</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/crossoverJie" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.jianshu.com/users/e2d07947c112/latest_articles" target="_blank" title="简书">
+                  
+                    <i class="fa fa-fw fa-book"></i>
+                  
+                  简书
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="https://juejin.im/user/576d4aaf7db2a20054ea4544" target="_blank" title="掘金">
+                  
+                    <i class="fa fa-fw fa-bookmark"></i>
+                  
+                  掘金
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+          <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+            <div class="links-of-blogroll-title">
+              <i class="fa  fa-fw fa-globe"></i>
+              友情链接
+            </div>
+            <ul class="links-of-blogroll-list">
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://wuchong.me" title="Jark's Blog" target="_blank">Jark's Blog</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://tengj.top" title="嘟嘟独立博客" target="_blank">嘟嘟独立博客</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://yemengying.com/" title="Giraffe Home" target="_blank">Giraffe Home</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://blog.jamespan.me/" title="潘小鶸(ruò)" target="_blank">潘小鶸(ruò)</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://fangjian0423.github.io/" title="Format's Notes" target="_blank">Format's Notes</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://yuzhouwan.com/" title="Benedict Jin" target="_blank">Benedict Jin</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="http://blog.didispace.com/" title="程序猿DD" target="_blank">程序猿DD</a>
+                </li>
+              
+                <li class="links-of-blogroll-item">
+                  <a href="https://blog.52itstyle.com/" title="小柒博客" target="_blank">小柒博客</a>
+                </li>
+              
+            </ul>
+          </div>
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#TCP-协议"><span class="nav-number">1.1.</span> <span class="nav-text">TCP 协议</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#字符串拆、粘包"><span class="nav-number">2.</span> <span class="nav-text">字符串拆、粘包</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#利用-LineBasedFrameDecoder-解决问题"><span class="nav-number">2.1.</span> <span class="nav-text">利用 LineBasedFrameDecoder 解决问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LineBasedFrameDecoder-的原理"><span class="nav-number">2.2.</span> <span class="nav-text">LineBasedFrameDecoder 的原理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#高效的编码方式-Google-Protocol"><span class="nav-number">3.</span> <span class="nav-text">高效的编码方式 Google Protocol</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装"><span class="nav-number">3.1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#定义自己的协议格式"><span class="nav-number">3.2.</span> <span class="nav-text">定义自己的协议格式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#结合-Netty"><span class="nav-number">3.3.</span> <span class="nav-text">结合 Netty</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Protocol-拆、粘包"><span class="nav-number">3.4.</span> <span class="nav-text">Protocol 拆、粘包</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#号外"><span class="nav-number">5.</span> <span class="nav-text">号外</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2016 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">crossoverJie</span>
+</div>
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="http://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv"><i class="fa fa-user"></i><span class="busuanzi-value" id="busuanzi_value_site_uv"></span>人数</span>
+  
+
+  
+    <span class="site-pv">您是第<span class="busuanzi-value" id="busuanzi_value_site_pv"></span>位童鞋</span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+    <script type="text/javascript">
+      var disqus_shortname = 'crossoverjie';
+      var disqus_identifier = '2018/08/03/netty/Netty(3)TCP-Sticky/';
+      var disqus_title = "Netty(三) 什么是 TCP 拆、粘包？如何解决？";
+      var disqus_url = 'http://crossoverjie.top/2018/08/03/netty/Netty(3)TCP-Sticky/';
+
+      function run_disqus_script(disqus_script){
+        var dsq = document.createElement('script');
+        dsq.type = 'text/javascript';
+        dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/' + disqus_script;
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+      }
+
+      run_disqus_script('count.js');
+      
+        run_disqus_script('embed.js');
+      
+    </script>
+  
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';                
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+                            
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').mousedown(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("Qv6ckEtL1pe3PJD10qoOLKtg-gzGzoHsz", "NXiHFodQfmI8oxkK6IThhjrF");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+<script type="text/javascript" src="/js/src/particle.js" count="50" zindex="-2" opacity="1" color="0,104,183"></script>
+</body>
+</html>

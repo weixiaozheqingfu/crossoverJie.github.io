@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://crossoverjie.top/"/>
-  <updated>2018-07-29T07:32:28.954Z</updated>
+  <updated>2018-08-05T15:06:23.219Z</updated>
   <id>http://crossoverjie.top/</id>
   
   <author>
@@ -14,6 +14,185 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Netty(三) 什么是 TCP 拆、粘包？如何解决？</title>
+    <link href="http://crossoverjie.top/2018/08/03/netty/Netty(3)TCP-Sticky/"/>
+    <id>http://crossoverjie.top/2018/08/03/netty/Netty(3)TCP-Sticky/</id>
+    <published>2018-08-02T16:01:14.000Z</published>
+    <updated>2018-08-05T15:06:23.219Z</updated>
+    
+    <content type="html"><![CDATA[<p><img src="https://ws3.sinaimg.cn/large/006tKfTcgy1ftuojmzbvxj31kw11xqbq.jpg" alt=""></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>记得前段时间我们生产上的一个网关出现了故障。</p>
+<p>这个网关逻辑非常简单，就是接收客户端的请求然后解析报文最后发送短信。</p>
+<p>但这个请求并不是常见的 HTTP ，而是利用 Netty 自定义的协议。</p>
+<blockquote>
+<p>有个前提是：网关是需要读取一段完整的报文才能进行后面的逻辑。</p>
+</blockquote>
+<p>问题是有天突然发现网关解析报文出错，查看了客户端的发送日志也没发现问题，最后通过日志发现收到了许多<strong>不完整的报文</strong>，有些还多了。</p>
+<p>于是想会不会是 TCP 拆、粘包带来的问题，最后利用 Netty 自带的拆包工具解决了该问题。</p>
+<p>这便有了此文。</p>
+<a id="more"></a>
+<h3 id="TCP-协议"><a href="#TCP-协议" class="headerlink" title="TCP 协议"></a>TCP 协议</h3><p>问题虽然解决了，但还是得想想原因，为啥会这样？打破砂锅问到底才是一个靠谱的程序员。</p>
+<p>这就得从 TCP 这个协议说起了。</p>
+<p>TCP 是一个面向字节流的协议，它是性质是流式的，所以它并没有分段。就像水流一样，你没法知道什么时候开始，什么时候结束。</p>
+<p>所以他会根据当前的套接字缓冲区的情况进行拆包或是粘包。</p>
+<p>下图展示了一个 TCP 协议传输的过程：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNc79ly1ftvolpj17fj30iw09lmyf.jpg" alt=""></p>
+<p>发送端的字节流都会先传入缓冲区，再通过网络传入到接收端的缓冲区中，最终由接收端获取。</p>
+<p>当我们发送两个完整包到接收端的时候：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tNc79gy1ftvtsbmk0kj30wi058q36.jpg" alt=""></p>
+<p>正常情况会接收到两个完整的报文。</p>
+<hr>
+<p>但也有以下的情况：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tNc79gy1ftvtt58yn6j30vs0603yr.jpg" alt=""></p>
+<p>接收到的是一个报文，它是由发送的两个报文组成的，这样对于应用程序来说就很难处理了（这样称为粘包）。</p>
+<hr>
+<p><img src="https://ws4.sinaimg.cn/large/006tNc79gy1ftvtu9t208j30vw0ay755.jpg" alt=""></p>
+<p>还有可能出现上面这样的虽然收到了两个包，但是里面的内容却是互相包含，对于应用来说依然无法解析（拆包）。</p>
+<p>对于这样的问题只能通过上层的应用来解决，常见的方式有：</p>
+<ul>
+<li>在报文末尾增加换行符表明一条完整的消息，这样在接收端可以根据这个换行符来判断消息是否完整。</li>
+<li>将消息分为消息头、消息体。可以在消息头中声明消息的长度，根据这个长度来获取报文（比如 808 协议）。</li>
+<li>规定好报文长度，不足的空位补齐，取的时候按照长度截取即可。</li>
+</ul>
+<p>以上的这些方式我们在 Netty 的 pipline 中里加入对应的解码器都可以手动实现。</p>
+<p>但其实 Netty 已经帮我们做好了，完全可以开箱即用。</p>
+<p>比如：</p>
+<ul>
+<li><code>LineBasedFrameDecoder</code> 可以基于换行符解决。</li>
+<li><code>DelimiterBasedFrameDecoder</code>可基于分隔符解决。</li>
+<li><code>FixedLengthFrameDecoder</code>可指定长度解决。</li>
+</ul>
+<h2 id="字符串拆、粘包"><a href="#字符串拆、粘包" class="headerlink" title="字符串拆、粘包"></a>字符串拆、粘包</h2><p>下面来模拟一下最简单的字符串传输。</p>
+<p>还是在之前的</p>
+<p><a href="https://github.com/crossoverJie/netty-action" target="_blank" rel="external">https://github.com/crossoverJie/netty-action</a></p>
+<p>进行演示。</p>
+<p>在 Netty 客户端中加了一个入口可以循环发送 100 条字符串报文到接收端：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * 向服务端发消息 字符串</div><div class="line"> * <span class="doctag">@param</span> stringReqVO</div><div class="line"> * <span class="doctag">@return</span></div><div class="line"> */</div><div class="line"><span class="meta">@ApiOperation</span>(<span class="string">"客户端发送消息，字符串"</span>)</div><div class="line"><span class="meta">@RequestMapping</span>(value = <span class="string">"sendStringMsg"</span>, method = RequestMethod.POST)</div><div class="line"><span class="meta">@ResponseBody</span></div><div class="line"><span class="function"><span class="keyword">public</span> BaseResponse&lt;NULLBody&gt; <span class="title">sendStringMsg</span><span class="params">(@RequestBody StringReqVO stringReqVO)</span></span>&#123;</div><div class="line">    BaseResponse&lt;NULLBody&gt; res = <span class="keyword">new</span> BaseResponse();</div><div class="line"></div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">100</span>; i++) &#123;</div><div class="line">        heartbeatClient.sendStringMsg(stringReqVO.getMsg()) ;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// 利用 actuator 来自增</span></div><div class="line">    counterService.increment(Constants.COUNTER_CLIENT_PUSH_COUNT);</div><div class="line"></div><div class="line">    SendMsgResVO sendMsgResVO = <span class="keyword">new</span> SendMsgResVO() ;</div><div class="line">    sendMsgResVO.setMsg(<span class="string">"OK"</span>) ;</div><div class="line">    res.setCode(StatusEnum.SUCCESS.getCode()) ;</div><div class="line">    res.setMessage(StatusEnum.SUCCESS.getMessage()) ;</div><div class="line">    <span class="keyword">return</span> res ;</div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"> * 发送消息字符串</div><div class="line"> *</div><div class="line"> * <span class="doctag">@param</span> msg</div><div class="line"> */</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sendStringMsg</span><span class="params">(String msg)</span> </span>&#123;</div><div class="line">    ByteBuf message = Unpooled.buffer(msg.getBytes().length) ;</div><div class="line">    message.writeBytes(msg.getBytes()) ;</div><div class="line">    ChannelFuture future = channel.writeAndFlush(message);</div><div class="line">    future.addListener((ChannelFutureListener) channelFuture -&gt;</div><div class="line">            LOGGER.info(<span class="string">"客户端手动发消息成功=&#123;&#125;"</span>, msg));</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>服务端直接打印即可：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">channelRead0</span><span class="params">(ChannelHandlerContext ctx, String msg)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">    LOGGER.info(<span class="string">"收到msg=&#123;&#125;"</span>, msg);</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>顺便提一下，这里加的有一个字符串的解码器：<code>.addLast(new StringDecoder())</code> 其实就是把消息解析为字符串。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">decode</span><span class="params">(ChannelHandlerContext ctx, ByteBuf msg, List&lt;Object&gt; out)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">    out.add(msg.toString(charset));</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在 Swagger 中调用了客户端的接口用于给服务端发送了 100 次消息：</p>
+<p><img src="https://ws3.sinaimg.cn/large/0069RVTdly1ftxiwdq2zdj31he0dqacr.jpg" alt=""></p>
+<p>正常情况下接收端应该打印 100 次 <code>hello</code> 才对，但是查看日志会发现：</p>
+<p><img src="https://ws1.sinaimg.cn/large/0069RVTdly1ftxixp7kkaj31kw0cb7e1.jpg" alt=""></p>
+<p>收到的内容有完整的、多的、少的、拼接的；这也就对应了上面提到的拆包、粘包。</p>
+<p>该怎么解决呢？这便可采用之前提到的 <code>LineBasedFrameDecoder</code> 利用换行符解决。</p>
+<h3 id="利用-LineBasedFrameDecoder-解决问题"><a href="#利用-LineBasedFrameDecoder-解决问题" class="headerlink" title="利用 LineBasedFrameDecoder 解决问题"></a>利用 LineBasedFrameDecoder 解决问题</h3><p><code>LineBasedFrameDecoder</code> 解码器使用非常简单，只需要在 pipline 链条上添加即可。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//字符串解析,换行防拆包</span></div><div class="line">.addLast(<span class="keyword">new</span> LineBasedFrameDecoder(<span class="number">1024</span>))</div><div class="line">.addLast(<span class="keyword">new</span> StringDecoder())</div></pre></td></tr></table></figure>
+<p>构造函数中传入了 1024 是指报的长度最大不超过这个值，具体可以看下文的源码分析。</p>
+<p>然后我们再进行一次测试看看结果：</p>
+<blockquote>
+<p>注意，由于 LineBasedFrameDecoder 解码器是通过换行符来判断的，所以在发送时，一条完整的消息需要加上 <code>\n</code>。</p>
+</blockquote>
+<p><img src="https://ws1.sinaimg.cn/large/0069RVTdly1ftxp52302uj31i00bagny.jpg" alt=""></p>
+<p>最终的结果：<br><img src="https://ws1.sinaimg.cn/large/0069RVTdly1ftxp3fzejlj31cq0ekdp7.jpg" alt=""></p>
+<p>仔细观察日志，发现确实没有一条被拆、粘包。</p>
+<h3 id="LineBasedFrameDecoder-的原理"><a href="#LineBasedFrameDecoder-的原理" class="headerlink" title="LineBasedFrameDecoder 的原理"></a>LineBasedFrameDecoder 的原理</h3><p>目的达到了，来看看它的实现原理：</p>
+<p><img src="https://ws4.sinaimg.cn/large/0069RVTdly1ftxpq4xn0hj31jg12wgvm.jpg" alt=""></p>
+<ol>
+<li>第一步主要就是 <code>findEndOfLine</code> 方法去找到当前报文中是否存在分隔符，存在就会返回分隔符所在的位置。</li>
+<li>判断是否需要丢弃，默认为 false ，第一次走这个逻辑（下文会判断是否需要改为 true）。</li>
+<li>如果报文中存在换行符，就会将数据截取到那个位置。</li>
+<li>如果不存在换行符（有可能是拆包、粘包），就看当前报文的长度是否大于预设的长度。大于则需要缓存这个报文长度，并将 discarding 设为 true。</li>
+<li>如果是需要丢弃时，判断是否找到了换行符，存在则需要丢弃掉之前记录的长度然后截取数据。</li>
+<li>如果没有找到换行符，则将之前缓存的报文长度进行累加，用于下次抛弃。</li>
+</ol>
+<p>从这个逻辑中可以看出就是寻找报文中是否包含换行符，并进行相应的截取。</p>
+<p>由于是通过缓冲区读取的，所以即使这次没有换行符的数据，只要下一次的报文存在换行符，上一轮的数据也不会丢。</p>
+<h2 id="高效的编码方式-Google-Protocol"><a href="#高效的编码方式-Google-Protocol" class="headerlink" title="高效的编码方式 Google Protocol"></a>高效的编码方式 Google Protocol</h2><p>上面提到的其实就是在解码中进行操作，我们也可以自定义自己的拆、粘包工具。</p>
+<p>编解码的主要目的就是为了可以编码成字节流用于在网络中传输、持久化存储。</p>
+<p>Java 中也可以实现 Serializable 接口来实现序列化，但由于它性能等原因在一些 RPC 调用中用的很少。</p>
+<p>而 <code>Google Protocol</code> 则是一个高效的序列化框架，下面来演示在 Netty 中如何使用。</p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>首先第一步自然是安装：</p>
+<p>在<a href="https://github.com/google/protobuf/releases/tag/v3.6.1" target="_blank" rel="external">官网</a>下载对应的包。</p>
+<p>本地配置环境变量：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcgy1ftynyufs9kj30lk01owgb.jpg" alt=""></p>
+<p>当执行 <code>protoc --version</code> 出现以下结果表明安装成功：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcgy1ftyo0733gxj308d01v3z8.jpg" alt=""></p>
+<h3 id="定义自己的协议格式"><a href="#定义自己的协议格式" class="headerlink" title="定义自己的协议格式"></a>定义自己的协议格式</h3><p>接着是需要按照官方要求的语法定义自己的协议格式。</p>
+<p>比如我这里需要定义一个输入输出的报文格式：</p>
+<p>BaseRequestProto.proto:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">syntax = <span class="string">"proto2"</span>;</div><div class="line"></div><div class="line"><span class="keyword">package</span> protocol;</div><div class="line"></div><div class="line">option java_package = <span class="string">"com.crossoverjie.netty.action.protocol"</span>;</div><div class="line">option java_outer_classname = <span class="string">"BaseRequestProto"</span>;</div><div class="line"></div><div class="line">message RequestProtocol &#123;</div><div class="line">  required int32 requestId = <span class="number">2</span>;</div><div class="line">  required string reqMsg = <span class="number">1</span>;</div><div class="line">  </div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>BaseResponseProto.proto:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">syntax = <span class="string">"proto2"</span>;</div><div class="line"></div><div class="line"><span class="keyword">package</span> protocol;</div><div class="line"></div><div class="line">option java_package = <span class="string">"com.crossoverjie.netty.action.protocol"</span>;</div><div class="line">option java_outer_classname = <span class="string">"BaseResponseProto"</span>;</div><div class="line"></div><div class="line">message ResponseProtocol &#123;</div><div class="line">  required int32 responseId = <span class="number">2</span>;</div><div class="line">  required string resMsg = <span class="number">1</span>;</div><div class="line">  </div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>再通过</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">protoc --java_out=/dev BaseRequestProto.proto BaseResponseProto.proto</div></pre></td></tr></table></figure>
+<p>protoc 命令将刚才定义的协议格式转换为 Java 代码，并生成在 <code>/dev</code> 目录。</p>
+<p>只需要将生成的代码拷贝到我们的项目中，同时引入依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.google.protobuf<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>protobuf-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>3.4.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>利用 Protocol 的编解码也非常简单：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProtocolUtil</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InvalidProtocolBufferException </span>&#123;</div><div class="line">        BaseRequestProto.RequestProtocol protocol = BaseRequestProto.RequestProtocol.newBuilder()</div><div class="line">                .setRequestId(<span class="number">123</span>)</div><div class="line">                .setReqMsg(<span class="string">"你好啊"</span>)</div><div class="line">                .build();</div><div class="line"></div><div class="line">        <span class="keyword">byte</span>[] encode = encode(protocol);</div><div class="line"></div><div class="line">        BaseRequestProto.RequestProtocol parseFrom = decode(encode);</div><div class="line"></div><div class="line">        System.out.println(protocol.toString());</div><div class="line">        System.out.println(protocol.toString().equals(parseFrom.toString()));</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 编码</div><div class="line">     * <span class="doctag">@param</span> protocol</div><div class="line">     * <span class="doctag">@return</span></div><div class="line">     */</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">byte</span>[] encode(BaseRequestProto.RequestProtocol protocol)&#123;</div><div class="line">        <span class="keyword">return</span> protocol.toByteArray() ;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 解码</div><div class="line">     * <span class="doctag">@param</span> bytes</div><div class="line">     * <span class="doctag">@return</span></div><div class="line">     * <span class="doctag">@throws</span> InvalidProtocolBufferException</div><div class="line">     */</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> BaseRequestProto.<span class="function">RequestProtocol <span class="title">decode</span><span class="params">(<span class="keyword">byte</span>[] bytes)</span> <span class="keyword">throws</span> InvalidProtocolBufferException </span>&#123;</div><div class="line">        <span class="keyword">return</span> BaseRequestProto.RequestProtocol.parseFrom(bytes);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>利用 <code>BaseRequestProto</code> 来做一个演示，先编码再解码最后比较最终的结果是否相同。答案肯定是一致的。</p>
+<p>利用 protoc 命令生成的 Java 文件里已经帮我们把编解码全部都封装好了，只需要简单调用就行了。</p>
+<p>可以看出 Protocol 创建对象使用的是构建者模式，对使用者来说清晰易读，更多关于构建器的内容可以参考<a href="https://crossoverjie.top/2018/04/28/sbc/sbc7-Distributed-Limit/#Builder-%E6%9E%84%E5%BB%BA%E5%99%A8">这里</a>。</p>
+<p>更多关于 <code>Google Protocol</code> 内容请查看<a href="https://developers.google.com/protocol-buffers/docs/javatutorial" target="_blank" rel="external">官方开发文档</a>。</p>
+<h3 id="结合-Netty"><a href="#结合-Netty" class="headerlink" title="结合 Netty"></a>结合 Netty</h3><p>Netty 已经自带了对 Google protobuf 的编解码器，也是只需要在 pipline 中添加即可。</p>
+<p>server 端：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// google Protobuf 编解码</span></div><div class="line">.addLast(<span class="keyword">new</span> ProtobufDecoder(BaseRequestProto.RequestProtocol.getDefaultInstance()))</div><div class="line">.addLast(<span class="keyword">new</span> ProtobufEncoder())</div><div class="line">``` </div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line">客户端：</div><div class="line"></div><div class="line">```java</div><div class="line"><span class="comment">// google Protobuf 编解码</span></div><div class="line"></div><div class="line">.addLast(<span class="keyword">new</span> ProtobufDecoder(BaseResponseProto.ResponseProtocol.getDefaultInstance()))</div><div class="line"></div><div class="line">.addLast(<span class="keyword">new</span> ProtobufEncoder())</div></pre></td></tr></table></figure>
+<blockquote>
+<p>稍微注意的是，在构建 ProtobufDecoder 时需要显式指定解码器需要解码成什么类型。</p>
+</blockquote>
+<p>我这里服务端接收的是 BaseRequestProto，客户端收到的是服务端响应的 BaseResponseProto 所以就设置了对应的实例。</p>
+<p>同样的提供了一个接口向服务端发送消息，当服务端收到了一个特殊指令时也会向客户端返回内容：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">channelRead0</span><span class="params">(ChannelHandlerContext ctx, BaseRequestProto.RequestProtocol msg)</span> <span class="keyword">throws</span> Exception </span>&#123;</div><div class="line">    LOGGER.info(<span class="string">"收到msg=&#123;&#125;"</span>, msg.getReqMsg());</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (<span class="number">999</span> == msg.getRequestId())&#123;</div><div class="line">        BaseResponseProto.ResponseProtocol responseProtocol = BaseResponseProto.ResponseProtocol.newBuilder()</div><div class="line">                .setResponseId(<span class="number">1000</span>)</div><div class="line">                .setResMsg(<span class="string">"服务端响应"</span>)</div><div class="line">                .build();</div><div class="line">        ctx.writeAndFlush(responseProtocol) ;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>在 swagger 中调用相关接口：</p>
+<p><img src="https://ws3.sinaimg.cn/large/006tKfTcgy1ftz0bo7ffuj30qx0co40a.jpg" alt=""></p>
+<p>在日志可以看到服务端收到了消息，同时客户端也收到了返回：</p>
+<p><img src="https://ws4.sinaimg.cn/large/006tKfTcgy1ftz0csu6njj31e802jgmo.jpg" alt=""></p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1ftz0d5ts80j31a502v74l.jpg" alt=""></p>
+<p>虽说 Netty 封装了 Google Protobuf 相关的编解码工具，其实查看它的编码工具就会发现也是利用上文提到的 api 实现的。</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcgy1ftz0gpj7tuj30qx06lta6.jpg" alt=""></p>
+<h3 id="Protocol-拆、粘包"><a href="#Protocol-拆、粘包" class="headerlink" title="Protocol 拆、粘包"></a>Protocol 拆、粘包</h3><p>Google Protocol 的使用确实非常简单，但还是有值的注意的地方，比如它依然会有拆、粘包问题。</p>
+<p>不妨模拟一下：</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcgy1ftz0k997gtj30oh09tq5d.jpg" alt=""></p>
+<p>连续发送 100 次消息看服务端收到的怎么样：</p>
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1ftz0tvd2ntj31ek0a8dlt.jpg" alt=""></p>
+<p>会发现服务端在解码的时候报错，其实就是被拆、粘包了。</p>
+<p>这点 Netty 自然也考虑到了，所以已经提供了相关的工具。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//拆包解码</span></div><div class="line">.addLast(<span class="keyword">new</span> ProtobufVarint32FrameDecoder())</div><div class="line">.addLast(<span class="keyword">new</span> ProtobufVarint32LengthFieldPrepender())</div></pre></td></tr></table></figure>
+<p>只需要在服务端和客户端加上这两个编解码工具即可，再来发送一百次试试。</p>
+<p>查看日志发现没有出现一次异常，100 条信息全部都接收到了。</p>
+<p><img src="https://ws2.sinaimg.cn/large/006tKfTcgy1ftz0zjeasxj319r09rwkh.jpg" alt=""></p>
+<p>这个编解码工具可以简单理解为是在消息体中加了一个 32 位长度的整形字段，用于表明当前消息长度。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>网络这块同样是计算机的基础，由于近期在做相关的工作所以接触的比较多，也算是给大学补课了。</p>
+<p>后面会接着更新 Netty 相关的内容，最后会产出一个高性能的 HTTP 以及 RPC 框架，敬请期待。</p>
+<p>上文相关的代码：</p>
+<p><a href="https://github.com/crossoverJie/netty-action" target="_blank" rel="external">https://github.com/crossoverJie/netty-action</a></p>
+<h2 id="号外"><a href="#号外" class="headerlink" title="号外"></a>号外</h2><p>最近在总结一些 Java 相关的知识点，感兴趣的朋友可以一起维护。</p>
+<blockquote>
+<p>地址: <a href="https://github.com/crossoverJie/Java-Interview" target="_blank" rel="external">https://github.com/crossoverJie/Java-Interview</a></p>
+</blockquote>
+<p><strong>欢迎关注公众号一起交流：</strong></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;img src=&quot;https://ws3.sinaimg.cn/large/006tKfTcgy1ftuojmzbvxj31kw11xqbq.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;记得前段时间我们生产上的一个网关出现了故障。&lt;/p&gt;
+&lt;p&gt;这个网关逻辑非常简单，就是接收客户端的请求然后解析报文最后发送短信。&lt;/p&gt;
+&lt;p&gt;但这个请求并不是常见的 HTTP ，而是利用 Netty 自定义的协议。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;有个前提是：网关是需要读取一段完整的报文才能进行后面的逻辑。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;问题是有天突然发现网关解析报文出错，查看了客户端的发送日志也没发现问题，最后通过日志发现收到了许多&lt;strong&gt;不完整的报文&lt;/strong&gt;，有些还多了。&lt;/p&gt;
+&lt;p&gt;于是想会不会是 TCP 拆、粘包带来的问题，最后利用 Netty 自带的拆包工具解决了该问题。&lt;/p&gt;
+&lt;p&gt;这便有了此文。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Netty" scheme="http://crossoverjie.top/categories/Netty/"/>
+    
+    
+      <category term="拆包" scheme="http://crossoverjie.top/tags/%E6%8B%86%E5%8C%85/"/>
+    
+      <category term="粘包" scheme="http://crossoverjie.top/tags/%E7%B2%98%E5%8C%85/"/>
+    
+      <category term="protobuf" scheme="http://crossoverjie.top/tags/protobuf/"/>
+    
+  </entry>
   
   <entry>
     <title>如何优雅的使用和理解线程池</title>
@@ -676,9 +855,9 @@
     
       <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
     
-      <category term="concurrent" scheme="http://crossoverjie.top/tags/concurrent/"/>
-    
       <category term="Thread" scheme="http://crossoverjie.top/tags/Thread/"/>
+    
+      <category term="concurrent" scheme="http://crossoverjie.top/tags/concurrent/"/>
     
       <category term="JVM" scheme="http://crossoverjie.top/tags/JVM/"/>
     
@@ -2434,9 +2613,9 @@
     
       <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
     
-      <category term="concurrent" scheme="http://crossoverjie.top/tags/concurrent/"/>
-    
       <category term="Thread" scheme="http://crossoverjie.top/tags/Thread/"/>
+    
+      <category term="concurrent" scheme="http://crossoverjie.top/tags/concurrent/"/>
     
   </entry>
   
@@ -2541,88 +2720,6 @@
       <category term="volatile" scheme="http://crossoverjie.top/tags/volatile/"/>
     
       <category term="concurrent" scheme="http://crossoverjie.top/tags/concurrent/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>LinkedHashMap 底层分析</title>
-    <link href="http://crossoverjie.top/2018/02/06/LinkedHashMap/"/>
-    <id>http://crossoverjie.top/2018/02/06/LinkedHashMap/</id>
-    <published>2018-02-06T15:01:36.000Z</published>
-    <updated>2018-03-19T05:04:40.000Z</updated>
-    
-    <content type="html"><![CDATA[<p><img src="https://ws2.sinaimg.cn/large/006tNc79ly1fo6w785brkj31g80ytjx5.jpg" alt=""></p>
-<p>众所周知 <a href="https://github.com/crossoverJie/Java-Interview/blob/master/MD/HashMap.md" target="_blank" rel="external">HashMap</a> 是一个无序的 <code>Map</code>，因为每次根据 <code>key</code> 的 <code>hashcode</code> 映射到 <code>Entry</code> 数组上，所以遍历出来的顺序并不是写入的顺序。</p>
-<p>因此 JDK 推出一个基于 <code>HashMap</code> 但具有顺序的 <code>LinkedHashMap</code> 来解决有排序需求的场景。</p>
-<p>它的底层是继承于 <code>HashMap</code> 实现的，由一个双向链表所构成。</p>
-<p><code>LinkedHashMap</code> 的排序方式有两种：</p>
-<ul>
-<li>根据写入顺序排序。</li>
-<li>根据访问顺序排序。</li>
-</ul>
-<p>其中根据访问顺序排序时，每次 <code>get</code> 都会将访问的值移动到链表末尾，这样重复操作就能的到一个按照访问顺序排序的链表。</p>
-<a id="more"></a>
-<h2 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Test</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test</span><span class="params">()</span></span>&#123;</div><div class="line">	Map&lt;String, Integer&gt; map = <span class="keyword">new</span> LinkedHashMap&lt;String, Integer&gt;();</div><div class="line">	map.put(<span class="string">"1"</span>,<span class="number">1</span>) ;</div><div class="line">	map.put(<span class="string">"2"</span>,<span class="number">2</span>) ;</div><div class="line">	map.put(<span class="string">"3"</span>,<span class="number">3</span>) ;</div><div class="line">	map.put(<span class="string">"4"</span>,<span class="number">4</span>) ;</div><div class="line">	map.put(<span class="string">"5"</span>,<span class="number">5</span>) ;</div><div class="line">	System.out.println(map.toString());</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>调试可以看到 <code>map</code> 的组成：</p>
-<p><img src="https://ws2.sinaimg.cn/large/006tKfTcly1fo6l9xp91lj319m0s4tgi.jpg" alt=""></p>
-<p>打开源码可以看到：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * The head of the doubly linked list.</div><div class="line"> */</div><div class="line"><span class="keyword">private</span> <span class="keyword">transient</span> Entry&lt;K,V&gt; header;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"> * The iteration ordering method for this linked hash map: &lt;tt&gt;true&lt;/tt&gt;</div><div class="line"> * for access-order, &lt;tt&gt;false&lt;/tt&gt; for insertion-order.</div><div class="line"> *</div><div class="line"> * <span class="doctag">@serial</span></div><div class="line"> */</div><div class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">boolean</span> accessOrder;</div><div class="line"></div><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Entry</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; <span class="keyword">extends</span> <span class="title">HashMap</span>.<span class="title">Entry</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; </span>&#123;</div><div class="line">    <span class="comment">// These fields comprise the doubly linked list used for iteration.</span></div><div class="line">    Entry&lt;K,V&gt; before, after;</div><div class="line"></div><div class="line">    Entry(<span class="keyword">int</span> hash, K key, V value, HashMap.Entry&lt;K,V&gt; next) &#123;</div><div class="line">        <span class="keyword">super</span>(hash, key, value, next);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>其中 <code>Entry</code> 继承于 <code>HashMap</code> 的 <code>Entry</code>，并新增了上下节点的指针，也就形成了双向链表。</p>
-<p>还有一个 <code>header</code> 的成员变量，是这个双向链表的头结点。 </p>
-<p>上边的 demo 总结成一张图如下：</p>
-<p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1fodggwc523j30za0n4wgj.jpg" alt=""></p>
-<p>第一个类似于 <code>HashMap</code> 的结构，利用 <code>Entry</code> 中的 <code>next</code> 指针进行关联。</p>
-<p>下边则是 <code>LinkedHashMap</code> 如何达到有序的关键。</p>
-<p>就是利用了头节点和其余的各个节点之间通过 <code>Entry</code> 中的 <code>after</code> 和 <code>before</code> 指针进行关联。</p>
-<p>其中还有一个 <code>accessOrder</code> 成员变量，默认是 <code>false</code>，默认按照插入顺序排序，为 <code>true</code> 时按照访问顺序排序，也可以调用:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">public LinkedHashMap(int initialCapacity,</div><div class="line">                     float loadFactor,</div><div class="line">                     boolean accessOrder) &#123;</div><div class="line">    super(initialCapacity, loadFactor);</div><div class="line">    this.accessOrder = accessOrder;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>这个构造方法可以显示的传入 <code>accessOrder</code>。</p>
-<h2 id="构造方法"><a href="#构造方法" class="headerlink" title="构造方法"></a>构造方法</h2><p><code>LinkedHashMap</code> 的构造方法:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">LinkedHashMap</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">super</span>();</div><div class="line">    accessOrder = <span class="keyword">false</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>其实就是调用的 <code>HashMap</code> 的构造方法:</p>
-<p><code>HashMap</code> 实现：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">HashMap</span><span class="params">(<span class="keyword">int</span> initialCapacity, <span class="keyword">float</span> loadFactor)</span> </span>&#123;</div><div class="line">    <span class="keyword">if</span> (initialCapacity &lt; <span class="number">0</span>)</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Illegal initial capacity: "</span> +</div><div class="line">                                           initialCapacity);</div><div class="line">    <span class="keyword">if</span> (initialCapacity &gt; MAXIMUM_CAPACITY)</div><div class="line">        initialCapacity = MAXIMUM_CAPACITY;</div><div class="line">    <span class="keyword">if</span> (loadFactor &lt;= <span class="number">0</span> || Float.isNaN(loadFactor))</div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Illegal load factor: "</span> +</div><div class="line">                                           loadFactor);</div><div class="line"></div><div class="line">    <span class="keyword">this</span>.loadFactor = loadFactor;</div><div class="line">    threshold = initialCapacity;</div><div class="line">    <span class="comment">//HashMap 只是定义了改方法，具体实现交给了 LinkedHashMap</span></div><div class="line">    init();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>可以看到里面有一个空的 <code>init()</code>，具体是由 <code>LinkedHashMap</code> 来实现的：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> </span>&#123;</div><div class="line">    header = <span class="keyword">new</span> Entry&lt;&gt;(-<span class="number">1</span>, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">null</span>);</div><div class="line">    header.before = header.after = header;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>其实也就是对 <code>header</code> 进行了初始化。</p>
-<h2 id="put-方法"><a href="#put-方法" class="headerlink" title="put 方法"></a>put 方法</h2><p>看 <code>LinkedHashMap</code> 的 <code>put()</code> 方法之前先看看 <code>HashMap</code> 的 <code>put</code> 方法：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line">public V put(K key, V value) &#123;</div><div class="line">    if (table == EMPTY_TABLE) &#123;</div><div class="line">        inflateTable(threshold);</div><div class="line">    &#125;</div><div class="line">    if (key == null)</div><div class="line">        return putForNullKey(value);</div><div class="line">    int hash = hash(key);</div><div class="line">    int i = indexFor(hash, table.length);</div><div class="line">    for (Entry&lt;K,V&gt; e = table[i]; e != null; e = e.next) &#123;</div><div class="line">        Object k;</div><div class="line">        if (e.hash == hash &amp;&amp; ((k = e.key) == key || key.equals(k))) &#123;</div><div class="line">            V oldValue = e.value;</div><div class="line">            e.value = value;</div><div class="line">            //空实现，交给 LinkedHashMap 自己实现</div><div class="line">            e.recordAccess(this);</div><div class="line">            return oldValue;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    modCount++;</div><div class="line">    // LinkedHashMap 对其重写</div><div class="line">    addEntry(hash, key, value, i);</div><div class="line">    return null;</div><div class="line">&#125;</div><div class="line"></div><div class="line">// LinkedHashMap 对其重写</div><div class="line">void addEntry(int hash, K key, V value, int bucketIndex) &#123;</div><div class="line">    if ((size &gt;= threshold) &amp;&amp; (null != table[bucketIndex])) &#123;</div><div class="line">        resize(2 * table.length);</div><div class="line">        hash = (null != key) ? hash(key) : 0;</div><div class="line">        bucketIndex = indexFor(hash, table.length);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    createEntry(hash, key, value, bucketIndex);</div><div class="line">&#125;</div><div class="line"></div><div class="line">// LinkedHashMap 对其重写</div><div class="line">void createEntry(int hash, K key, V value, int bucketIndex) &#123;</div><div class="line">    Entry&lt;K,V&gt; e = table[bucketIndex];</div><div class="line">    table[bucketIndex] = new Entry&lt;&gt;(hash, key, value, e);</div><div class="line">    size++;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>主体的实现都是借助于 <code>HashMap</code> 来完成的，只是对其中的 <code>recordAccess(), addEntry(), createEntry()</code> 进行了重写。</p>
-<p><code>LinkedHashMap</code> 的实现：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line">    <span class="comment">//就是判断是否是根据访问顺序排序，如果是则需要将当前这个 Entry 移动到链表的末尾</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">recordAccess</span><span class="params">(HashMap&lt;K,V&gt; m)</span> </span>&#123;</div><div class="line">        LinkedHashMap&lt;K,V&gt; lm = (LinkedHashMap&lt;K,V&gt;)m;</div><div class="line">        <span class="keyword">if</span> (lm.accessOrder) &#123;</div><div class="line">            lm.modCount++;</div><div class="line">            remove();</div><div class="line">            addBefore(lm.header);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    </div><div class="line"><span class="comment">//调用了 HashMap 的实现，并判断是否需要删除最少使用的 Entry(默认不删除)    </span></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">addEntry</span><span class="params">(<span class="keyword">int</span> hash, K key, V value, <span class="keyword">int</span> bucketIndex)</span> </span>&#123;</div><div class="line">    <span class="keyword">super</span>.addEntry(hash, key, value, bucketIndex);</div><div class="line"></div><div class="line">    <span class="comment">// Remove eldest entry if instructed</span></div><div class="line">    Entry&lt;K,V&gt; eldest = header.after;</div><div class="line">    <span class="keyword">if</span> (removeEldestEntry(eldest)) &#123;</div><div class="line">        removeEntryForKey(eldest.key);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">createEntry</span><span class="params">(<span class="keyword">int</span> hash, K key, V value, <span class="keyword">int</span> bucketIndex)</span> </span>&#123;</div><div class="line">    HashMap.Entry&lt;K,V&gt; old = table[bucketIndex];</div><div class="line">    Entry&lt;K,V&gt; e = <span class="keyword">new</span> Entry&lt;&gt;(hash, key, value, old);</div><div class="line">    <span class="comment">//就多了这一步，将新增的 Entry 加入到 header 双向链表中</span></div><div class="line">    table[bucketIndex] = e;</div><div class="line">    e.addBefore(header);</div><div class="line">    size++;</div><div class="line">&#125;</div><div class="line"></div><div class="line">    <span class="comment">//写入到双向链表中</span></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">addBefore</span><span class="params">(Entry&lt;K,V&gt; existingEntry)</span> </span>&#123;</div><div class="line">        after  = existingEntry;</div><div class="line">        before = existingEntry.before;</div><div class="line">        before.after = <span class="keyword">this</span>;</div><div class="line">        after.before = <span class="keyword">this</span>;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
-<h2 id="get-方法"><a href="#get-方法" class="headerlink" title="get 方法"></a>get 方法</h2><p>LinkedHashMap 的 <code>get()</code> 方法也重写了：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> V <span class="title">get</span><span class="params">(Object key)</span> </span>&#123;</div><div class="line">    Entry&lt;K,V&gt; e = (Entry&lt;K,V&gt;)getEntry(key);</div><div class="line">    <span class="keyword">if</span> (e == <span class="keyword">null</span>)</div><div class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">        </div><div class="line">    <span class="comment">//多了一个判断是否是按照访问顺序排序，是则将当前的 Entry 移动到链表头部。</span></div><div class="line">    e.recordAccess(<span class="keyword">this</span>);</div><div class="line">    <span class="keyword">return</span> e.value;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">void</span> <span class="title">recordAccess</span><span class="params">(HashMap&lt;K,V&gt; m)</span> </span>&#123;</div><div class="line">    LinkedHashMap&lt;K,V&gt; lm = (LinkedHashMap&lt;K,V&gt;)m;</div><div class="line">    <span class="keyword">if</span> (lm.accessOrder) &#123;</div><div class="line">        lm.modCount++;</div><div class="line">        </div><div class="line">        <span class="comment">//删除</span></div><div class="line">        remove();</div><div class="line">        <span class="comment">//添加到头部</span></div><div class="line">        addBefore(lm.header);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p><code>clear()</code> 清空就要比较简单了：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//只需要把指针都指向自己即可，原本那些 Entry 没有引用之后就会被 JVM 自动回收。</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">clear</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">super</span>.clear();</div><div class="line">    header.before = header.after = header;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总的来说 <code>LinkedHashMap</code> 其实就是对 <code>HashMap</code> 进行了拓展，使用了双向链表来保证了顺序性。</p>
-<p>因为是继承与 <code>HashMap</code> 的，所以一些 <code>HashMap</code> 存在的问题 <code>LinkedHashMap</code> 也会存在，比如不支持并发等。</p>
-<h2 id="号外"><a href="#号外" class="headerlink" title="号外"></a>号外</h2><p>最近在总结一些 Java 相关的知识点，感兴趣的朋友可以一起维护。</p>
-<blockquote>
-<p>地址: <a href="https://github.com/crossoverJie/Java-Interview" target="_blank" rel="external">https://github.com/crossoverJie/Java-Interview</a></p>
-</blockquote>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;&lt;img src=&quot;https://ws2.sinaimg.cn/large/006tNc79ly1fo6w785brkj31g80ytjx5.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;众所周知 &lt;a href=&quot;https://github.com/crossoverJie/Java-Interview/blob/master/MD/HashMap.md&quot;&gt;HashMap&lt;/a&gt; 是一个无序的 &lt;code&gt;Map&lt;/code&gt;，因为每次根据 &lt;code&gt;key&lt;/code&gt; 的 &lt;code&gt;hashcode&lt;/code&gt; 映射到 &lt;code&gt;Entry&lt;/code&gt; 数组上，所以遍历出来的顺序并不是写入的顺序。&lt;/p&gt;
-&lt;p&gt;因此 JDK 推出一个基于 &lt;code&gt;HashMap&lt;/code&gt; 但具有顺序的 &lt;code&gt;LinkedHashMap&lt;/code&gt; 来解决有排序需求的场景。&lt;/p&gt;
-&lt;p&gt;它的底层是继承于 &lt;code&gt;HashMap&lt;/code&gt; 实现的，由一个双向链表所构成。&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;LinkedHashMap&lt;/code&gt; 的排序方式有两种：&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;根据写入顺序排序。&lt;/li&gt;
-&lt;li&gt;根据访问顺序排序。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;其中根据访问顺序排序时，每次 &lt;code&gt;get&lt;/code&gt; 都会将访问的值移动到链表末尾，这样重复操作就能的到一个按照访问顺序排序的链表。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Java 进阶" scheme="http://crossoverjie.top/categories/Java-%E8%BF%9B%E9%98%B6/"/>
-    
-    
-      <category term="Java" scheme="http://crossoverjie.top/tags/Java/"/>
-    
-      <category term="LinkedHashMap" scheme="http://crossoverjie.top/tags/LinkedHashMap/"/>
     
   </entry>
   

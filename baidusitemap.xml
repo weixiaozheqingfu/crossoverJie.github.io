@@ -4,6 +4,30 @@
 
     
   <url>
+    <loc>http://crossoverjie.top/2018/08/03/netty/Netty(3)TCP-Sticky/</loc>
+    <lastmod>2018-08-05T15:06:23.219Z</lastmod>
+    <data>
+        <display>
+        <title>Netty(三) 什么是 TCP 拆、粘包？如何解决？</title>
+        <pubTime>2018-08-02T16:01:14.000Z</pubTime>
+        
+        <tag>拆包</tag>
+         
+        <tag>粘包</tag>
+         
+        <tag>protobuf</tag>
+         
+         
+           
+             
+              <breadCrumb title="Netty" url="http://crossoverjie.top/categories/Netty/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://crossoverjie.top/2018/07/29/java-senior/ThreadPool/</loc>
     <lastmod>2018-07-29T07:32:28.954Z</lastmod>
     <data>
@@ -151,9 +175,9 @@
         
         <tag>Java</tag>
          
-        <tag>concurrent</tag>
-         
         <tag>Thread</tag>
+         
+        <tag>concurrent</tag>
          
         <tag>JVM</tag>
          
@@ -483,9 +507,9 @@
         
         <tag>Java</tag>
          
-        <tag>concurrent</tag>
-         
         <tag>Thread</tag>
+         
+        <tag>concurrent</tag>
          
          
            
